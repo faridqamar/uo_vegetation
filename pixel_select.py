@@ -26,20 +26,18 @@ while(1):
 			break
 		else:
 			print("")			
-			print("ERROR: The class type selected is invalid please try again")
+			print("ERROR: The class type selected is invalid! Try again")
 	except ValueError:
 		print("")
-		print("ERROR: The class type selected is invalid please try again")
+		print("ERROR: The class type selected is invalid! Try again")
 			 
 filename = "./" + classType[class_type] + "_coordinates.txt"
 xcoord = []
 ycoord = []
 
 def draw_circle(event, x, y, flags, param):
-	#global mouseX, mouseY
 	if event == cv2.EVENT_LBUTTONDOWN:
 		cv2.circle(img, (x, y), 1, (255, 0, 0), -1)
-		#mouseX, mouseY = x, y
 		xcoord.append(x)
 		ycoord.append(y)
 		print("(%d, %d)" %(x, y))
@@ -51,12 +49,25 @@ cv2.setMouseCallback('./output/scene_RGB_00108.png', draw_circle)
 while(1):
 	cv2.imshow('./output/scene_RGB_00108.png', img)
 	k = cv2.waitKey(20) & 0xFF
+	# if 10 coordinates are selected, print them to file
+	if len(xcoord) == 10:
+		print("10 coordinates selected")
+		print("Printing coordinate list to file %s" %filename)
+		f = open(filename, "a+")
+		for i in range(len(xcoord)):
+			f.write("%d %d\n" %(xcoord[i], ycoord[i]))
+		f.close()
+		print("%d coordinates successfully written to file %s" %(len(xcoord), filename))
+		xcoord = []
+		ycoord = []
+	# to exit click the Esc button, any selected pixels will be added to the file
 	if k == 27:
 		print("Printing coordinate list to file %s" %filename)
 		f = open(filename, "a+")
 		for i in range(len(xcoord)):
 			f.write("%d %d\n" %(xcoord[i], ycoord[i]))
 		f.close()
+		print("%d coordinates successfully written to file %s" %(len(xcoord), filename))
 		break
 	#elif k == ord('a'):
 	#	print(mouseX, mouseY)
