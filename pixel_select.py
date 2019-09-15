@@ -2,7 +2,6 @@
 
 import numpy as np
 import cv2
-import json
 
 val = 0
 classType = ['sky', 'vegetation', 'built']
@@ -32,6 +31,16 @@ while(1):
 		print("ERROR: The class type selected is invalid! Try again")
 			 
 filename = "./" + classType[class_type] + "_coordinates.txt"
+try:
+	f = open(filename, "r")
+	f1 = f.readlines()
+	print("---")
+	print("There are currently %d coordinates already in file %s" %(len(f1), filename))
+	f.close()
+	print("---")
+except FileNotFoundError:
+	print("---")
+
 xcoord = []
 ycoord = []
 
@@ -42,14 +51,16 @@ def draw_circle(event, x, y, flags, param):
 		ycoord.append(y)
 		print("(%d, %d)" %(x, y))
 
+# read image
 img = cv2.imread('./output/scene_RGB_00108.png')
 cv2.namedWindow('./output/scene_RGB_00108.png')
 cv2.setMouseCallback('./output/scene_RGB_00108.png', draw_circle)
 
+# open image and begin selecting pixels
 while(1):
 	cv2.imshow('./output/scene_RGB_00108.png', img)
 	k = cv2.waitKey(20) & 0xFF
-	# if 10 coordinates are selected, print them to file
+	# if 10 pixels are selected, print them to file
 	if len(xcoord) == 10:
 		print("10 coordinates selected")
 		print("Printing coordinate list to file %s" %filename)
