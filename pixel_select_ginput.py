@@ -49,15 +49,16 @@ ycoord = []
 img = mpimg.imread('./output/scene_RGB_00108.png')
 
 xpixels, ypixels = 1600, 1600
-fig = plt.figure(figsize=(20, 10), dpi=80)
+fig = plt.figure(figsize=(10, 5), dpi=80)
 ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
 ax.imshow(img, interpolation='none', aspect=0.5)
 
 def onclick(event):
-	if event.dblclick:
-		fig, ax = plt.subplots()
-		circle = plt.Circle((event.xdata, event.ydata), 10, color='blue')
-		ax.add_patch(circle)
+    if event.dblclick:
+        circle = plt.Circle((event.xdata, event.ydata), 10,
+                    color='blue')
+        ax.add_patch(circle)
+        fig.canvas.draw()
 
 cid = fig.canvas.mpl_connect('button_press_event', onclick)
 plt.show()
