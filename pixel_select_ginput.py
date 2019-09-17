@@ -53,13 +53,20 @@ fig = plt.figure(figsize=(10, 5), dpi=80)
 ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
 ax.imshow(img, interpolation='none', aspect=0.5)
 
+def loc_to_rowcol(xloc, yloc):
+    cind = int(round(xloc))
+    rind = int(round(yloc))
+
+    return rind, cind
+
+
 def onclick(event):
     if event.dblclick:
-        circle = plt.Circle((event.xdata, event.ydata), 10,
-                    color='blue')
+        circle = plt.Circle((event.xdata, event.ydata), 10, color='blue')
         ax.add_patch(circle)
         fig.canvas.draw()
-
+        print(loc_to_rowcol(event.xdata, event.ydata))
+        
 cid = fig.canvas.mpl_connect('button_press_event', onclick)
 plt.show()
 
