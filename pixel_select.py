@@ -6,7 +6,7 @@ import matplotlib.image as mpimg
 
 val = 0
 classType = ['sky', 'vegetation', 'built']
-
+numLines = 0
 
 def getClassType(val, classType):
 	classType = ['sky', 'vegetation', 'built']
@@ -37,8 +37,9 @@ filename = "./" + classType[class_type] + "_coordinates.txt"
 try:
 	f = open(filename, "r")
 	f1 = f.readlines()
+	numLines = len(f1)
 	print("---")
-	print("There are currently %d coordinates already in file %s" %(len(f1), filename))
+	print("There are currently %d coordinates already in file %s" %(numLines, filename))
 	f.close()
 	print("---")
 except FileNotFoundError:
@@ -46,11 +47,13 @@ except FileNotFoundError:
 
 
 img = mpimg.imread('./output/scene_RGB_00108.png')
+rgb = img.copy()
+rgb /= rgb.mean((0, 1), keepdims=True)
 
 xpixels, ypixels = 1600, 1600
 fig = plt.figure(figsize=(10, 5), dpi=80)
 ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
-ax.imshow(img, interpolation='none', aspect=0.5)
+ax.imshow(rgb, interpolation='none', aspect=0.5)
 
 
 def onclick(event):
@@ -61,7 +64,9 @@ def onclick(event):
 
         cind = int(round(event.xdata))
         rind = int(round(event.ydata))
-        print("(%d, %d)" % (rind, cind))
+        global numLines
+        numLines += 1
+        print("%d: (%d, %d)" % (numLines, rind, cind))
 
         f = open(filename, "a+")
         f.write("%d %d\n" % (rind, cind))
