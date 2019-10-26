@@ -33,7 +33,7 @@ while(1):
 		print("")
 		print("ERROR: The class type selected is invalid! Try again")
 			 
-filename = "./" + classType[class_type] + "_coordinates.txt"
+filename = "./" + classType[class_type] + "_coordinates_000.txt"
 try:
 	f = open(filename, "r")
 	f1 = f.readlines()
@@ -46,7 +46,7 @@ except FileNotFoundError:
 	print("---")
 
 
-img = mpimg.imread('./output/scene_RGB_00108.png')
+img = mpimg.imread('./output/scene_RGB_00000.png')
 rgb = img.copy()
 rgb /= rgb.mean((0, 1), keepdims=True)
 
