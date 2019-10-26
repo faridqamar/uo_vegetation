@@ -46,7 +46,7 @@ except FileNotFoundError:
 	print("---")
 
 
-img = mpimg.imread('./output/scene_RGB_00000.png')
+img = mpimg.imread('./output/scene_RGB_corrected_00000.png')
 #rgb = img.copy()
 #rgb /= rgb.mean((0, 1), keepdims=True)
 
