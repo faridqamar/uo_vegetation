@@ -47,14 +47,14 @@ except FileNotFoundError:
 
 
 img = mpimg.imread('./output/scene_RGB_00000.png')
-rgb = img.copy()
-rgb /= rgb.mean((0, 1), keepdims=True)
+#rgb = img.copy()
+#rgb /= rgb.mean((0, 1), keepdims=True)
 
 xpixels, ypixels = 1600, 1600
 fig = plt.figure(figsize=(10, 5), dpi=80)
 ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
-ax.imshow(rgb, interpolation='none', aspect=0.5)
-
+#ax.imshow(rgb, interpolation='none', aspect=0.5)
+ax.imshow(img, interpolation='none', aspect=0.5)
 
 def onclick(event):
     if event.dblclick:
