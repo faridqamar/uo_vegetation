@@ -56,8 +56,8 @@ while(1):
 		print("ERROR: The class type selected is invalid! Try again")
 			 
 #filename = "./manual_classified_pixels/" + str(val+1) +"_" + classType[class_type] + "_coordinates_108.txt"
-filename = "./manual_classified_pixels/" + str(val+1) +"_" + classType[class_type] + "_coordinates_000.txt"
-#filename = "./manual_classified_pixels/" + str(val+1) +"_" + classType[class_type] + "_coordinates_north.txt"
+#filename = "./manual_classified_pixels/" + str(val+1) +"_" + classType[class_type] + "_coordinates_000.txt"
+filename = "./manual_classified_pixels/" + str(val+1) +"_" + classType[class_type] + "_coordinates_north.txt"
 try:
 	f = open(filename, "r")
 	f1 = f.readlines()
@@ -71,14 +71,13 @@ except FileNotFoundError:
 
 
 #img = mpimg.imread('./output/scene_RGB_00108.png')
-img = mpimg.imread('./output/scene_RGB_00000.png')
-#img = mpimg.imread('./output/scene_RGB_gimp_corrected_north.png')
+#img = mpimg.imread('./output/scene_RGB_00000.png')
+img = mpimg.imread('./output/scene_RGB_gimp_corrected_north.png')
 
-xpixels, ypixels = 1600, 1600	# for south facing images
-#xpixels, ypixels = 1247, 1600	# for north facing images
+#xpixels, ypixels = 1600, 1600	# for south facing images
+xpixels, ypixels = 1247, 1600	# for north facing images
 fig = plt.figure(figsize=(20, 10), dpi=80)
 ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
-#ax.imshow(rgb, interpolation='none', aspect=0.5)
 ax.imshow(img, interpolation='none', aspect=0.5)
 
 def onclick(event):
