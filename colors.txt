@@ -1,0 +1,10 @@
+colors = ([0,0.32549,0.62353,1], #sky: UD blue
+          [0.93333,0.9098,0.77255,1],#clouds: UD beige
+          [0,0.61961,0.45098,1],  #veg: bluish green
+          [0.33725,0.70588,0.91373,1], #water: sky blue
+          [0,0,0,1], #built: black
+          [1,0.82353,0,1],#windows: UD Gold
+          [0.90196,0.62353,0,1],  #roads: orange
+          [0.83529,0.36863,0,1],   #cars: vermillion
+          [0.8,0.47451,0.65490,1]       #metal: reddish purple
+         )
