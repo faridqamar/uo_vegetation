@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # setup array with the total number of channels (each bin contains 848/#channels)
 #channels = np.array([848, 424, 283, 212, 170, 142, 122, 106, 85, 53, 22])
-channels = np.array([848, 424, 283, 212, 170, 142, 122])
+channels = np.array([848, 424, 283, 212, 170, 142, 122, 106])
 
 testimage = ['108', '000', 'north']
 
@@ -50,5 +50,5 @@ for testim in testimage:
         f.close()
 
 print(accuracy)
-print(avg_prec)
-print(avg_recall)
+print(veg_prec)
+print(veg_recall)
