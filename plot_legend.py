@@ -2,12 +2,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 font = {'family' : 'DejaVu Sans',
-        'weight' : 'normal',
+        'weight' : 'bold',
        'size' : 20}
 matplotlib.rc('font', **font)
  
-labels = ['sky', 'clouds','vegetation', 'water', 'built',
-          'windows', 'roads', 'cars', 'metal']
+labels = ['Sky', 'Clouds','Vegetation', 'Water', 'Built',
+          'Windows', 'Roads', 'Cars', 'Metal']
 
 colors = [[0,0.32549,0.62353,1], [0.93333,0.9098,0.77255,1], [0,0.61961,0.45098,1],  [0.33725,0.70588,0.91373,1],
         [0,0,0,1], [1,0.82353,0,1], [0.90196,0.62353,0,1], [0.83529,0.36863,0,1], [0.8,0.47451,0.65490,1]]
