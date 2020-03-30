@@ -12,7 +12,8 @@ Confusion Matrix
 Accuracy Score
 0.8984375
 
-Classification Report             precision    recall  f1-score   support
+Classification Report
+             precision    recall  f1-score   support
 
         sky       1.00      1.00      1.00        60
      clouds       1.00      1.00      1.00       100
