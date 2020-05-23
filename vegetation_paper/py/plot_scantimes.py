@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # -- get some ancillary data
-sc     = pd.read_csv("../gdobler_output/output/scan_conditions.csv")
-good   = np.array([int(i) for i in np.load("../gdobler_output/output/good_scans.npy")])
+sc     = pd.read_csv("../../../gdobler_output/output/scan_conditions.csv")
+good   = np.array([int(i) for i in np.load("../../../gdobler_output/output/good_scans.npy")])
 sc_sub = sc[sc.filename.isin(["veg_{0:05}.raw".format(i) for i in good])]
 
 temps = sc_sub.temperature.values
@@ -38,11 +38,11 @@ tstr = ["{0} {1:02}".format("May",i) for i in range(1,32)] + \
 tsec = [float(datetime.strptime("2016 "+i,"%Y %b %d").strftime("%s")) 
         for i in tstr]
 
-clr = plt.cm.jet((humid-humid.min())/(humid-humid.min()).max())
+clr = plt.cm.cool((humid-humid.min())/(humid-humid.min()).max())
 fig, ax = plt.subplots(figsize=[10,2])
 fig.subplots_adjust(0.05,0.35,0.95,0.85)
 fig.set_facecolor("w")
-ax.set_axis_bgcolor("#EEEEEE")
+ax.set_facecolor("#EEEEEE")
 ax.set_yticklabels("")
 ax.set_xlim(tsec[0],tsec[-1])
 for ii,sec in enumerate(secs):
@@ -60,11 +60,11 @@ ax.text(xr[1],yr[1]+0.02*(yr[1]-yr[0]),"{0} total scans".format(secs.size),
 cb = fig.add_axes((0.25,0.05,0.5,0.1))
 cb.set_xticklabels("")
 cb.set_yticklabels("")
-cb.imshow(np.arange(100).reshape(2,50) % 50,"jet")
+cb.imshow(np.arange(100).reshape(2,50) % 50,"cool")
 fig.text(0.245,0.05,"18%",ha="right",va="bottom")
 fig.text(0.755,0.05,"99%",ha="left",va="bottom")
 fig.text(0.5,0.05,"Humidity",ha="center",va="bottom")
 fig.canvas.draw()
-fig.savefig("../output/scan_times.pdf", clobber=True)
-fig.savefig("../output/scan_times.png", clobber=True)
-fig.savefig("../output/scan_times.eps", clobber=True)
+fig.savefig("../farid_output/scan_times.pdf", clobber=True)
+fig.savefig("../farid_output/scan_times.png", clobber=True)
+fig.savefig("../farid_output/scan_times.eps", clobber=True)
