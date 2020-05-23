@@ -7,6 +7,8 @@ import hyss_util as hu
 from datetime import datetime
 from sklearn.decomposition import PCA, FactorAnalysis, FastICA
 from plotting import set_defaults
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # -- plotting defaults
 set_defaults()
@@ -28,18 +30,18 @@ getndvi = False
 #def analyze_specs(kind="veg",comp="bld"):
 
 # -- get wavelengths
-waves = hu.read_header("../data/veg_00000.hdr")["waves"]
+waves = hu.read_header("../../../image_files/veg_00000.hdr")["waves"]
 
 # -- define good scans
-good = np.array([int(i) for i in np.load("../output/good_scans.npy")]) 
+good = np.array([int(i) for i in np.load("../../../gdobler_output/output/good_scans.npy")]) 
 
 # -- load the comparison set
 print("getting {0} spectra...".format(comp))
 try:
-    blds = np.load("../output/blds_right.npy")
+    blds = np.load("../../../gdobler_output/output/blds_right.npy")
 except:
     blds = np.array([np.load(i)[:,:,78:].mean(-1).mean(-1) for i in
-                     sorted(glob.glob("../output/{0}_specs/{0}_specs*.npy"\
+                     sorted(glob.glob("../../../gdobler_output/output/{0}_specs/{0}_specs*.npy"\
                                           .format(comp))) if "_avg" not in i])
     blds = blds[good]
     # np.save("../output/blds_right.npy",blds)
@@ -63,13 +65,13 @@ rat  = norm/norm[0]
 # -- get vegetation spectra
 print("getting {0} spectra...".format(comp))
 try:
-    vegs = np.load("../output/blds_left.npy")
+    vegs = np.load("../../../gdobler_output/output/blds_left.npy")
 except:
     vegs = np.array([np.load(i)[:,:,:78].mean(-1).mean(-1) for i in
-                     sorted(glob.glob("../output/{0}_specs/{0}_specs*.npy"\
+                     sorted(glob.glob("../../../gdobler_output/output/{0}_specs/{0}_specs*.npy"\
                                           .format(comp))) if "_avg" not in i])
     vegs = vegs[good]
-    # np.save("../output/blds_left.npy",vegs)
+    # np.save("../../../gdobler_output/output/blds_left.npy",vegs)
 
 # -- normalize spectra
 ss, os = [], []
@@ -90,7 +92,7 @@ vrat  = vnorm/vnorm[0]
 brat = vrat/rat
 
 # -- get some ancillary data
-sc     = pd.read_csv("../output/scan_conditions.csv")
+sc     = pd.read_csv("../../../gdobler_output/output/scan_conditions.csv")
 sc_sub = sc[sc.filename.isin(["veg_{0:05}.raw".format(i) for i in good])]
 
 temps = sc_sub.temperature.values
@@ -130,7 +132,7 @@ if runica:
 if getndvi:
     print("calculating NDVI...")
     print("  getting sky spectra...")
-    flist   = sorted(glob.glob("../output/sky_specs/*.npy"))
+    flist   = sorted(glob.glob("../../../gdobler_output/output/sky_specs/*.npy"))
     skys    = np.array([np.load(i) for i in flist])[good]
     print("  getting reflectance...")
     ref     = (vegs - vegs.min(1,keepdims=True))/ \
@@ -147,7 +149,7 @@ brightness = (brat).mean(1)
 templates  = np.vstack([o3,pm25,temps,humid,np.ones_like(o3)]).T
 #ind = brightness<2.0
 ind  = np.arange(len(brightness))
-sol  = np.linalg.lstsq(templates[ind],brightness[ind])
+sol  = np.linalg.lstsq(templates[ind],brightness[ind], rcond=None)
 pred = np.dot(templates[ind],sol[0])
 rsq  = 1.0-((brightness-pred)**2).sum() / \
     ((brightness-brightness.mean())**2).sum()
@@ -348,10 +350,12 @@ plt.close("all")
 brightness = brat[:,500]/brat[:,-1]
 templates  = np.vstack([o3,pm25,temps,humid,np.ones_like(o3)]).T
 ind  = np.arange(len(brightness))
-sol  = np.linalg.lstsq(templates[ind],brightness[ind])
+sol  = np.linalg.lstsq(templates[ind],brightness[ind], rcond=None)
 pred = np.dot(templates[ind],sol[0])
 rsq  = 1.0-((brightness-pred)**2).sum() / \
     ((brightness-brightness.mean())**2).sum()
+print("rsq = ", rsq)
+print("sol = ", sol)
 
 plt.close("all")
 fig, ax = plt.subplots(figsize=[6.5,3.5])
@@ -365,9 +369,9 @@ ax.set_xlabel("scan number")
 ax.set_ylabel(r'$D(\lambda=0.75\mu$m$)/D(\lambda=1.0\mu$m$)$')
 ax.legend([linb,linp],["data","model"],loc="lower left",fontsize=12)
 fig.canvas.draw()
-fig.savefig("../output/regress_bldcomp.eps", clobber=True)
-fig.savefig("../output/regress_bldcomp.pdf", clobber=True)
-fig.savefig("../output/regress_bldcomp.png", clobber=True)
+fig.savefig("../farid_output/regress_bldcomp.eps", clobber=True)
+fig.savefig("../farid_output/regress_bldcomp.pdf", clobber=True)
+fig.savefig("../farid_output/regress_bldcomp.png", clobber=True)
 
 
 '''

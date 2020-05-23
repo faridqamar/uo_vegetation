@@ -7,6 +7,8 @@ import hyss_util as hu
 from datetime import datetime
 from sklearn.decomposition import PCA, FactorAnalysis, FastICA
 from plotting import set_defaults
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # -- plotting defaults
 set_defaults()
@@ -28,15 +30,15 @@ getndvi = True
 #def analyze_specs(kind="veg",comp="bld"):
 
 # -- get wavelengths
-waves = hu.read_header("../data/veg_00000.hdr")["waves"]
+waves = hu.read_header("../../../image_files/veg_00000.hdr")["waves"]
 
 # -- define good scans
-good = np.array([int(i) for i in np.load("../output/good_scans.npy")]) 
+good = np.array([int(i) for i in np.load("../../../gdobler_output/output/good_scans.npy")]) 
 
 # -- load the comparison set
 print("getting {0} spectra...".format(comp))
 blds = np.array([np.load(i) for i in
-                 sorted(glob.glob("../output/{0}_specs/{0}_specs_avg*.npy"\
+                 sorted(glob.glob("../../../gdobler_output/output/{0}_specs/{0}_specs_avg*.npy"\
                                       .format(comp)))])
 blds = blds[good]
 
@@ -58,10 +60,10 @@ rat  = norm/norm[0]
 # -- get vegetation spectra
 print("getting {0} spectra...".format(kind))
 if kind=="veg":
-    vegs = np.load("../output/veg_patch_specs.npy")
+    vegs = np.load("../../../gdobler_output/output/veg_patch_specs.npy")
 else:
     vegs = np.array([np.load(i) for i in
-                     sorted(glob.glob("../output/" + 
+                     sorted(glob.glob("../../../gdobler_output/output/" + 
                                       "{0}_specs/{0}_specs_avg*.npy" \
                                       .format(kind)))])
     vegs = vegs[good]
@@ -85,7 +87,7 @@ vrat  = vnorm/vnorm[0]
 brat = vrat/rat
 
 # -- get some ancillary data
-sc     = pd.read_csv("../output/scan_conditions.csv")
+sc     = pd.read_csv("../../../gdobler_output/output/scan_conditions.csv")
 sc_sub = sc[sc.filename.isin(["veg_{0:05}.raw".format(i) for i in good])]
 
 temps = sc_sub.temperature.values
@@ -125,7 +127,7 @@ if runica:
 if getndvi:
     print("calculating NDVI...")
     print("  getting sky spectra...")
-    flist   = sorted(glob.glob("../output/sky_specs/*.npy"))
+    flist   = sorted(glob.glob("../../../gdobler_output/output/sky_specs/*.npy"))
     skys    = np.array([np.load(i) for i in flist])[good]
     print("  getting reflectance...")
     ref     = (vegs - vegs.min(1,keepdims=True))/ \
@@ -142,7 +144,7 @@ brightness = (brat).mean(1)
 templates  = np.vstack([o3,pm25,temps,humid,np.ones_like(o3)]).T
 #ind = brightness<2.0
 ind  = np.arange(len(brightness))
-sol  = np.linalg.lstsq(templates[ind],brightness[ind])
+sol  = np.linalg.lstsq(templates[ind],brightness[ind], rcond=None)
 pred = np.dot(templates[ind],sol[0])
 rsq  = 1.0-((brightness-pred)**2).sum() / \
     ((brightness-brightness.mean())**2).sum()
@@ -157,6 +159,7 @@ pred2 = np.dot(templates[ind],sol[0])
 plt.close("all")
 
 # # -- example differential reflectance
+# print("  plotting example differential reflectance (diffref_ex.png)")
 # fig, ax = plt.subplots(figsize=[6.5,3])
 # fig.subplots_adjust(0.125,0.18,0.95,0.9)
 # ax.plot(waves*1e-3,brat[30],color="darkred")
@@ -164,12 +167,13 @@ plt.close("all")
 # ax.set_ylabel("$D(\lambda,t)$")
 # xr, yr = ax.get_xlim(), ax.get_ylim()
 # ax.text(xr[1],yr[1]+0.025*(yr[1]-yr[0]),r"$\Delta t = 10$ hrs",ha="right",
-#         fontsize=14)
+#          fontsize=14)
 # fig.canvas.draw()
-# fig.savefig("../output/diffref_ex.png", clobber=True)
-# fig.savefig("../output/diffref_ex.eps", clobber=True)
+# fig.savefig("../farid_output/diffref_ex.png", clobber=True)
+# fig.savefig("../farid_output/diffref_ex.eps", clobber=True)
 
 # # -- all differential reflectance
+# print("  plotting all differential reflectance (diffref_scans.png)")
 # plt.close("all")
 # fig, ax = plt.subplots(figsize=[6.5,5])
 # fig.subplots_adjust(0.1,0.1,0.9,0.95)
@@ -182,7 +186,7 @@ plt.close("all")
 # ax.set_ylabel("wavelength [micron]")
 # xr, yr = ax.get_xlim(), ax.get_ylim()
 # ax.text(xr[1],yr[1]+0.025*(yr[1]-yr[0]),r'$D_{\lambda,t}$',ha="right",
-#         fontsize=14)
+#          fontsize=14)
 # cb = fig.add_axes((0.92,0.05,0.05,0.9))
 # cb.grid("off")
 # [cb.spines[i].set_linewidth(1) for i in cb.spines]
@@ -195,11 +199,11 @@ plt.close("all")
 # cb.text(5,102,"1.5",ha="center",va="top")
 # cb.imshow(cbvals)
 # fig.canvas.draw()
-# fig.savefig("../output/diffref_scans.png", clobber=True)
-# fig.savefig("../output/diffref_scans.eps", clobber=True)
-
+# fig.savefig("../farid_output/diffref_scans.png", clobber=True)
+# fig.savefig("../farid_output/diffref_scans.eps", clobber=True)
 
 # # -- example differential reflectance
+# print("  plotting example differential reflectance for 10% of scans (diffref_10pct.png)")
 # plt.close("all")
 # fig, ax = plt.subplots(figsize=[6.5,3])
 # fig.subplots_adjust(0.125,0.18,0.95,0.9)
@@ -209,10 +213,10 @@ plt.close("all")
 # ax.set_ylim(0.6,1.8)
 # xr, yr = ax.get_xlim(), ax.get_ylim()
 # ax.text(xr[1],yr[1]+0.025*(yr[1]-yr[0]),"10% of scans",ha="right",
-#         fontsize=14)
+#          fontsize=14)
 # fig.canvas.draw()
-# fig.savefig("../output/diffref_10pct.png", clobber=True)
-# fig.savefig("../output/diffref_10pct.eps", clobber=True)
+# fig.savefig("../farid_output/diffref_10pct.png", clobber=True)
+# fig.savefig("../farid_output/diffref_10pct.eps", clobber=True)
 
 # # -- pca
 # plt.close("all")
@@ -246,9 +250,9 @@ plt.close("all")
 #     ax.text(xr[1],yr[1]+0.025*(yr[1]-yr[0]),"EV = {0:4.1f}%"\ 
 #             .format(pca.explained_variance_ratio_[ii]*100),ha="right")
 # fig.canvas.draw()
-# fig.savefig("../output/pca_components.eps", clobber=True)
-# fig.savefig("../output/pca_components.pdf", clobber=True)
-# fig.savefig("../output/pca_components.png", clobber=True)
+# fig.savefig("../farid_output/pca_components.eps", clobber=True)
+# fig.savefig("../farid_output/pca_components.pdf", clobber=True)
+# fig.savefig("../farid_output/pca_components.png", clobber=True)
 
 # # -- PCA vs environment
 # plt.close("all")
@@ -275,12 +279,13 @@ plt.close("all")
 #     tax.text(xr[0],yr[1],labs[ii],va="top") \ 
 #     .set_backgroundcolor("w")
 # fig.canvas.draw()
-# fig.savefig("../output/four_panel.eps", clobber=True)
-# fig.savefig("../output/four_panel.png", clobber=True)
-# fig.savefig("../output/four_panel.pdf", clobber=True)
+# fig.savefig("../farid_output/four_panel.eps", clobber=True)
+# fig.savefig("../farid_output/four_panel.png", clobber=True)
+# fig.savefig("../farid_output/four_panel.pdf", clobber=True)
 
 
 # # -- daily fluctuation (get seconds, subtract first,  mod by day, etc)
+# print("  plotting daily fluctuation (diurnal_folding.png)")
 # plt.close("all")
 # secs0 = secs - secs[0]
 # fold  = secs0 % (24.*3600.)
@@ -294,28 +299,30 @@ plt.close("all")
 # xr = ax.set_xlim()
 # yr = ax.set_ylim()
 # ax.text(xr[1],yr[1]+0.025*(yr[1]-yr[0]),"Diurnal folding",fontsize=14,
-#         ha="right")
+#          ha="right")
 # fig.canvas.draw()
-# fig.savefig("../output/diurnal_folding.eps", clobber=True)
-# fig.savefig("../output/diurnal_folding.pdf", clobber=True)
-# fig.savefig("../output/diurnal_folding.png", clobber=True)
+# fig.savefig("../farid_output/diurnal_folding.eps", clobber=True)
+# fig.savefig("../farid_output/diurnal_folding.pdf", clobber=True)
+# fig.savefig("../farid_output/diurnal_folding.png", clobber=True)
 
 
 # # -- relationship to NDVI
+# print("  plotting relationship to NDVI (diffref_ndvi.png)")
 # plt.close("all")
 # fig, ax = plt.subplots(figsize=[6.5,4])
 # ax.scatter(ndvi,brat[:,500]/brat[:,-1],lw=0,c='maroon',s=10)
 # ax.plot(ndvi[ndvi<0],brat[ndvi<0,500]/brat[ndvi<0,-1],'o',color="none",ms=10,
-#         mec="dodgerblue")
+#          mec="dodgerblue")
 # ax.set_xlabel("NDVI")
 # ax.set_ylabel(r'$D(\lambda=0.75\mu$m$)/D(\lambda=1.0\mu$m$)$')
 # fig.canvas.draw()
-# fig.savefig("../output/diffref_ndvi.eps", clobber=True)
-# fig.savefig("../output/diffref_ndvi.pdf", clobber=True)
-# fig.savefig("../output/diffref_ndvi.png", clobber=True)
+# fig.savefig("../farid_output/diffref_ndvi.eps", clobber=True)
+# fig.savefig("../farid_output/diffref_ndvi.pdf", clobber=True)
+# fig.savefig("../farid_output/diffref_ndvi.png", clobber=True)
 
 
 # # -- all differential reflectance with O3 overlay
+# print("  plotting all differential reflectance with O3 overlay (diffref_scans_o3.png)")
 # plt.close("all")
 # fig, ax = plt.subplots(figsize=[6.5,5])
 # fig.subplots_adjust(0.1,0.1,0.9,0.95)
@@ -329,40 +336,43 @@ plt.close("all")
 # ax.set_ylabel("wavelength [micron]")
 # xr, yr = ax.get_xlim(), ax.get_ylim()
 # ax.text(xr[1],yr[1]+0.025*(yr[1]-yr[0]),
-#         r'$D_{\lambda,t}/\langle D_{\lambda_{0.9}^{1.0},t}\rangle$',ha="right",
-#         fontsize=14)
+#          r'$D_{\lambda,t}/\langle D_{\lambda_{0.9}^{1.0},t}\rangle$',ha="right",
+#          fontsize=14)
 # ax.text(xr[0]+0.025*(xr[1]-xr[0]),yr[0]+0.025*(yr[1]-yr[0]),"O3 [ppm]",
-#         color="darkorange")
+#          color="darkorange")
 # fig.canvas.draw()
-# fig.savefig("../output/diffref_scans_o3.eps", clobber=True)
-# fig.savefig("../output/diffref_scans_o3.pdf", clobber=True)
-# fig.savefig("../output/diffref_scans_o3.png", clobber=True)
+# fig.savefig("../farid_output/diffref_scans_o3.eps", clobber=True)
+# fig.savefig("../farid_output/diffref_scans_o3.pdf", clobber=True)
+# fig.savefig("../farid_output/diffref_scans_o3.png", clobber=True)
 
 
 # # -- plot prediction
-# brightness = brat[:,500]/brat[:,-1]
-# templates  = np.vstack([o3,pm25,temps,humid,np.ones_like(o3)]).T
-# ind  = np.arange(len(brightness))
-# sol  = np.linalg.lstsq(templates[ind],brightness[ind])
-# pred = np.dot(templates[ind],sol[0])
-# rsq  = 1.0-((brightness-pred)**2).sum() / \
-#     ((brightness-brightness.mean())**2).sum()
+print("  plotting prediction (regress_vegbld.png)")
+brightness = brat[:,500]/brat[:,-1]
+templates  = np.vstack([o3,pm25,temps,humid,np.ones_like(o3)]).T
+ind  = np.arange(len(brightness))
+sol  = np.linalg.lstsq(templates[ind],brightness[ind], rcond=None)
+pred = np.dot(templates[ind],sol[0])
+rsq  = 1.0-((brightness-pred)**2).sum() / \
+     ((brightness-brightness.mean())**2).sum()
+print("rsq = ", rsq)
+print("sol = ", sol)
 
-# plt.close("all")
-# fig, ax = plt.subplots(figsize=[6.5,3.5])
-# fig.subplots_adjust(0.125,0.15,0.95,0.9)
-# linb, = ax.plot(brightness,color="darkred",lw=1)
-# linp, = ax.plot(pred,color="dodgerblue",lw=2)
-# ax.set_ylim(0,2.5)
-# ax.set_xlim(0,pred.size)
-# ax.set_xlabel("scan number")
-# #ax.set_ylabel(r'$\langle D(\lambda,t) \rangle_{\lambda}$')
-# ax.set_ylabel(r'$D(\lambda=0.75\mu$m$)/D(\lambda=1.0\mu$m$)$')
-# ax.legend([linb,linp],["data","model"],loc="upper left",fontsize=12)
-# fig.canvas.draw()
-# fig.savefig("../output/regress_vegbld.eps", clobber=True)
-# fig.savefig("../output/regress_vegbld.pdf", clobber=True)
-# fig.savefig("../output/regress_vegbld.png", clobber=True)
+plt.close("all")
+fig, ax = plt.subplots(figsize=[6.5,3.5])
+fig.subplots_adjust(0.125,0.15,0.95,0.9)
+linb, = ax.plot(brightness,color="darkred",lw=1)
+linp, = ax.plot(pred,color="dodgerblue",lw=2)
+ax.set_ylim(0,2.5)
+ax.set_xlim(0,pred.size)
+ax.set_xlabel("scan number")
+#ax.set_ylabel(r'$\langle D(\lambda,t) \rangle_{\lambda}$')
+ax.set_ylabel(r'$D(\lambda=0.75\mu$m$)/D(\lambda=1.0\mu$m$)$')
+ax.legend([linb,linp],["data","model"],loc="upper left",fontsize=12)
+fig.canvas.draw()
+fig.savefig("../farid_output/regress_vegbld.eps", clobber=True)
+fig.savefig("../farid_output/regress_vegbld.pdf", clobber=True)
+fig.savefig("../farid_output/regress_vegbld.png", clobber=True)
 
 
 '''
@@ -378,7 +388,7 @@ xlabel("scan number")
 ylabel("\"brightness\"")
 legend([lin0,lin1],["data", "model"],loc="lower left")
 title("O3, PM2.5, T, Humid regression")
-# savefig("../output/brightness_model_veg.png", facecolor="k", clobber=True)
+# savefig("../farid_output/brightness_model_veg.png", facecolor="k", clobber=True)
 '''
 
 def plot4(amps, c0=0, c1=1):
@@ -557,7 +567,7 @@ def plot4(amps, c0=0, c1=1):
 # title(r"$R^{2}=%4.2f$" % R2)
 # ylabel("brightness")
 # xlabel("O3 [ppm]")
-# savefig("../output/brightness_O3_veg.png", facecolor="k", clobber=True)
+# savefig("../farid_output/brightness_O3_veg.png", facecolor="k", clobber=True)
 
 # figure()
 # plot(pm25[ind],brightness[ind],'.')
@@ -568,7 +578,7 @@ def plot4(amps, c0=0, c1=1):
 # title(r"$R^{2}=%4.2f$" % R2)
 # ylabel("brightness")
 # xlabel("PM2.5 [ppm]")
-# savefig("../output/brightness_PM25_veg.png", facecolor="k", clobber=True)
+# savefig("../farid_output/brightness_PM25_veg.png", facecolor="k", clobber=True)
 
 # figure()
 # plot(temps[ind],brightness[ind],'.')
@@ -579,7 +589,7 @@ def plot4(amps, c0=0, c1=1):
 # title(r"$R^{2}=%4.2f$" % R2)
 # ylabel("brightness")
 # xlabel("T [F]")
-# savefig("../output/brightness_T_veg.png", facecolor="k", clobber=True)
+# savefig("../farid_output/brightness_T_veg.png", facecolor="k", clobber=True)
 
 # figure()
 # plot(humid[ind],brightness[ind],'.')
@@ -590,7 +600,7 @@ def plot4(amps, c0=0, c1=1):
 # title(r"$R^{2}=%4.2f$" % R2)
 # ylabel("brightness")
 # xlabel("Humidity [%]")
-# savefig("../output/brightness_H_veg.png", facecolor="k", clobber=True)
+# savefig("../farid_output/brightness_H_veg.png", facecolor="k", clobber=True)
 
 # figure()
 # lin0, = plot(brightness[ind],lw=1)
@@ -599,7 +609,7 @@ def plot4(amps, c0=0, c1=1):
 # ylabel("\"brightness\"")
 # legend([lin0,lin1],["data", "model"],loc="lower left")
 # title("O3, PM2.5, T, Humid regression")
-# savefig("../output/brightness_model_veg.png", facecolor="k", clobber=True)
+# savefig("../farid_output/brightness_model_veg.png", facecolor="k", clobber=True)
 
 # figure()
 # plot(o3*10000)
@@ -610,7 +620,7 @@ def plot4(amps, c0=0, c1=1):
 # title("red line scales as O3 ppm")
 # xlabel("scan number")
 # ylabel("wavelength")
-# savefig("../output/scaled_spectra_veg.png", facecolor="k", clobber=True)
+# savefig("../farid_output/scaled_spectra_veg.png", facecolor="k", clobber=True)
 
 
 # close("all")
