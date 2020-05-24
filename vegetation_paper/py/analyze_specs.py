@@ -353,10 +353,14 @@ templates  = np.vstack([o3,pm25,temps,humid,np.ones_like(o3)]).T
 ind  = np.arange(len(brightness))
 sol  = np.linalg.lstsq(templates[ind],brightness[ind], rcond=None)
 pred = np.dot(templates[ind],sol[0])
+
+# coefficient of determination r2
 rsq  = 1.0-((brightness-pred)**2).sum() / \
      ((brightness-brightness.mean())**2).sum()
-print("rsq = ", rsq)
+r2   = 1 - sol[1] / (len(brightness) * brightness.var())
 print("sol = ", sol)
+print("rsq = ", rsq)
+print("r2  = ", r2)
 
 plt.close("all")
 fig, ax = plt.subplots(figsize=[6.5,3.5])
