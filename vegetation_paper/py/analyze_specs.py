@@ -139,24 +139,68 @@ if getndvi:
         (ref[:,ind_ir]+ref[:,ind_vis])
 
 
-# -- multi-variate correlation
-brightness = (brat).mean(1)
+# -- multi-variate correlation - no errors
+#brightness = (brat).mean(1)
+#templates  = np.vstack([o3,pm25,temps,humid,np.ones_like(o3)]).T
+##ind = brightness<2.0
+#ind  = np.arange(len(brightness))
+#sol  = np.linalg.lstsq(templates[ind],brightness[ind], rcond=None)
+#pred = np.dot(templates[ind],sol[0])
+#rsq  = 1.0-((brightness-pred)**2).sum() / \
+#    ((brightness-brightness.mean())**2).sum()
+
+#ind  = humid<99.
+#sol  = np.linalg.lstsq(templates[ind],brightness[ind])
+#pred2 = np.dot(templates[ind],sol[0])
+
+
+
+# # -- plot prediction
+print("  Basic multi-variate correlation - no error analysis")
+brightness = brat[:,500]/brat[:,-1]
 templates  = np.vstack([o3,pm25,temps,humid,np.ones_like(o3)]).T
-#ind = brightness<2.0
 ind  = np.arange(len(brightness))
 sol  = np.linalg.lstsq(templates[ind],brightness[ind], rcond=None)
 pred = np.dot(templates[ind],sol[0])
-rsq  = 1.0-((brightness-pred)**2).sum() / \
-    ((brightness-brightness.mean())**2).sum()
 
-ind  = humid<99.
-sol  = np.linalg.lstsq(templates[ind],brightness[ind])
-pred2 = np.dot(templates[ind],sol[0])
+# coefficient of determination r2
+#rsq  = 1.0-((brightness-pred)**2).sum() / \
+#     ((brightness-brightness.mean())**2).sum()
+r2   = 1 - sol[1] / (len(brightness) * brightness.var())
+print("sol = ", sol)
+#print("rsq = ", rsq)
+print("r2  = ", r2)
 
-
-
-# -- plots
+print("  plotting prediction (regress_vegbld.png)")
 plt.close("all")
+fig, ax = plt.subplots(figsize=[6.5,3.5])
+fig.subplots_adjust(0.125,0.15,0.95,0.9)
+linb, = ax.plot(brightness,color="darkred",lw=1)
+linp, = ax.plot(pred,color="dodgerblue",lw=2)
+ax.set_ylim(0,2.5)
+ax.set_xlim(0,pred.size)
+ax.set_xlabel("scan number")
+#ax.set_ylabel(r'$\langle D(\lambda,t) \rangle_{\lambda}$')
+ax.set_ylabel(r'$D(\lambda=0.75\mu$m$)/D(\lambda=1.0\mu$m$)$')
+ax.legend([linb,linp],["data","model"],loc="upper left",fontsize=12)
+fig.canvas.draw()
+fig.savefig("../farid_output/regress_vegbld.eps", clobber=True)
+fig.savefig("../farid_output/regress_vegbld.pdf", clobber=True)
+fig.savefig("../farid_output/regress_vegbld.png", clobber=True)
+
+
+## obtaining uncertainty for brightness
+brightness = brat[:,500]/brat[:,-1]
+diff = brightness[1:] - brightness[:-1]
+brightness_err = diff.std()/np.sqrt(2.0)
+print("error in brightness = ", brightness_err)
+
+## obtaining uncertainty for air quality
+templates  = np.vstack([o3,pm25,temps,humid,np.ones_like(o3)]).T
+diff_air = templates[1:] - templates[:-1]
+air_err = diff_air.std(0)/np.sqrt(2.0)
+print("errors in air qaulity = ", air_err)
+
 
 # # -- example differential reflectance
 # print("  plotting example differential reflectance (diffref_ex.png)")
@@ -346,37 +390,7 @@ plt.close("all")
 # fig.savefig("../farid_output/diffref_scans_o3.png", clobber=True)
 
 
-# # -- plot prediction
-print("  plotting prediction (regress_vegbld.png)")
-brightness = brat[:,500]/brat[:,-1]
-templates  = np.vstack([o3,pm25,temps,humid,np.ones_like(o3)]).T
-ind  = np.arange(len(brightness))
-sol  = np.linalg.lstsq(templates[ind],brightness[ind], rcond=None)
-pred = np.dot(templates[ind],sol[0])
 
-# coefficient of determination r2
-rsq  = 1.0-((brightness-pred)**2).sum() / \
-     ((brightness-brightness.mean())**2).sum()
-r2   = 1 - sol[1] / (len(brightness) * brightness.var())
-print("sol = ", sol)
-print("rsq = ", rsq)
-print("r2  = ", r2)
-
-plt.close("all")
-fig, ax = plt.subplots(figsize=[6.5,3.5])
-fig.subplots_adjust(0.125,0.15,0.95,0.9)
-linb, = ax.plot(brightness,color="darkred",lw=1)
-linp, = ax.plot(pred,color="dodgerblue",lw=2)
-ax.set_ylim(0,2.5)
-ax.set_xlim(0,pred.size)
-ax.set_xlabel("scan number")
-#ax.set_ylabel(r'$\langle D(\lambda,t) \rangle_{\lambda}$')
-ax.set_ylabel(r'$D(\lambda=0.75\mu$m$)/D(\lambda=1.0\mu$m$)$')
-ax.legend([linb,linp],["data","model"],loc="upper left",fontsize=12)
-fig.canvas.draw()
-fig.savefig("../farid_output/regress_vegbld.eps", clobber=True)
-fig.savefig("../farid_output/regress_vegbld.pdf", clobber=True)
-fig.savefig("../farid_output/regress_vegbld.png", clobber=True)
 
 
 '''
