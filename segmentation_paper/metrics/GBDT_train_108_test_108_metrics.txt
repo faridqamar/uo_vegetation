@@ -1,0 +1,28 @@
+Confusion Matrix
+[[ 60   0   0   0   0   0   0   0   0]
+ [  0 100   0   0   0   0   0   0   0]
+ [  0   0 118   0   2   0   0   0   0]
+ [  0   0   0   9   1   0   0   0   0]
+ [  0   0   0   0 197   7   0   0   0]
+ [  0   0   0   0  11  88   0   1   0]
+ [  0   0   0   0   0   1   4   0   1]
+ [  0   0   0   0   5   3   0  12   0]
+ [  0   0   0   0  12   2   0   1   5]]
+
+Accuracy Score
+0.9265625
+
+Classification Report
+             precision    recall  f1-score   support
+
+        sky       1.00      1.00      1.00        60
+     clouds       1.00      1.00      1.00       100
+ vegetation       1.00      0.98      0.99       120
+      water       1.00      0.90      0.95        10
+      built       0.86      0.97      0.91       204
+    windows       0.87      0.88      0.88       100
+      roads       1.00      0.67      0.80         6
+       cars       0.86      0.60      0.71        20
+      metal       0.83      0.25      0.38        20
+
+avg / total       0.93      0.93      0.92       640
