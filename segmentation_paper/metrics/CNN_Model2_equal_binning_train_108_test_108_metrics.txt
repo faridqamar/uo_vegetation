@@ -1,0 +1,20 @@
+Confusion Matrix
+[[59  1  0  0  0]
+ [ 0 60  0  0  0]
+ [ 0  0 60  0  0]
+ [ 0  0  0 59  1]
+ [ 0  0  0  3 57]]
+
+Accuracy Score
+0.9833333333333333
+
+Classification Report
+             precision    recall  f1-score   support
+
+        sky       1.00      0.98      0.99        60
+     clouds       0.98      1.00      0.99        60
+ vegetation       1.00      1.00      1.00        60
+      water       0.95      0.98      0.97        60
+      built       0.98      0.95      0.97        60
+
+avg / total       0.98      0.98      0.98       300
