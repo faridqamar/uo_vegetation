@@ -1,0 +1,21 @@
+{
+  "order": [
+    "column1",
+    "column2",
+    "column3"
+  ],
+  "format": {
+    "column1": "%10d",
+    "column2": "%20f",
+    "column3": "%30s"
+  },
+  "default": {
+    "column1": 0,
+    "column2": 0.0,
+    "column3": ""
+  },
+  "number_of_rows": 3,
+  "size_in_bytes": null,
+  "table_name": "sampletab",
+  "table_type": "strict"
+}
