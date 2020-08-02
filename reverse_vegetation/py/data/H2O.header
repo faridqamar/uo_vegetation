@@ -1,6 +1,6 @@
 {
   "table_name": "H2O",
-  "number_of_rows": 3057,
+  "number_of_rows": -1,
   "format": {
     "a": "%10.3E",
     "gamma_air": "%5.4f",
@@ -108,5 +108,7 @@
     "gp": 146,
     "gpp": 153
   },
-  "comment": "Contains lines for H2(16O)\n in 769.231-1428.571 wavenumber range"
+  "extra": [],
+  "extra_format": {},
+  "extra_separator": ","
 }

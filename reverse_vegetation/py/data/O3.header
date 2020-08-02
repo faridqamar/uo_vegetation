@@ -1,5 +1,5 @@
 {
-  "table_name": "CO2",
+  "table_name": "O3",
   "number_of_rows": -1,
   "format": {
     "a": "%10.3E",
