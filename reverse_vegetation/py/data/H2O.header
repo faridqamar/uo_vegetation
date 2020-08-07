@@ -1,6 +1,6 @@
 {
   "table_name": "H2O",
-  "number_of_rows": -1,
+  "number_of_rows": 611,
   "format": {
     "a": "%10.3E",
     "gamma_air": "%5.4f",
@@ -107,8 +107,5 @@
     "line_mixing_flag": 145,
     "gp": 146,
     "gpp": 153
-  },
-  "extra": [],
-  "extra_format": {},
-  "extra_separator": ","
+  }
 }

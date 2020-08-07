@@ -1,6 +1,6 @@
 {
   "table_name": "N2",
-  "number_of_rows": -1,
+  "number_of_rows": 78,
   "format": {
     "a": "%10.3E",
     "gamma_air": "%5.4f",
@@ -108,7 +108,5 @@
     "gp": 146,
     "gpp": 153
   },
-  "extra": [],
-  "extra_format": {},
-  "extra_separator": ","
+  "comment": "Contains lines for (14N)2\n in 9091.000-28571.000 wavenumber range"
 }
