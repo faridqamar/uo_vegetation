@@ -19864,13 +19864,13 @@ def convolveSpectrum(Omega,CrossSection,Resolution=0.1,AF_wing=10.,
 
 
     # spectral convolution with an apparatus (slit) function for needed wavelengths only
-def convolveSpectrumMod(Omega,CrossSection,OmegaInds,Resolution=0.1,AF_wing=10.,
+def convolveSpectrumMod(Omega,CrossSection,Wavenumbers,Resolution=0.1,AF_wing=10.,
                      SlitFunction=SLIT_RECTANGULAR):
     """
     INPUT PARAMETERS: 
         Omega:    wavenumber grid                                (required)
         CrossSection:  high-res cross section calculated on grid (required)
-        OmegaInds:     array of indices of output wavenumbers    (required)
+        Wavenumbers:   array of wavenumbers to output            (required)
         Resolution:    instrumental resolution γ                 (optional)
         AF_wing:       instrumental function wing                (optional)
         SlitFunction:  instrumental function for low-res spectra calculation (optional)
@@ -19900,7 +19900,10 @@ def convolveSpectrumMod(Omega,CrossSection,OmegaInds,Resolution=0.1,AF_wing=10.,
     slit = SlitFunction(x,Resolution)
     slit /= sum(slit)*step # simple normalization
     # -- find nearest indices in Omega for given Wavenumbers
-    #OmNums = array([abs(Omega - Wavenum).argmin() for Wavenum in Wavenumbers])
+    hmin = Omega.min()
+    hmax = Omega.max()
+    dh = (hmax - hmin) / len(Omega)
+    OmegaInds = np.array([int((wnum - hmin) / dh) for wnum in Wavenumbers])
     
     # -- the minimum wavenumber must be greater than the tail end of the convolution given the AF_wing
     left_bnd = int(len(slit)/2) # new versions of Numpy don't support float indexing
@@ -19909,7 +19912,7 @@ def convolveSpectrumMod(Omega,CrossSection,OmegaInds,Resolution=0.1,AF_wing=10.,
     right_bnd = len(Omega) - int(len(slit)/2) # new versions of Numpy don't support float indexing 
     if OmegaInds.max() > right_bnd: raise Exception('maximum wavenumber must be lower than maximum convolution limit given AF_wing')
     
-    CrossSectionLowRes = array([convolve(CrossSection[ind-left_bnd:ind+left_bnd+1],slit,mode='valid')*step for ind in OmNums])
+    CrossSectionLowRes = array([convolve(CrossSection[ind-left_bnd:ind+left_bnd+1],slit,mode='valid')*step for ind in OmegaInds])
     
     return Omega[OmegaInds],CrossSectionLowRes,left_bnd,right_bnd,slit
 
