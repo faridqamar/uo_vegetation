@@ -19862,6 +19862,57 @@ def convolveSpectrum(Omega,CrossSection,Resolution=0.1,AF_wing=10.,
     CrossSectionLowRes = convolve(CrossSection,slit,mode='same')*step
     return Omega[left_bnd:right_bnd],CrossSectionLowRes[left_bnd:right_bnd],left_bnd,right_bnd,slit
 
+
+    # spectral convolution with an apparatus (slit) function for needed wavelengths only
+def convolveSpectrumMod(Omega,CrossSection,Wavenumbers,Resolution=0.1,AF_wing=10.,
+                     SlitFunction=SLIT_RECTANGULAR):
+    """
+    INPUT PARAMETERS: 
+        Omega:    wavenumber grid                                (required)
+        CrossSection:  high-res cross section calculated on grid (required)
+        Wavenumbers:   array containing the output wavenumbers   (required)
+        Resolution:    instrumental resolution γ                 (optional)
+        AF_wing:       instrumental function wing                (optional)
+        SlitFunction:  instrumental function for low-res spectra calculation (optional)
+    OUTPUT PARAMETERS: 
+        Wavenum: low res wavenumber grid
+        CrossSection: low-res cross section calculated on grid
+        i1: lower index in Omega input
+        i2: higher index in Omega input
+        slit: slit function calculated over grid [-AF_wing; AF_wing]
+                with the step equal to instrumental resolution. 
+    ---
+    DESCRIPTION:
+        Produce a simulation of experimental spectrum via the convolution 
+        of a “dry” spectrum with an instrumental function.
+        Instrumental function is provided as a parameter and
+        is calculated in a grid with the width=AF_wing and step=Resolution.
+    ---
+    EXAMPLE OF USAGE:
+        nu_,radi_,i,j,slit = convolveSpectrum(nu,radi,Resolution=2.0,AF_wing=10.0,
+                                                SlitFunction=SLIT_MICHELSON)
+    ---
+    """    
+    step = Omega[1]-Omega[0]
+    if step>=Resolution: raise Exception('step must be less than resolution')
+    #x = arange(-AF_wing,AF_wing+step,step)
+    x = arange_(-AF_wing,AF_wing+step,step) # fix
+    slit = SlitFunction(x,Resolution)
+    slit /= sum(slit)*step # simple normalization
+    # -- find nearest indices in Omega for given Wavenumbers
+    OmNums = array[abs(Omega - Wavenum).argmin() for Wavenum in Wavenumbers]
+    
+    # -- the minimum wavenumber must be greater than the tail end of the convolution given the AF_wing
+    left_bnd = int(len(slit)/2) # new versions of Numpy don't support float indexing
+    if OmNums.min() < left_bnd: raise Exception('minimum wavenumber must be greater than minimum convolution limit given AF_wing')
+    # -- the maximum wavenumber must be lower than the tail end of the convolution given the AF_wing
+    right_bnd = len(Omega) - int(len(slit)/2) # new versions of Numpy don't support float indexing 
+    if OmNums.max() > right_bnd: raise Exception('maximum wavenumber must be lower than maximum convolution limit given AF_wing')
+    
+    CrossSectionLowRes = array([convolve(CrossSection[ind-left_bnd:ind+left_bnd+1],slit,mode='valid')*step for ind in OmNums])
+    
+    return Wavenumbers,CrossSectionLowRes,left_bnd,right_bnd,slit
+
 # spectral convolution with an apparatus (slit) function
 def convolveSpectrumSame(Omega,CrossSection,Resolution=0.1,AF_wing=10.,
                          SlitFunction=SLIT_RECTANGULAR,Wavenumber=None):
