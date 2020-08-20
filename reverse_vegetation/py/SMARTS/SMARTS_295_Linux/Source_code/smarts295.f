@@ -186,7 +186,7 @@ c     To obtain the command-line "batch" version, remove the comment sign
 c     "c" on line 189!
 c
        batch=.FALSE.
-c       batch=.TRUE.
+       batch=.TRUE.
 c
 c===================================
 c
