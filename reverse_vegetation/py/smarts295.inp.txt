@@ -1,15 +1,3 @@
-2											!Card 2 ISPR
-40.69442 0.011458 0.122						!Card 2a Latitude, Altitude, Height
-1											!Card 3 IATMOS
-'MLS'										!Card 3a Atmos
-1											!Card 4 IH2O
-1											!Card 5 IO3
-1											!Card 6 IGAS
-370.0										!Card 7 CO2 amount (ppm)
-0											!Card 7a ISPCTR
-'S&F_URBAN'									!Card 8 Aeros (aerosol model)
-0											!Card 9 ITURB
-0.084										!Card 9a Turbidity coeff. (TAU5)
 18											!Card 10 IALBDX Concrete Slab
 1											!Card 10b ITILT
 18 90. 180.									!Card 10c Tilt variables (IALBDG, receiver's tilt & azimuth)

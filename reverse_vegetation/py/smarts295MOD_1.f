@@ -7,11 +7,39 @@ C***********************************************************************
 C
 C CALCULATES CLEAR SKY SPECTRAL SOLAR IRRADIANCES FROM 280 TO 4000 nm.
 C
-C FQ: Modifying original by wrapping Main with Subroutine smarts295
-C     Replacing reading input file with arguments 
+C  Research code written by C. GUEYMARD, Solar Consulting Services
+c
+C      Version 2.0: November 1995
+c      (...)
+c      Version 2.8: November 1996
+c      Version 2.9: February 2002
+c      Version 2.9.1: May 2002
+c      Version 2.9.2: March 2003
+c      Version 2.9.3: July 2004 (remained beta)
+c      Version 2.9.4: November 2004 (remained beta)
+c      Version 2.9.5: December 2005
+c			Errors in ALBDAT subroutine corrected 15 May 2006
+C
+C***
+C***    Consult the 'HISTORY.TXT' file and the 'New Features'
+C***    Section of the User's Manual for details about the
+C***      changes that occurred in the successive versions.
+C***    Some input cards may have changed content!
+C***
+C***    Consult the User's Manual for details and explanations
+C***      about the INPUT data cards and OUTPUT files!
 C
 c
-      Subroutine smarts295 (Comnt)
+      Subroutine smarts295 (COMNT,
+     2                      ISPR,Latit,Altit,Height,
+     3                      iAtmos,Atmos,
+     4                      IH2O,W,
+     5                      IO3,IALT,AbO3,
+     6                      IGAS,iLoad,ApCH2O,ApCH4,ApCO,ApHNO2,ApHNO3,
+     6                      ApNO,ApNO2,ApNO3,ApO3,ApSO2,
+     7                      qCO2,Ispctr,
+     8                      ALPHA1,ALPHA2,OMEGL,GG,
+     9                      ITURB,TAU5)
       Double Precision TO3,TAUZ3,DIR,DIF0,DIF,GLOB,GLOBS,DIRH,FHTO,rocb
       Double Precision DIRS,DIFS,DIREXP,DIFEXP,DGRND,HT,DRAY,TH2O,TH2OP
       Double Precision TABS,TDIR,DAER,PFGS,PFD,PFB,GAMOZ,WPHT,GRNS
@@ -42,8 +70,9 @@ c
       REAL DECLI(12),RSUN(12)
       
       INTEGER IOUT(54),CIEYr,year,day,DayoYr,DayUT
+      INTEGER ISPR,iAtmos
       
-      LOGICAL batch
+c      LOGICAL batch
 c
       CHARACTER*2000 Path
       CHARACTER*100 FileIn,FileOut,FileExt,FileScn, Usernm
@@ -246,7 +275,7 @@ c      FileExt=Path(1:mname)//FileExt
 c      FileScn=Path(1:mname)//FileScn
 c      goto 3003
 c 313  continue
-cc      numarg = iargc()
+c      numarg = iargc()
 c      numarg = 0
 c      if(numarg.eq.0)goto 3003
 c      if(numarg.eq.1)goto 3002
@@ -312,21 +341,21 @@ C      READ(14,*) COMNT
 C
 C***      CARD 2
 C
-      READ(14,*) ISPR
+C      READ(14,*) ISPR
       IF(ISPR.EQ.1)GOTO 301
       IF(ISPR.EQ.2)GOTO 302
 C
 C***      CARD 2a if ISPR=0
 C
-      READ(14,*) SPR
-      if(spr.ge.265.)goto 298
-      if(spr.ge.4e-3)goto 299
-      spr=4.1e-4
-      Altit=0.
-      Height=99.9
-      Zalt=99.9
-      Iwarn1=1
-      goto 300
+C      READ(14,*) SPR
+C      if(spr.ge.265.)goto 298
+C      if(spr.ge.4e-3)goto 299
+C     spr=4.1e-4
+C      Altit=0.
+C      Height=99.9
+C      Zalt=99.9
+C      Iwarn1=1
+C      goto 300
 C
 C      APPROXIMATE FUNCTION SPR=F(altit,Latit) ACCORDING TO GUEYMARD 
 C         (SOLAR ENERGY 1993)--Improved in 2.9.3 for altit>10 km
@@ -361,7 +390,7 @@ C
 C
 C***      CARD 2a if ISPR=2 *** Height added in 2.9.3 ***
 C
-      READ(14,*)Latit,Altit, Height
+C      READ(14,*)Latit,Altit, Height
       Zalt=Altit+Height
       alati=abs(latit)
       if(Zalt.le.100.)goto 281
@@ -388,16 +417,16 @@ c      ZAlt2=Zalt*Zalt
 C
 C***      CARD 3
 C
-      READ(14,*) iAtmos
+C      READ(14,*) iAtmos
 C
 C***      CARD 3a
 C
-      IF(iAtmos.EQ.0)READ(14,*)TAIR,RH,SEASON,TDAY
-      IF(iAtmos.EQ.1)READ(14,*)Atmos
+C      IF(iAtmos.EQ.0)READ(14,*)TAIR,RH,SEASON,TDAY
+C      IF(iAtmos.EQ.1)READ(14,*)Atmos
 C
 C***      CARD 4
 C
-      READ(14,*) IH2O
+C      READ(14,*) IH2O
 C      
  311  continue
       IF(iAtmos.NE.1)GOTO 320
@@ -485,7 +514,7 @@ C
 C
 C***      CARD 4a if IH2O=0
 C
-      READ(14,*)W
+C      READ(14,*)W
 C
  328  CONTINUE
       if(w.le.12.)goto 327
@@ -507,7 +536,7 @@ C
       IALT=0
       Thick=1.
  329  continue
-      READ(14,*)IO3
+C      READ(14,*)IO3
       IF(IO3.ne.1)GOTO 331
       IF(iAtmos.ne.0)goto 348
       Call RefAtm(Zalt,dum1,dum2,dum3,O3ref,dum5,dum6,dum7,1)
@@ -524,7 +553,7 @@ C
 C***      CARD 5a if IO3=0
 C
  331  continue
-      READ(14,*) IALT,AbO3
+C      READ(14,*) IALT,AbO3
       if(AbO3.le.0.)goto 335
       OPEN (UNIT=23,FILE='Gases/Abs_O3UV.dat',STATUS='OLD')
       OPEN (UNIT=24,FILE='Gases/Abs_O3IR.dat',STATUS='OLD')
@@ -574,13 +603,13 @@ C***      CARD 6 - Modified in 2.9! Now refers to gaseous pollution...
 C
       Load='STANDARD'
 c
-      READ(14,*)IGAS
+C      READ(14,*)IGAS
       IF(IGAS.EQ.1)GOTO 340
 C
 C***CARD 6a if      IGAS=0 - Changed in 2.9! Now inputs gaseous overload
 c      in the lower 1-km pollution layer (in ppmv)
 C
-      READ(14,*)iLoad
+C      READ(14,*)iLoad
       Load='USER-DEFINED'
       ApCH2O=-.003
       ApCH4=0.
@@ -659,8 +688,8 @@ c
 c
 C***      CARD 6b - If iLoad = 0 --- New in 2.9
 c
-      if(iLoad.eq.0)Read(14,*)ApCH2O,ApCH4,ApCO,ApHNO2,ApHNO3,
-     3 ApNO,ApNO2,ApNO3,ApO3,ApSO2
+C      if(iLoad.eq.0)Read(14,*)ApCH2O,ApCH4,ApCO,ApHNO2,ApHNO3,
+C     3 ApNO,ApNO2,ApNO3,ApO3,ApSO2
 c
 c      Conversion from ppmv to atm-cm
 c
@@ -679,11 +708,11 @@ C
 C
 C***      CARD 7 - Changed in 2.9!! Input CO2 concentration (ppmv)
 C
-      READ(14,*) qCO2
+C      READ(14,*) qCO2
 c
 C***      CARD 7a - Changed in 2.9!! Choose ET spectrum
 C
-      READ(14,*)Ispctr
+C      READ(14,*)Ispctr
       
       if(Ispctr.lt.-1.or.Ispctr.gt.8)Ispctr=0
       if(ispctr.eq.-1)OPEN (UNIT=15,FILE='Solar/Spctrm_U.dat',
@@ -715,7 +744,7 @@ C
 C
 C***      CARD 8a if AEROS='USER'
 C
-      READ(14,*) ALPHA1,ALPHA2,OMEGL,GG
+C      READ(14,*) ALPHA1,ALPHA2,OMEGL,GG
       IAER=0
       GOTO 355
 C
@@ -830,7 +859,7 @@ C
 C***      CARD 9
 C
  355  continue
-      READ(14,*) ITURB
+C      READ(14,*) ITURB
 C
 C      SELECT THE APPROPRIATE TURBIDITY INPUT
 C
@@ -849,7 +878,7 @@ C
 C
 C***      CARD 9a if ITURB=0
 C
-      READ(14,*)TAU5
+C      READ(14,*)TAU5
       if(Zalt.ge.6.)tau5=t500mn
       GOTO 359
 C

@@ -21,9 +21,9 @@
 * ATMOSPHERE : MLS         AEROSOL TYPE: S&F_URBAN                                                       
 
 * INPUTS:
-     Pressure (mb) =  998.286   Ground Altitude (km) =   0.0115
+     Pressure (mb) =  997.930   Ground Altitude (km) =   0.0146
      Height above ground (km) =   0.1220
-     Relative Humidity (%) = 74.824   Precipitable Water (cm) =  2.7530
+     Relative Humidity (%) = 74.792   Precipitable Water (cm) =  2.7491
      Ozone (atm-cm) = 0.3316 or 331.6 Dobson Units
    AEROSOLS:  Optical Depth at 500 nm = 0.0840      Optical depth at 550 nm = 0.0738
        Angstrom's Beta = 0.0329       Schuepp's B = 0.0365
@@ -93,12 +93,12 @@ The following spectral variables will be output to file: smarts295.ext.txt
 
     BrO       CH2O        CH4      ClNO3         CO        CO2       HNO2       HNO3        NH3
 
-0.2500E-05 0.3000E-03 0.1255E+01 0.1200E-03 0.8584E-01 0.2927E+03 0.1000E-03 0.3834E-03 0.1655E-03
+0.2500E-05 0.3000E-03 0.1254E+01 0.1200E-03 0.8580E-01 0.2926E+03 0.1000E-03 0.3833E-03 0.1653E-03
 
 
      NO        NO2        NO3         N2        N2O         O2         O3         O4        SO2
 
-0.3197E-03 0.2182E-03 0.5000E-04 0.3610E+06 0.2357E+00 0.1653E+06 0.3316E+00 0.1653E+06 0.1050E-03
+0.3196E-03 0.2181E-03 0.5000E-04 0.3608E+06 0.2356E+00 0.1653E+06 0.3316E+00 0.1653E+06 0.1049E-03
 
 
 
@@ -126,13 +126,13 @@ Wavelength Range =  390.0 to 1015.0 nm;  Number of Wavelengths =   636
 *** BROADBAND IRRADIANCES (W/m2):
 
 * DIRECT BEAM AT NORMAL INCIDENCE:
-  Extraterrestrial =  850.73   Terrestrial =  642.50   Atmospheric Transmittance = 0.7552
+  Extraterrestrial =  850.73   Terrestrial =  642.56   Atmospheric Transmittance = 0.7553
 
 * FOR THE HORIZONTAL PLANE:
-  Direct Beam =  514.61   Diffuse =  74.14   Global =  588.74   Clearness index, KT = 0.4386
+  Direct Beam =  514.66   Diffuse =  74.12   Global =  588.77   Clearness index, KT = 0.4386
   Diffuse irradiance origination details:
-   Sky diffuse =  59.51   Back-scattered diffuse =  14.63
+   Sky diffuse =  59.49   Back-scattered diffuse =  14.63
 
 * FOR THE TILTED PLANE: 
-  Direct Beam =  201.39   Sky Diffuse = 137.77   Ground Reflected =  98.99   Global =  339.16
+  Direct Beam =  201.41   Sky Diffuse = 137.76   Ground Reflected =  99.00   Global =  339.18
 
