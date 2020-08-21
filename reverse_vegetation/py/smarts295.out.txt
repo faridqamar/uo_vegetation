@@ -14,7 +14,7 @@
 
 ****************************************************************
 
-   Reference for this run: Single_spectrum_example_to_test                                 
+   Reference for this run: Testing_arguments_in_pysmarts                                   
 
 ----------------------------------------------------------------
 
@@ -116,7 +116,7 @@ The following spectral variables will be output to file: smarts295.ext.txt
 *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
 
 ** SPECTRUM:
-   Total (0-100 µm) Extraterrestrial Irradiance used here = 1342.45 W/m2
+   Total (0-100 Aum) Extraterrestrial Irradiance used here = 1342.45 W/m2
   (i.e., 0.9827 times the selected solar constant, 1366.10 W/m2, due to the actual Sun-Earth distance.)
    Source for selected solar spectrum: Gueymard_2004                                                   
 

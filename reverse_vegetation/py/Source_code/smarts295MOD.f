@@ -29,9 +29,8 @@ C***
 C***    Consult the User's Manual for details and explanations
 C***      about the INPUT data cards and OUTPUT files!
 C
-C
-c      Program SMARTS_295
 c
+      Subroutine smarts295
       Double Precision TO3,TAUZ3,DIR,DIF0,DIF,GLOB,GLOBS,DIRH,FHTO,rocb
       Double Precision DIRS,DIFS,DIREXP,DIFEXP,DGRND,HT,DRAY,TH2O,TH2OP
       Double Precision TABS,TDIR,DAER,PFGS,PFD,PFB,GAMOZ,WPHT,GRNS
@@ -2022,7 +2021,7 @@ C
 c 
       if(iday.eq.1.and.nread.le.1)WRITE(16,126,iostat=ierr32)ESCC,
      1 SUNCOR,SolarC,Spctrm
- 126  FORMAT(/,33('*',2x),//,'** SPECTRUM:',/,'   Total (0-100 µm) ',
+ 126  FORMAT(/,33('*',2x),//,'** SPECTRUM:',/,'   Total (0-100 Aum) ',
      1 'Extraterrestrial Irradiance used here = ',F7.2,' W/m2',/,
      #'  (i.e., ',F6.4,' times the selected solar constant, ',f7.2,
      4 ' W/m2, due to the actual Sun-Earth distance.)',/,'   Source'
@@ -3488,7 +3487,7 @@ c
      5 'NTHETIC IRRADIANCE (W/m2) for 400-700 nm:',/,' BEAM NORMAL =',
      6 1x,f6.2,'  DIFFUSE HORIZONTAL = ',f6.2,'  GLOBAL HORIZONTAL =',
      7 1x,f6.2,'  GLOBAL TILT = ',f6.2,//,'*** PHOTOSYNTHETIC PHOTON '
-     8 ,'FLUX DENSITY (µmol m-2 s-1) for 400-700 nm:',/,' BEAM NORMAL'
+     8 ,'FLUX DENSITY (Aumol m-2 s-1) for 400-700 nm:',/,' BEAM NORMAL'
      6 ,' = ',f6.1,'  DIFFUSE HORIZONTAL = ',f6.1,
      7 '  GLOBAL HORIZONTAL = ',f6.1,'  GLOBAL TILT = ',f6.1,/)
       IF(ICIRC.ne.1.and.ICIRC.ne.2)goto 779
@@ -3593,7 +3592,7 @@ c
 		write(6, 9910) TotTime
  9910	format ("Total CPU time: ",f7.3," sec")
 c
-      STOP
+c      STOP
       END
 c
 c
@@ -3620,10 +3619,10 @@ c
      2  Wvla(1),Wvla(N),Wlmin,Wlmax,Minalb,Wvla(1),Maxalb,Wvla(N)
  195  Format('** WARNING #13 ',9('*'),/,'\\ Ground reflectance data ',
      2 'for ', A24,/,'\\ extend only from ',f6.4,' to ',
-     3  f6.4,' µm,',/,'\\ whereas the wavelength limits for this run ',
-     4 'are ',f6.4,' and ',f6.4,' µm.',/,'\\ Consequently, reflect',
-     5 'ance is fixed at ',F5.3,' below ',f6.4,' µm and at ',F5.3,
-     6 ' above ',f6.4,' µm.',//)
+     3  f6.4,' Aum,',/,'\\ whereas the wavelength limits for this run ',
+     4 'are ',f6.4,' and ',f6.4,' Aum.',/,'\\ Consequently, reflect',
+     5 'ance is fixed at ',F5.3,' below ',f6.4,' Aum and at ',F5.3,
+     6 ' above ',f6.4,' Aum.',//)
       Return
       End
 c
