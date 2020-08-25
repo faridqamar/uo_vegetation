@@ -1,20 +1,8 @@
-'MLS'										!Card3a Atmos
-10.0										!Card4a W
-0 0.3316									!Card5a IALT(altitude correction); AbO3 (ozone total column abundance [atm-cm])
 0.007 0.3 0.35 0.002 0.005 0.2 0.02 5e-5 0.053 0.05 	!Card6b gas concentrations
-370.0										!Card7 CO2 amount(ppm)
-0											!Card7a ISPCTR
 0.9111 1.3529 0.8 0.7						!Card8a ALPHA1, ALPHA2, OMEGL, GG
 0.084										!Card9a Turbidity coeff (Tau5)
 18											!Card 10 IALBDX Concrete slab
 18 90. 180.									!Card10c Tilt variables (IALBDg, receiver's tilt and azimuth)
-11											!Card12b Number of Variables to Print
 1 2 3 4 5 6 7 8 10 33 34					!Card12c Variable codes
-0											!Card 13 ICIRC
-1											!Card14 ISCAN
-1 395.46 1008.06 0.72 2.					!Card14a Gaussian filter shape, min & max wavelength, step, FWHM
-0											!Card15 ILLUM
-0											!Card16 IUV
-3											!Card17 IMASS
 2016 5 5 14.02 40.69442 -73.98615 -5		!Card17a year, month, day, LST hour, latitude, longitude, time zone
 

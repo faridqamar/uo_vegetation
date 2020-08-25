@@ -30,22 +30,44 @@ C***                 Height=0.122   [389]
 C***        Card 3: iAtmos=1 [419]
 C***        Card 4: IH2O=0 [429]
 C***        Card 5: IO3=0 [540]
+C***        Card 5a: IALT=0 [581]
 C***        Card 6: IGAS=0 [608]
 C***        Card 6a: ILOAD=0 [616]
+C***        Card 7: Ispctr=0 [744]
 C***        Card 8: AEROS='USER' [748]
 C***        Card 9: ITURB=0 [869]
 C***        Card 10b: Itilt=1 [1107]
-C***        Card 11: WLMN = 390 [1141]
-C***                 WLMX = 1015 [1142]
-C***                 Suncor = 1.0 [1143]
-C***                 SolarC = 1366.10 [1144]
+C***        Card 11: WLMN=390 [1141]
+C***                 WLMX=1015 [1142]
+C***                 Suncor=1.0 [1143]
+C***                 SolarC=1366.10 [1144]
 C***        Card 12: IPRT=2 [1160]
 C***        Card 12a: WPMN=390 [1166]
 C***                  WPMX=1015 [1167]
 C***                  INTVL=0.5 [1168]
+C***        Card 13: CIRC=0 [1254]
+C***        Card 14: ISCAN=1 [1291]
+C***        Card 14a: IFILT=1 [1300]
+C***                  WV1=395.46 [1301]
+C***                  WV2=1008.06 [1302]
+C***                  step=0.72 [1303]
+C***                  FWHM=2.0 [1304]
+C***        Card 15: ILLUM=0 [1315]
+C***        Card 16: IUV=0 [1343]
+C***        Card 17: IMASS=3 [1414]
 C
 c
-      Subroutine smarts295 ()
+      Subroutine smarts295 (myAtmos,myW,myAbO3, 
+     1                      myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3,
+     2                      myApNO,myApNO2,myApNO3,myApO3,myApSO2,
+     3                      myqCO2, IOTOT,
+     4                      FullSpectra, ConvSpectra)
+cc      Subroutine smarts295 (TAIR,RH,SEASON,TDAY, W, AbO3, qCO2)
+
+      REAL FullSpectra(12,636), ConvSpectra(6,851)
+Cf2py intent(in,out,copy) FullSpectra
+Cf2py intent(in,out,copy) ConvSpectra
+      
       Double Precision TO3,TAUZ3,DIR,DIF0,DIF,GLOB,GLOBS,DIRH,FHTO,rocb
       Double Precision DIRS,DIFS,DIREXP,DIFEXP,DGRND,HT,DRAY,TH2O,TH2OP
       Double Precision TABS,TDIR,DAER,PFGS,PFD,PFB,GAMOZ,WPHT,GRNS
@@ -72,10 +94,10 @@ c
       REAL BP0(7),BP1(7),BP2(7),BP3(7),AG0(7),AG1(7),AG2(7),AG3(7)
       REAL AG4(7),AG00(4),AG01(4),AG02(4),AG10(4),AG11(4),AG12(4)
       REAL AG20(4),AG21(4),AG22(4),AG30(4),AG31(4),AG32(4),AG40(4) 
-      Real Bmx(2),Bmwx(2),intvl,KW
+      Real Bmx(2),Bmwx(2),intvl,KW,myW
       REAL DECLI(12),RSUN(12)
       
-      INTEGER IOUT(54),CIEYr,year,day,DayoYr,DayUT
+      INTEGER IOUT(54),CIEYr,year,day,DayoYr,DayUT,IOTOT
       
       LOGICAL batch
 c
@@ -88,7 +110,7 @@ c
       Character*24 Out(54), Seasn2
       Character*12 Filter
       CHARACTER*6 SEASON, Area
-      CHARACTER*4 Atmos, YesNo
+      CHARACTER*4 myAtmos,Atmos, YesNo
 
       COMMON /SOLAR1/ WV,WLMN,wlmx,WV1,WV2
       COMMON /SOLAR2/ BNORM,GLOBH,GLOBT,DIRX,ETSPCT
@@ -217,8 +239,8 @@ c      RANGE1=1./340.85
       Iwarn9=0
       FileIn ='smarts295.inp.txt'
 cc      FileOut='smarts295.out.txt'
-      FileExt='smarts295.ext.txt'
-      FileScn='smarts295.scn.txt'
+cc      FileExt='smarts295.ext.txt'
+cc      FileScn='smarts295.scn.txt'
 C
 C
 C      Files (some with User-defined filenames)
@@ -299,7 +321,7 @@ c**********************************************************************
 c
 c
  3003  continue
-      TotTime    = etime(time)	
+      TotTime    = etime(time)
 
       OPEN (UNIT=14,FILE=FileIn,STATUS='OLD')
 cc      OPEN (UNIT=16,FILE=FileOut,STATUS='NEW')
@@ -432,8 +454,9 @@ cc      READ(14,*) iAtmos
 C
 C***      CARD 3a
 C
-      IF(iAtmos.EQ.0)READ(14,*)TAIR,RH,SEASON,TDAY
-      IF(iAtmos.EQ.1)READ(14,*)Atmos
+cc      IF(iAtmos.EQ.0)READ(14,*)TAIR,RH,SEASON,TDAY
+cc      IF(iAtmos.EQ.1)READ(14,*)Atmos
+      Atmos = myAtmos
 C
 C***      CARD 4
 C
@@ -506,7 +529,7 @@ c
       Iwarn2=1
       Call RefAtm(Zalt,dum1,dum2,dum3,dum4,dum5,W,dum6,1)
  349  continue
-
+ 
       IF(IH2O.NE.2)GOTO 319
 C
 C      SATURATION VAPOR PRESSURE FROM GUEYMARD (J. Appl. Met. 1993)
@@ -526,11 +549,13 @@ C
 C
 C***      CARD 4a if IH2O=0
 C
-      READ(14,*)W
+cc      READ(14,*)W
+      W = myW
 C
  328  CONTINUE
       if(w.le.12.)goto 327
 cc      write(16,1027,iostat=Ierr5)w
+      write(6,1027,iostat=Ierr5)w
  1027 format('*** ERROR #2 ***',/,' The value selected or calculated '
      1 ,'for precipitable water, w, is ',f10.3,', which is above the '
      2 ,'allowed maximum value of 12 cm. RUN ABORTED!')
@@ -566,7 +591,9 @@ C
 C***      CARD 5a if IO3=0
 C
  331  continue
-      READ(14,*) IALT,AbO3
+cc      READ(14,*) IALT,AbO3
+      IALT = 0
+      AbO3 = myAbO3
       if(AbO3.le.0.)goto 335
       OPEN (UNIT=23,FILE='Gases/Abs_O3UV.dat',STATUS='OLD')
       OPEN (UNIT=24,FILE='Gases/Abs_O3IR.dat',STATUS='OLD')
@@ -703,8 +730,18 @@ c
 c
 C***      CARD 6b - If iLoad = 0 --- New in 2.9
 c
-      if(iLoad.eq.0)Read(14,*)ApCH2O,ApCH4,ApCO,ApHNO2,ApHNO3,
-     3 ApNO,ApNO2,ApNO3,ApO3,ApSO2
+c      if(iLoad.eq.0)Read(14,*)ApCH2O,ApCH4,ApCO,ApHNO2,ApHNO3,
+c     3 ApNO,ApNO2,ApNO3,ApO3,ApSO2
+      ApCH2O = myApCH2O
+      ApCH4 = myApCH4
+      ApCO = myApCO
+      ApHNO2 = myApHNO2
+      ApHNO3 = myApHNO3
+      ApNO = myApNO
+      ApNO2 = myApNO2
+      ApNO3 = myApNO3
+      ApO3 = myApO3
+      ApSO2 = myApSO2 
 c
 c      Conversion from ppmv to atm-cm
 c
@@ -723,11 +760,13 @@ C
 C
 C***      CARD 7 - Changed in 2.9!! Input CO2 concentration (ppmv)
 C
-      READ(14,*) qCO2
+cc      READ(14,*) qCO2
+      qCO2 = myqCO2
 c
 C***      CARD 7a - Changed in 2.9!! Choose ET spectrum
 C
-      READ(14,*)Ispctr
+cc      READ(14,*)Ispctr
+      Ispctr = 0
       
       if(Ispctr.lt.-1.or.Ispctr.gt.8)Ispctr=0
       if(ispctr.eq.-1)OPEN (UNIT=15,FILE='Solar/Spctrm_U.dat',
@@ -882,6 +921,7 @@ C      SELECT THE APPROPRIATE TURBIDITY INPUT
 C
       if(iturb.le.5) goto 374
 cc      write(16,1949)
+      write(6,1949)
  1949 format(/,'***** ERROR #3!',/,' Input value for ',
      1 ' ITURB on Card 9 is > 5. Please specify a ',
      2 'smaller value.'/,' RUN ABORTED!')
@@ -933,6 +973,7 @@ C
  1824 continue
       If(Tau550.lt.5.0)goto 1826
 cc      Write(16,1920,iostat=Ierr6)Tau550
+      Write(6,1920,iostat=Ierr6)Tau550
  1920 Format(/,'***** ERROR #4!',/,' Input value for ',
      1 ' turbidity is too large (Tau550 = ',f6.1,'). Please specify a ',
      2 'smaller value.'/,' RUN ABORTED!')
@@ -971,6 +1012,7 @@ C
       if(zalt.ge.6.)goto 357
       If(Range.ge.1.0)goto 399
 cc      Write(16,192)
+      Write(6,192)
  192  Format(/,'***** ERROR #5!',/,' Input value for ',
      1 ' Meteorological Range is < 1 km. Please specify a larger',
      2 ' value.'/,' RUN ABORTED!')
@@ -1174,11 +1216,11 @@ cc      IF(INTVL.LT.0.5)WRITE(16,198)
  198  FORMAT(' *** WARNING #18 ***',/,'  Parameter INTVL on Card 12a',
      & ' is too low and will be defaulted to 0.5 nm.')
       IF(IPRT.lt.2)goto 392
-      OPEN(UNIT=17,FILE=FileExt,STATUS='NEW')
+cc      OPEN(UNIT=17,FILE=FileExt,STATUS='NEW')
 C
 C***      CARDS 12b if IPRT=2 TO 3
 C      
-      READ(14,*)IOTOT
+cc      READ(14,*)IOTOT
 C
 C***      CARDS 12c if IPRT=2 TO 3
 C      
@@ -1250,7 +1292,8 @@ cc      Write(16,148,iostat=Ierr16) Out(j)
 C
 C***      CARD 13
 C
-      READ(14,*) ICIRC
+cc      READ(14,*) ICIRC
+      ICIRC = 0
       
       IF(ICIRC.EQ.0)goto 401
 C
@@ -1285,19 +1328,26 @@ C
 C
 C***      CARD 14
 C
-      READ(14,*) ISCAN
+cc      READ(14,*) ISCAN
+      ISCAN = 1
 C
 C***      CARD 14a if ISCAN=1 - Modified in 2.9
 C
       FWHM=0.
       IF(ISCAN.ne.1)goto 379
-      READ(14,*)IFILT,WV1,WV2,step,FWHM
-      OPEN (UNIT=18,FILE=FileScn,STATUS='NEW')
+cc      READ(14,*)IFILT,WV1,WV2,step,FWHM
+      IFILT = 1
+      WV1 = 395.46
+      WV2 =  1008.06
+      step = 0.72
+      FWHM = 2.0
+cc      OPEN (UNIT=18,FILE=FileScn,STATUS='NEW')
  379  continue
 C
 C***      CARD 15
 C
-      READ(14,*)ILLUM
+cc      READ(14,*)ILLUM
+      ILLUM = 0
       IF(ILLUM.EQ.0)GOTO 408
       If(Illum.ge.1)Goto 403
       OPEN (UNIT=19,FILE='CIE_data/VLambda.dat',STATUS='OLD')
@@ -1323,7 +1373,8 @@ C
 C***      CARD 16
 C
  408  continue
-      READ(14,*)IUV
+cc      READ(14,*)IUV
+      IUV = 0
 C
 C      WAVELENGTH LIMITS MANIPULATION
 C
@@ -1391,8 +1442,9 @@ C
 C
 C***      CARD 17
 C
-      READ(14,*) IMASS
-      
+cc      READ(14,*) IMASS
+      IMASS = 3
+C
 C
 C      SOLAR POSITION LONG DO-LOOP
 C
@@ -1431,6 +1483,7 @@ C
       testx=abs(dsun-Latit)
       if(testx.le.85.)goto 897
 cc      write(16,1099,iostat=Ierr20)testx
+      write(6,1099,iostat=Ierr20)testx
  1099 format(/,90('*'),//,'*** ERROR #6 *** Sun is too low for the',
      1 ' specified date.',/,'[This condition must be ful',
      2 'filled: |declination - latitude| < 85 deg.',/,'The input data',
@@ -1549,6 +1602,7 @@ c
  3    CONTINUE
       IF(Zenit.LE.90.)GOTO 13
 cc      WRITE(16,103,iostat=Ierr24)Zenit
+      WRITE(6,103,iostat=Ierr24)Zenit
  103  FORMAT(//,'** ERROR #7 *** Value of Zenit = ',F6.2,' is > 90 deg.'
      1 ,' RUN ABORTED!')
       GOTO 898
@@ -1584,6 +1638,7 @@ C
  99   continue
       If(Amass.le.38.2)goto 98
 cc      Write(16,109,iostat=Ierr25)Amass
+      Write(6,109,iostat=Ierr25)Amass
  109  Format(//,'** ERROR #8 *** Value of AMASS = ',f6.2,' is > 38.2. ',
      1 'RUN ABORTED!')
       Goto 898
@@ -2233,7 +2288,7 @@ cc      WRITE(16,116)
      8  '       ---- TILTED PLANE ---',/)
  65   CONTINUE
       If(IPRT.lt.2) goto 5008
-      Write(17,113,iostat=ierr35) (Out(Iout(i)),i=1,IOTOT)
+cc      Write(17,113,iostat=ierr35) (Out(Iout(i)),i=1,IOTOT)
  113  Format('Wvlgth',50(1x,a24))
  5008   continue
 C
@@ -2246,6 +2301,7 @@ C
       WVOLD=wlmn-1.
       IF(wlmn.GE.1705.)WVOLD=wlmn-5.
       iF(wlmn.le.400.)WVOLD=wlmn-0.5
+      myind = 1
 c
  15   continue
       READ (15,*,END=999) IWVLN1,H0
@@ -3402,9 +3458,12 @@ c
       do 457 io=1,IOTOT
       jo=IOUT(io)
       Xout(io)=Output(jo)
+      FullSpectra(io+1,myind) = Xout(io)
  457  continue
-      WRITE(17,121,iostat=ierr40)WVLN,(Xout(io),io=1,IOTOT)
+cc      WRITE(17,121,iostat=ierr40)WVLN,(Xout(io),io=1,IOTOT)
  121  FORMAT(e9.4,50(1X,e9.4))
+      FullSpectra(1,myind) = WVLN
+      myind = myind + 1
  953  CONTINUE
       GOTO 15
  999  CONTINUE
@@ -3577,17 +3636,17 @@ c
       IF(ISCAN.EQ.0)GOTO 898
       filter='Gaussian'
       if(ifilt.eq.0)FILTER='Triangular'
-      WRITE(18,155,iostat=ierr80)FWHM,step,filter
+cc      WRITE(18,155,iostat=ierr80)FWHM,step,filter
  155  FORMAT(' SMOOTHED RESULTS TO SIMULATE A ',F5.2,' nm FWHM',
      # ' INSTRUMENT AND A WAVELENGTH STEP OF ',f4.1,' nm,',/,
      2 ' Shape selected: ',A12)
-      WRITE(18,193)
+cc      WRITE(18,193)
  193  FORMAT('   WVLGTH',2X,'ET_SPCTRUM  BEAM_NORMAL',
      2 ' BEAM_NORM+  GLOB_HORIZ  GLOBL_TILT',/)
       IF(IFILT.NE.1)GOTO 91
       sigma2=fwhm*fwhm/5.5451774
       fk=fwhm*2.
-      CALL ScanG(step,FWHM,fk,sigma2,Nwmx)
+      CALL ScanG(step,FWHM,fk,sigma2,Nwmx,ConvSpectra)
       GOTO 92
  91   CONTINUE
       fk=fwhm
@@ -3600,8 +3659,8 @@ c
       CLOSE (UNIT=14,STATUS='KEEP')
       CLOSE (UNIT=15,STATUS='KEEP')
 cc      CLOSE (UNIT=16,STATUS='KEEP')
-      IF(IPRT.ge.2)CLOSE (UNIT=17,STATUS='KEEP')
-      IF(Iscan.eq.1)CLOSE (UNIT=18,STATUS='KEEP')
+cc      IF(IPRT.ge.2)CLOSE (UNIT=17,STATUS='KEEP')
+cc      IF(Iscan.eq.1)CLOSE (UNIT=18,STATUS='KEEP')
       CLOSE (UNIT=20,STATUS='KEEP')
       IF(w.gt.0.)CLOSE (UNIT=21,STATUS='KEEP')
       CLOSE (UNIT=22,STATUS='KEEP')
@@ -3630,6 +3689,7 @@ c
  9910   format ("Total CPU time: ",f7.3," sec")
 c
 c      STOP
+      Return
       END
 c
 c
@@ -5472,11 +5532,11 @@ c
 c
 c
 c
-      Subroutine ScanG(step,FWHM,fk,sigma2,N)
+      Subroutine ScanG(step,FWHM,fk,sigma2,N,ConvSpectra)
 c
 c      Smoothes irradiance with a Gaussian filter
 c
-      Real wv(2002),ET(2002),limit1,limit2
+      Real wv(2002),ET(2002),limit1,limit2,ConvSpectra(6,851)
       DOUBLE PRECISION TB,TG,TT,TX
       DOUBLE PRECISION BNORM(2002),GLOBH(2002),GLOBT(2002),DIRX(2002)
       COMMON /SOLAR1/ WV,WvLMN,WvLMX,WV1,WV2
@@ -5484,24 +5544,24 @@ c
 c
       if(wv1.gt.wvlmn+fwhm)goto 10
       if(wv1.gt.wvlmn+.5*fwhm)goto 11
-      write(18,100)
+cc      write(18,100)
  100  format(' ** WARNING #14',/,'Lower limit for scans needs to',
      1  'be > WV1 + 0.5*FWHM!',/)
       goto 999
  11   continue
-      write(18,101)
+cc      write(18,101)
  101  format(' ** WARNING #15 ',9('*'),/,'\\ Lower limit for scans is',
      1 ' not > WV1 + FWHM.',/,'\\ This will reduce accuracy in the ',
      2 'results for the first wavelengths.',/)
  10   continue
       if(wv2.lt.wvlmx-fwhm)goto 20
       if(wv2.lt.wvlmx-.5*fwhm)goto 21
-      write(18,102)
+cc      write(18,102)
  102  format(' ** WARNING #16',/,'Upper limit for scans needs to',
      1 ' be < WV2 - 0.5*FWHM!',/)
       goto 999
  21   continue
-      write(18,103)
+cc      write(18,103)
  103  format('** WARNING #17',9('*'),/,'\\ Upper limit for scans is',
      1 ' not < WV2 - FWHM.',/,'\\ This will reduce accuracy in the ',
      2 'results for the last wavelengths.',/)
@@ -5510,6 +5570,7 @@ c
 c      Find the limits for spectral integration
 c
       wvc=wv1
+      cind = 1
  40   continue
       dw1=1.
       d1=aint(wvc-fk)
@@ -5561,8 +5622,15 @@ c
       T0=T0/Totwi
       TX=TX/Totwi
 c
-      write(18,200)wvc,T0,TB,TX,TG,TT
+cc      write(18,200)wvc,T0,TB,TX,TG,TT
  200  FORMAT(3x,f6.1,2X,5(E10.4,2X))
+      ConvSpectra(1,cind)=wvc
+      ConvSpectra(2,cind)=T0
+      ConvSpectra(3,cind)=TB
+      ConvSpectra(4,cind)=TX
+      ConvSpectra(5,cind)=TG
+      ConvSpectra(6,cind)=TT
+      cind = cind + 1
       wvc=wvc+step
       if(wvc.le.wv2)goto 40
  999  continue
@@ -5584,24 +5652,24 @@ c
 c
       if(wv1.gt.wvlmn+fwhm)goto 10
       if(wv1.gt.wvlmn+.5*fwhm)goto 11
-      write(18,100)
+cc      write(18,100)
  100  format(' ** WARNING #14',/,'Lower limit for scans needs to',
      1 ' be > WV1 + 0.5*FWHM!',/)
       goto 999
  11   continue
-      write(18,101)
+cc      write(18,101)
  101  format(' ** WARNING #15 ',9('*'),/,'\\ Lower limit for scans is',
      1 ' not > WV1 + FWHM.',/,'\\ This will reduce accuracy in the ',
      2 'results for the first wavelengths.',/)
  10   continue
       if(wv2.lt.wvlmx-fwhm)goto 20
       if(wv2.lt.wvlmx-.5*fwhm)goto 21
-      write(18,102)
+cc      write(18,102)
  102  format(' ** WARNING #16',/,'Upper limit for scans needs to be < ',
      1 'WV2 - 0.5*FWHM!',/)
       goto 999
  21   continue
-      write(18,103)
+cc      write(18,103)
  103  format('** WARNING #17',9('*'),/,'\\ Upper limit for scans is',
      1 ' not < WV2 - FWHM.',/,'\\ This will reduce accuracy in the ',
      2 'results for the last wavelengths.',/)
@@ -5661,7 +5729,7 @@ c
       T0=T0/Totwi
       TX=TX/Totwi
 c      
-      write(18,200)wvc,T0,TB,TX,TG,TT
+cc      write(18,200)wvc,T0,TB,TX,TG,TT
  200  FORMAT(3x,f6.1,2X,5(E10.4,2X))
       wvc=wvc+step
       if(wvc.le.wv2)goto 40
