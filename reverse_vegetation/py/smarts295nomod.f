@@ -30,12 +30,7 @@ C***    Consult the User's Manual for details and explanations
 C***      about the INPUT data cards and OUTPUT files!
 C
 c
-      Subroutine smarts295 (iAtmos,Atmos,IH2O,W,IO3,IALT,AbO3,
-     1                      IGAS,iLoad,ApCH2O,ApCH4,ApCO,ApHNO2,ApHNO3,
-     2                      ApNO,ApNO2,ApNO3,ApO3,ApSO2,qCO2,Ispctr,
-     3                      ALPHA1,ALPHA2,OMEGL,GG,ITURB,TAU5,Ialbdx,
-     4                      Ialbdg,TILT,WAZIM,Suncor,SolarC,
-     5                      YEAR,month,DAY,HOUR)
+      Subroutine smarts295 ()
       Double Precision TO3,TAUZ3,DIR,DIF0,DIF,GLOB,GLOBS,DIRH,FHTO,rocb
       Double Precision DIRS,DIFS,DIREXP,DIFEXP,DGRND,HT,DRAY,TH2O,TH2OP
       Double Precision TABS,TDIR,DAER,PFGS,PFD,PFB,GAMOZ,WPHT,GRNS
@@ -65,10 +60,9 @@ c
       Real Bmx(2),Bmwx(2),intvl,KW
       REAL DECLI(12),RSUN(12)
       
-      INTEGER IOUT(11),CIEYr,year,day,DayoYr,DayUT
-      INTEGER ISPR,iAtmos
+      INTEGER IOUT(54),CIEYr,year,day,DayoYr,DayUT
       
-c      LOGICAL batch
+      LOGICAL batch
 c
       CHARACTER*2000 Path
       CHARACTER*100 FileIn,FileOut,FileExt,FileScn, Usernm
@@ -190,8 +184,8 @@ c
 c     To obtain the command-line "batch" version, remove the comment sign
 c     "c" on line 189!
 c
-c       batch=.FALSE.
-c       batch=.TRUE.
+       batch=.FALSE.
+       batch=.TRUE.
 c
 c===================================
 c
@@ -206,8 +200,8 @@ c      RANGE1=1./340.85
       Iwarn7=0
       Iwarn8=0
       Iwarn9=0
-c      FileIn ='smarts295.inp.txt'
-c      FileOut='smarts295.out.txt'
+      FileIn ='smarts295.inp.txt'
+      FileOut='smarts295.out.txt'
       FileExt='smarts295.ext.txt'
       FileScn='smarts295.scn.txt'
 C
@@ -216,126 +210,84 @@ C      Files (some with User-defined filenames)
 c
 c----------------------------------------------------------------------
 c
-c      Hardcoding some variables
-c      Card 1
-      COMNT = 'PySMARTS_Atmospheric_Simulation'
-c      Card 2 and 2a
-      ISPR = 2
-      Latit = 40.69442
-      Altit = 0.011458
-      Height = 0.122
-c      Card 8
-      AEROS='USER'
-c      Card 10b
-      Itilt=1
-c      Card 11
-      WLMN = 390
-      WLMX = 1015
-c      Card 12 and 12a
-      IPRT = 2
-      WPMN = WLMN
-      WPMX = WLMX
-      INTVL = 0.5
-c      Card 12b and c 
-c      NOTE: change declaration of IOUT above if IOTOT changes
-      IOTOT = 11
-      DATA IOUT/1,2,3,4,5,6,7,8,10,33,34/
-c      Card 13 (no circumsolar calc., change if collimator known 
-      ICIRC = 0
-c      SLOPE = 
-c      APERT = 
-c      LIMIT = 
-c      Card 14 and 14a
-      ISCAN = 1
-      IFILT = 1
-      WV1 = 395.46
-      WV2 = 1008.06
-      step = 0.72
-      FWHM = 2.0
-c      Card 15
-      ILLUM = 0
-c      Card 16
-      IUV = 0
-c      Card 17 and 17a (some)
-      IMASS = 3
-      Longit = -73.98615
-      ZONE = -5
+c       
+c      
 c
 c**********************************************************************
 c
-c      smart=' Welcome to SMARTS, version 2.9.5!'
-c      write(6,314,iostat=Ierr1) smart
-c 314  format(/,35('*'),/,a48,/,35('*'))
+      smart=' Welcome to SMARTS, version 2.9.5!'
+      write(6,314,iostat=Ierr1) smart
+ 314  format(/,35('*'),/,a48,/,35('*'))
 c
-c      if(batch)goto 313
+      if(batch)goto 313
 c
-c      write(6,3001)
-c 3001  format('$$$ SMARTS_295> ',
-c     1 'Use standard mode with default input file?'/,' [If YES (or Y)',
-c     2 ', execution will start immediately',/,'using the default ',
-c     3 'input file smarts295.inp.txt]',/,' (Y/N) ==>')
-c      Read(5,*) YesNo
-c      If(YesNo.eq.'Y'.or.YesNo.eq.'y'.or.YesNo.eq.'yes'.
-c     1  or.YesNo.eq.'YES')goto 3003
-c 312  continue
-c      Write(6,3140)
-c 3140 Format('$$$ SMARTS_295> What is the path to the input file?',/,
-c     1 ' * Type only "." if in the same folder',/,' * Do NOT type ',
-c     2 'the last "/" of the chain',/,' * 2000 characters max. ==>')
-c      Read(5,*) Path
-c      Write(6,315)
-c 315  Format('$$$ SMARTS_295> Generic name for all input/output ',
-c     1 'files ',/,' * without any extension',/,' * 100 characters ',
-c     2 'max.)? ==>')
-c      Read(5,*) Usernm
-c      Iname=Index(Usernm,' ') - 1
-c      FileIn =Usernm(1:Iname)//'.inp.txt'
-c      FileOut=Usernm(1:Iname)//'.out.txt'
-c      FileExt=Usernm(1:Iname)//'.ext.txt'
-c      FileScn=Usernm(1:Iname)//'.scn.txt'
-c      Write(6,317,iostat=Ierr3) FILEIN,FILEOUT,FILEEXT,filescn
-c 317  Format('$$$ SMARTS_295> You chose the following filenames:',/,
-c     1 ' Input: ',A100,/,' Output: ',A100,/,' Spreadsheet-',
-c     2 'ready: ',A100,/,' Smoothed results: ',A100,/,
-c     3 '$$$ SMARTS_295> Is this OK? (Y/N) ==>')
-c      Read(5,*) YesNo
-c      If(YesNo.eq.'N'.or.YesNo.eq.'n'.or.YesNo.eq.'no'.
-c     1  or.YesNo.eq.'NO')goto 312
-c      if(Path.eq.'.')goto 3003
-c      mname=Index(Path,' ')-1
-c      FileIn ='/'//FileIn
-c      FileOut='/'//FileOut
-c      FileExt='/'//FileExt
-c      FileScn='/'//FileScn
-c      FileIn =Path(1:mname)//FileIn
-c      FileOut=Path(1:mname)//FileOut
-c      FileExt=Path(1:mname)//FileExt
-c      FileScn=Path(1:mname)//FileScn
-c      goto 3003
-c 313  continue
+      write(6,3001)
+ 3001  format('$$$ SMARTS_295> ',
+     1 'Use standard mode with default input file?'/,' [If YES (or Y)',
+     2 ', execution will start immediately',/,'using the default ',
+     3 'input file smarts295.inp.txt]',/,' (Y/N) ==>')
+      Read(5,*) YesNo
+      If(YesNo.eq.'Y'.or.YesNo.eq.'y'.or.YesNo.eq.'yes'.
+     1  or.YesNo.eq.'YES')goto 3003
+ 312  continue
+      Write(6,3140)
+ 3140 Format('$$$ SMARTS_295> What is the path to the input file?',/,
+     1 ' * Type only "." if in the same folder',/,' * Do NOT type ',
+     2 'the last "/" of the chain',/,' * 2000 characters max. ==>')
+      Read(5,*) Path
+      Write(6,315)
+ 315  Format('$$$ SMARTS_295> Generic name for all input/output ',
+     1 'files ',/,' * without any extension',/,' * 100 characters ',
+     2 'max.)? ==>')
+      Read(5,*) Usernm
+      Iname=Index(Usernm,' ') - 1
+      FileIn =Usernm(1:Iname)//'.inp.txt'
+      FileOut=Usernm(1:Iname)//'.out.txt'
+      FileExt=Usernm(1:Iname)//'.ext.txt'
+      FileScn=Usernm(1:Iname)//'.scn.txt'
+      Write(6,317,iostat=Ierr3) FILEIN,FILEOUT,FILEEXT,filescn
+ 317  Format('$$$ SMARTS_295> You chose the following filenames:',/,
+     1 ' Input: ',A100,/,' Output: ',A100,/,' Spreadsheet-',
+     2 'ready: ',A100,/,' Smoothed results: ',A100,/,
+     3 '$$$ SMARTS_295> Is this OK? (Y/N) ==>')
+      Read(5,*) YesNo
+      If(YesNo.eq.'N'.or.YesNo.eq.'n'.or.YesNo.eq.'no'.
+     1  or.YesNo.eq.'NO')goto 312
+      if(Path.eq.'.')goto 3003
+      mname=Index(Path,' ')-1
+      FileIn ='/'//FileIn
+      FileOut='/'//FileOut
+      FileExt='/'//FileExt
+      FileScn='/'//FileScn
+      FileIn =Path(1:mname)//FileIn
+      FileOut=Path(1:mname)//FileOut
+      FileExt=Path(1:mname)//FileExt
+      FileScn=Path(1:mname)//FileScn
+      goto 3003
+ 313  continue
 c      numarg = iargc()
-c      numarg = 0
-c      if(numarg.eq.0)goto 3003
-c      if(numarg.eq.1)goto 3002
-c      write(6,322)
-c 322  format('*** ERROR ***',/,' Too many arguments given to SMARTS. '
-c     1 ,'Only one file name should be given. RUN ABORTED!')
-c      STOP
-c 3002  call getarg (1, Usernm)
-c      Iname=Index(Usernm,' ') - 1
-c      FileIn =Usernm(1:Iname)//'.inp.txt'
-c      FileOut=Usernm(1:Iname)//'.out.txt'
-c      FileExt=Usernm(1:Iname)//'.ext.txt'
-c      FileScn=Usernm(1:Iname)//'.scn.txt'
+      numarg = 0
+      if(numarg.eq.0)goto 3003
+      if(numarg.eq.1)goto 3002
+      write(6,322)
+ 322  format('*** ERROR ***',/,' Too many arguments given to SMARTS. '
+     1 ,'Only one file name should be given. RUN ABORTED!')
+      STOP
+ 3002  call getarg (1, Usernm)
+      Iname=Index(Usernm,' ') - 1
+      FileIn =Usernm(1:Iname)//'.inp.txt'
+      FileOut=Usernm(1:Iname)//'.out.txt'
+      FileExt=Usernm(1:Iname)//'.ext.txt'
+      FileScn=Usernm(1:Iname)//'.scn.txt'
 c
 c**********************************************************************
 c
 c
-c 3003  continue
-      TotTime    = etime(time)
+ 3003  continue
+      TotTime    = etime(time)	
 
-c      OPEN (UNIT=14,FILE=FileIn,STATUS='OLD')
-c      OPEN (UNIT=16,FILE=FileOut,STATUS='NEW')
+      OPEN (UNIT=14,FILE=FileIn,STATUS='OLD')
+      OPEN (UNIT=16,FILE=FileOut,STATUS='NEW')
       OPEN (UNIT=22,FILE='Gases/Abs_O2.dat',STATUS='OLD')
       OPEN (UNIT=25,FILE='Gases/Abs_O4.dat',STATUS='OLD')
       OPEN (UNIT=26,FILE='Gases/Abs_N2.dat',STATUS='OLD')
@@ -375,25 +327,25 @@ c      OPEN (UNIT=16,FILE=FileOut,STATUS='NEW')
 C
 C***      CARD 1
 C
-C      READ(14,*) COMNT
+      READ(14,*) COMNT
 C
 C***      CARD 2
 C
-C      READ(14,*) ISPR
+      READ(14,*) ISPR
       IF(ISPR.EQ.1)GOTO 301
       IF(ISPR.EQ.2)GOTO 302
 C
 C***      CARD 2a if ISPR=0
 C
-C      READ(14,*) SPR
-C      if(spr.ge.265.)goto 298
-C      if(spr.ge.4e-3)goto 299
-C     spr=4.1e-4
-C      Altit=0.
-C      Height=99.9
-C      Zalt=99.9
-C      Iwarn1=1
-C      goto 300
+      READ(14,*) SPR
+      if(spr.ge.265.)goto 298
+      if(spr.ge.4e-3)goto 299
+      spr=4.1e-4
+      Altit=0.
+      Height=99.9
+      Zalt=99.9
+      Iwarn1=1
+      goto 300
 C
 C      APPROXIMATE FUNCTION SPR=F(altit,Latit) ACCORDING TO GUEYMARD 
 C         (SOLAR ENERGY 1993)--Improved in 2.9.3 for altit>10 km
@@ -417,22 +369,22 @@ C
 C
 C***      CARD 2a if ISPR=1 *** "Height" input added in 2.9.3 ***
 C
-C      READ(14,*)SPR,Altit, Height
+      READ(14,*)SPR,Altit, Height
       Zalt=Altit+Height
       if(Zalt.le.100.)goto 300
-c      write(16,1599)
-c 1599 format('*** ERROR #1 ***',/,' The altitude cannot be > 100 km!',
-c     1 /,' RUN ABORTED!')
+      write(16,1599)
+ 1599 format('*** ERROR #1 ***',/,' The altitude cannot be > 100 km!',
+     1 /,' RUN ABORTED!')
       GOTO 998
  302  CONTINUE
 C
 C***      CARD 2a if ISPR=2 *** Height added in 2.9.3 ***
 C
-C      READ(14,*)Latit,Altit, Height
+      READ(14,*)Latit,Altit, Height
       Zalt=Altit+Height
       alati=abs(latit)
       if(Zalt.le.100.)goto 281
-c      write(16,1599)
+      write(16,1599)
       GOTO 998
  281  continue
       If(Latit.lt.-90.D00)Latit=45.D00
@@ -455,16 +407,16 @@ c      ZAlt2=Zalt*Zalt
 C
 C***      CARD 3
 C
-C      READ(14,*) iAtmos
+      READ(14,*) iAtmos
 C
 C***      CARD 3a
 C
-C      IF(iAtmos.EQ.0)READ(14,*)TAIR,RH,SEASON,TDAY
-C      IF(iAtmos.EQ.1)READ(14,*)Atmos
+      IF(iAtmos.EQ.0)READ(14,*)TAIR,RH,SEASON,TDAY
+      IF(iAtmos.EQ.1)READ(14,*)Atmos
 C
 C***      CARD 4
 C
-C      READ(14,*) IH2O
+      READ(14,*) IH2O
 C      
  311  continue
       IF(iAtmos.NE.1)GOTO 320
@@ -552,14 +504,14 @@ C
 C
 C***      CARD 4a if IH2O=0
 C
-C      READ(14,*)W
+      READ(14,*)W
 C
  328  CONTINUE
       if(w.le.12.)goto 327
-c      write(16,1027,iostat=Ierr5)w
-c 1027 format('*** ERROR #2 ***',/,' The value selected or calculated '
-c     1 ,'for precipitable water, w, is ',f10.3,', which is above the '
-c     2 ,'allowed maximum value of 12 cm. RUN ABORTED!')
+      write(16,1027,iostat=Ierr5)w
+ 1027 format('*** ERROR #2 ***',/,' The value selected or calculated '
+     1 ,'for precipitable water, w, is ',f10.3,', which is above the '
+     2 ,'allowed maximum value of 12 cm. RUN ABORTED!')
       goto 998      
  327  continue
       if(w.le.0.)goto 776
@@ -574,7 +526,7 @@ C
       IALT=0
       Thick=1.
  329  continue
-C      READ(14,*)IO3
+      READ(14,*)IO3
       IF(IO3.ne.1)GOTO 331
       IF(iAtmos.ne.0)goto 348
       Call RefAtm(Zalt,dum1,dum2,dum3,O3ref,dum5,dum6,dum7,1)
@@ -591,7 +543,7 @@ C
 C***      CARD 5a if IO3=0
 C
  331  continue
-C      READ(14,*) IALT,AbO3
+      READ(14,*) IALT,AbO3
       if(AbO3.le.0.)goto 335
       OPEN (UNIT=23,FILE='Gases/Abs_O3UV.dat',STATUS='OLD')
       OPEN (UNIT=24,FILE='Gases/Abs_O3IR.dat',STATUS='OLD')
@@ -641,13 +593,13 @@ C***      CARD 6 - Modified in 2.9! Now refers to gaseous pollution...
 C
       Load='STANDARD'
 c
-C      READ(14,*)IGAS
+      READ(14,*)IGAS
       IF(IGAS.EQ.1)GOTO 340
 C
 C***CARD 6a if      IGAS=0 - Changed in 2.9! Now inputs gaseous overload
 c      in the lower 1-km pollution layer (in ppmv)
 C
-C      READ(14,*)iLoad
+      READ(14,*)iLoad
       Load='USER-DEFINED'
       ApCH2O=-.003
       ApCH4=0.
@@ -726,8 +678,8 @@ c
 c
 C***      CARD 6b - If iLoad = 0 --- New in 2.9
 c
-C      if(iLoad.eq.0)Read(14,*)ApCH2O,ApCH4,ApCO,ApHNO2,ApHNO3,
-C     3 ApNO,ApNO2,ApNO3,ApO3,ApSO2
+      if(iLoad.eq.0)Read(14,*)ApCH2O,ApCH4,ApCO,ApHNO2,ApHNO3,
+     3 ApNO,ApNO2,ApNO3,ApO3,ApSO2
 c
 c      Conversion from ppmv to atm-cm
 c
@@ -746,11 +698,11 @@ C
 C
 C***      CARD 7 - Changed in 2.9!! Input CO2 concentration (ppmv)
 C
-C      READ(14,*) qCO2
+      READ(14,*) qCO2
 c
 C***      CARD 7a - Changed in 2.9!! Choose ET spectrum
 C
-C      READ(14,*)Ispctr
+      READ(14,*)Ispctr
       
       if(Ispctr.lt.-1.or.Ispctr.gt.8)Ispctr=0
       if(ispctr.eq.-1)OPEN (UNIT=15,FILE='Solar/Spctrm_U.dat',
@@ -777,12 +729,12 @@ c
 C
 C***      CARD 8
 C
-C      READ(14,*) AEROS
+      READ(14,*) AEROS
       IF(AEROS.NE.'USER')GOTO 350
 C
 C***      CARD 8a if AEROS='USER'
 C
-C      READ(14,*) ALPHA1,ALPHA2,OMEGL,GG
+      READ(14,*) ALPHA1,ALPHA2,OMEGL,GG
       IAER=0
       GOTO 355
 C
@@ -897,15 +849,15 @@ C
 C***      CARD 9
 C
  355  continue
-C      READ(14,*) ITURB
+      READ(14,*) ITURB
 C
 C      SELECT THE APPROPRIATE TURBIDITY INPUT
 C
       if(iturb.le.5) goto 374
-c      write(16,1949)
-c 1949 format(/,'***** ERROR #3!',/,' Input value for ',
-c     1 ' ITURB on Card 9 is > 5. Please specify a ',
-c     2 'smaller value.'/,' RUN ABORTED!')
+      write(16,1949)
+ 1949 format(/,'***** ERROR #3!',/,' Input value for ',
+     1 ' ITURB on Card 9 is > 5. Please specify a ',
+     2 'smaller value.'/,' RUN ABORTED!')
       goto 998
  374  continue
       IF(ITURB.EQ.1)  GOTO 351
@@ -916,28 +868,28 @@ c     2 'smaller value.'/,' RUN ABORTED!')
 C
 C***      CARD 9a if ITURB=0
 C
-C      READ(14,*)TAU5
+      READ(14,*)TAU5
       if(Zalt.ge.6.)tau5=t500mn
       GOTO 359
 C
 C***      CARD 9a if ITURB=1
 C
  351  continue
-C      READ(14,*) BETA
+      READ(14,*) BETA
       TAU5=BETA/(0.5**ALPHA2)
       GOTO 359
  352  CONTINUE
 C
 C***      CARD 9a if ITURB=2
 C
-C      READ(14,*)BCHUEP
+      READ(14,*)BCHUEP
       TAU5=BCHUEP*2.302585
       goto 359
 C
 C***      CARD 9a if ITURB=5 *** Added in 2.9.3 ***
 C
  3560 continue
-C      READ(14,*) Tau550
+      READ(14,*) Tau550
       TAU5=Tau550*(1.1**ALPHA2)
  359  CONTINUE
       if(zalt.ge.6.)goto 357
@@ -953,10 +905,10 @@ C      READ(14,*) Tau550
       beta=Tau5*(.5**alpha2)
  1824 continue
       If(Tau550.lt.5.0)goto 1826
-c      Write(16,1920,iostat=Ierr6)Tau550
-c 1920 Format(/,'***** ERROR #4!',/,' Input value for ',
-c     1 ' turbidity is too large (Tau550 = ',f6.1,'). Please specify a ',
-c     2 'smaller value.'/,' RUN ABORTED!')
+      Write(16,1920,iostat=Ierr6)Tau550
+ 1920 Format(/,'***** ERROR #4!',/,' Input value for ',
+     1 ' turbidity is too large (Tau550 = ',f6.1,'). Please specify a ',
+     2 'smaller value.'/,' RUN ABORTED!')
       goto 998
  1826 continue
 C
@@ -977,24 +929,24 @@ C
 C
 C***      CARD 9a if ITURB=4
 C
-C      READ(14,*)VISI
+      READ(14,*)VISI
       RANGE=1.306*VISI
       GOTO 356
  353  CONTINUE
 C
 C***      CARD 9a if ITURB=3
 C
-C      READ(14,*)RANGE
+      READ(14,*)RANGE
  356  CONTINUE
 C
 C      FIT BASED ON MODTRAN4 - Modified in 2.9.2
 C
       if(zalt.ge.6.)goto 357
       If(Range.ge.1.0)goto 399
-c      Write(16,192)
-c 192  Format(/,'***** ERROR #5!',/,' Input value for ',
-c     1 ' Meteorological Range is < 1 km. Please specify a larger',
-c     2 ' value.'/,' RUN ABORTED!')
+      Write(16,192)
+ 192  Format(/,'***** ERROR #5!',/,' Input value for ',
+     1 ' Meteorological Range is < 1 km. Please specify a larger',
+     2 ' value.'/,' RUN ABORTED!')
       goto 998
  399  continue
       Range=Min(Range,999.)
@@ -1026,99 +978,99 @@ c
       if(Tau550.lt.Taumin.or.Tau550.gt.Taumax)Iwarn8=1
  3591 continue
 C
-c      WRITE(16,194,iostat=Ierr7) COMNT,Atmos,AEROS
-c 194  FORMAT(/,'******************   SMARTS, version 2.9.5   *********'
-c     % ,'**********',//,
-c     %' Simple Model of the Atmospheric Radiative Transfer of Sunshine'
-c     % ,/,5X,'Chris A. Gueymard, Solar Consulting Services',/,20x,
-c     & 'December 2005',//,
-c     1 4X,'This model is documented in FSEC Report PF-270-95',/,
-c     2 ' and in a Solar Energy paper, vol. 71, No.5, 325-346 (2001)',
-c     3 //,' NOTE: These references describe v. 2.8 or earlier!!!',/,
-c     4 ' See the User''s Manual for details on the considerable ',/,
-c     5 ' changes that followed...',//,
-c     %'*************************************************************'
-c     % ,'***'//,2x,' Reference for this run: ',A64,//,64('-'),//,
-c     % '* ATMOSPHERE : ',A4,'        AEROSOL TYPE: ',A64,/)
-c      WRITE(16,100,iostat=Ierr8) SPR,Altit,Height,RH,W,UOC,uoc*1000.,
-c     % TAU5,Tau550,BETA,BCHUEP,RANGE,VISI,ALPHA1,ALPHA2,ALPHA,Seasn2
-c 100  FORMAT('* INPUTS:'/,5x,'Pressure (mb) = ',F8.3,'   Ground ', 
-c     % 'Altitude (km) = ',F8.4,/,5x,'Height above ground (km) = ',f8.4,
-c     2 /,5X,'Relative Humidity (%) = ',F6.3,3X,
-c     3 'Precipitable Water (cm) = ',F7.4,/,5x,'Ozone (atm-cm) = ',F6.4,
-c     1 ' or ',f5.1,' Dobson Units',/,3X,'AEROSOLS:  ','Optical Depth at'
-c     # ,' 500 nm = ',F6.4,'      Optical depth at 550 nm = ',f6.4,/,
-c     6 '       Angstrom''s Beta = ',F6.4,'       Schuepp''s'
-c     %,' B = ',F6.4,/,5x,'Meteorological Range (km) = ',F6.1,'   Visi'
-c     %,'bility (km) = ',F6.1,/,5x,'Alpha1 = ',F6.4,'  Alpha2 = ',F6.4,
-c     & '   Mean Angstrom''s Alpha = ',F6.4,/,5x,'Season = ',a24,/)
-c      WRITE(16,134,iostat=Ierr9)TKair,Tavg,TEMPA
-c 134  FORMAT('* TEMPERATURES:',/,5x,'Instantaneous at site''s altitude'
-c     1 ,' = ',F5.1,' K',/,5x,'Daily average (reference) at site''s ',
-c     2 'altitude = ',F5.1,' K',/,5x,'Stratospheric Ozone and NO2 ',
-c     3 '(effective) = ',F5.1,' K',/)
-c      if(Iwarn5.eq.1)write(16,1018,iostat=Ierr10) Tempa, Tmin
-c 1018 format('** WARNING #1',9('*'),/,'\\ The calculated ozone tempe',
-c     1 'rature, ',f5.1,' K, was below the most probable minimum of ',
-c     2 f5.1,'\\ for this altitude. The latter value has been used ',
-c     4 'for optimum results. Suggestion: double check',
-c     3 ' the daily temperature on input Card 3a',/)
-c      if(Iwarn6.eq.1)write(16,1019,iostat=Ierr11) Tempa, Tmax
-c 1019 format('** WARNING #2',9('*'),/,'\\ The calculated ozone tempe',
-c     1 'rature, ',f5.1,' K, was above the most probable maximum of ',
-c     2 f5.1,'\\ for this altitude. The latter value has been used ',
-c     4 'for optimum results. Suggestion: double check',
-c     3 ' the daily temperature on input Card 3a',/)
-c      if(IO3.eq.0.and.(UOC.lt.Ozmin.or.UOC.gt.Ozmax))write(16,1021,
-c     1 iostat=Ierr12) UOC, Ozmin, Ozmax
-c 1021 format('** WARNING #3',9('*'),/,'\\ The ozone columnar amount, ',
-c     1 f6.4,' atm-cm, is outside the most probable limits of ',f6.4,
-c     2 ' and ',f6.4,/,'\\ for this altitude. This may produce ',
-c     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
-c     3 'values of IALT and AbO3 on input Card 5a.',/)
-c      if(Iwarn1.eq.1)write(16,1301)
-c 1301 format('** WARNING #4',9('*'),/,'\\ Pressure cannot be < 0.000',
-c     1 '41 mb and has been increased to this value.',/,'\\ ',/)
-c      if(Iwarn2.eq.1)write(16,1302)
-c 1302 format('** WARNING #5',9('*'),/,'\\ Precipitable water was not '
-c     1 ,'provided and no reference atmosphere was specified!',/,'\\ ',
-c     2 'USSA conditions have been used here.',/)
-c      if(Iwarn3.eq.1)write(16,1303)
-c 1303 format('** WARNING #6',9('*'),/,'\\ The ozone amount was not pro'
-c     1 ,'vided and no reference atmosphere was specified!',/,'\\ USSA',
-c     2 ' conditions have been used here.',/)
-c      if(Iwarn7.eq.1)write(16,1307)
-c 1307 format('** WARNING #7',9('*'),/,'\\ The aerosol type has been ',
-c     1 'changed to "S&F_TROPO" because either the receiver''s height ',
-c     2 'above ground',/,'\\ is > 2 km or its elevation is > 6 km ',
-c     3 'above sea level.',/)
-c      if(Iwarn9.eq.1)goto 1311
-c      if(Iwarn8.ne.1.or.height.le.2.0)goto 1311
-c      if(Zalt.lt.15.0.or.Zalt.gt.22.)goto 1310
-c      write(16,1309,iostat=Ierr13)Tau550,Taumin,Taumax
-c 1309 format('** WARNING #8',9('*'),/,'\\ The aerosol optical depth ',
-c     1 'at 550 nm, ',f6.4,' is outside the most probable limits of ',
-c     2 f6.4,' and ',f6.4,/,'\\ for this altitude, assuming a slight ',
-c     3 'background amount of volcanic aerosols. This may produce ',
-c     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
-c     4 'value of your turbidity input on Card 9a.',/)
-c      goto 1311
-c 1310 continue
-c      write(16,1308,iostat=Ierr14)Tau550,Taumin,Taumax
-c 1308 format('** WARNING #9',9('*'),/,'\\ The aerosol optical depth ',
-c     1 'at 550 nm, ',f6.4,' is outside the most probable limits of ',
-c     2 f6.4,' and ',f6.4,/,'\\ for this altitude. This may produce ',
-c     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
-c     4 'value of your turbidity input on Card 9a.',/)
-c 1311 continue
-c      if(Iwarn9.eq.1)write(16,1312)
-c 1312 format('** WARNING #20',9('*'),/,'\\ Receiver is at more than 6 ',
-c     1 'km above sea level, hence the aerosol optical depth has ',
-c     2 'been fixed to a default value, dependent only on altitude.',/)
+      WRITE(16,194,iostat=Ierr7) COMNT,Atmos,AEROS
+ 194  FORMAT(/,'******************   SMARTS, version 2.9.5   *********'
+     % ,'**********',//,
+     %' Simple Model of the Atmospheric Radiative Transfer of Sunshine'
+     % ,/,5X,'Chris A. Gueymard, Solar Consulting Services',/,20x,
+     & 'December 2005',//,
+     1 4X,'This model is documented in FSEC Report PF-270-95',/,
+     2 ' and in a Solar Energy paper, vol. 71, No.5, 325-346 (2001)',
+     3 //,' NOTE: These references describe v. 2.8 or earlier!!!',/,
+     4 ' See the User''s Manual for details on the considerable ',/,
+     5 ' changes that followed...',//,
+     %'*************************************************************'
+     % ,'***'//,2x,' Reference for this run: ',A64,//,64('-'),//,
+     % '* ATMOSPHERE : ',A4,'        AEROSOL TYPE: ',A64,/)
+      WRITE(16,100,iostat=Ierr8) SPR,Altit,Height,RH,W,UOC,uoc*1000.,
+     % TAU5,Tau550,BETA,BCHUEP,RANGE,VISI,ALPHA1,ALPHA2,ALPHA,Seasn2
+ 100  FORMAT('* INPUTS:'/,5x,'Pressure (mb) = ',F8.3,'   Ground ', 
+     % 'Altitude (km) = ',F8.4,/,5x,'Height above ground (km) = ',f8.4,
+     2 /,5X,'Relative Humidity (%) = ',F6.3,3X,
+     3 'Precipitable Water (cm) = ',F7.4,/,5x,'Ozone (atm-cm) = ',F6.4,
+     1 ' or ',f5.1,' Dobson Units',/,3X,'AEROSOLS:  ','Optical Depth at'
+     # ,' 500 nm = ',F6.4,'      Optical depth at 550 nm = ',f6.4,/,
+     6 '       Angstrom''s Beta = ',F6.4,'       Schuepp''s'
+     %,' B = ',F6.4,/,5x,'Meteorological Range (km) = ',F6.1,'   Visi'
+     %,'bility (km) = ',F6.1,/,5x,'Alpha1 = ',F6.4,'  Alpha2 = ',F6.4,
+     & '   Mean Angstrom''s Alpha = ',F6.4,/,5x,'Season = ',a24,/)
+      WRITE(16,134,iostat=Ierr9)TKair,Tavg,TEMPA
+ 134  FORMAT('* TEMPERATURES:',/,5x,'Instantaneous at site''s altitude'
+     1 ,' = ',F5.1,' K',/,5x,'Daily average (reference) at site''s ',
+     2 'altitude = ',F5.1,' K',/,5x,'Stratospheric Ozone and NO2 ',
+     3 '(effective) = ',F5.1,' K',/)
+      if(Iwarn5.eq.1)write(16,1018,iostat=Ierr10) Tempa, Tmin
+ 1018 format('** WARNING #1',9('*'),/,'\\ The calculated ozone tempe',
+     1 'rature, ',f5.1,' K, was below the most probable minimum of ',
+     2 f5.1,'\\ for this altitude. The latter value has been used ',
+     4 'for optimum results. Suggestion: double check',
+     3 ' the daily temperature on input Card 3a',/)
+      if(Iwarn6.eq.1)write(16,1019,iostat=Ierr11) Tempa, Tmax
+ 1019 format('** WARNING #2',9('*'),/,'\\ The calculated ozone tempe',
+     1 'rature, ',f5.1,' K, was above the most probable maximum of ',
+     2 f5.1,'\\ for this altitude. The latter value has been used ',
+     4 'for optimum results. Suggestion: double check',
+     3 ' the daily temperature on input Card 3a',/)
+      if(IO3.eq.0.and.(UOC.lt.Ozmin.or.UOC.gt.Ozmax))write(16,1021,
+     1 iostat=Ierr12) UOC, Ozmin, Ozmax
+ 1021 format('** WARNING #3',9('*'),/,'\\ The ozone columnar amount, ',
+     1 f6.4,' atm-cm, is outside the most probable limits of ',f6.4,
+     2 ' and ',f6.4,/,'\\ for this altitude. This may produce ',
+     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
+     3 'values of IALT and AbO3 on input Card 5a.',/)
+      if(Iwarn1.eq.1)write(16,1301)
+ 1301 format('** WARNING #4',9('*'),/,'\\ Pressure cannot be < 0.000',
+     1 '41 mb and has been increased to this value.',/,'\\ ',/)
+      if(Iwarn2.eq.1)write(16,1302)
+ 1302 format('** WARNING #5',9('*'),/,'\\ Precipitable water was not '
+     1 ,'provided and no reference atmosphere was specified!',/,'\\ ',
+     2 'USSA conditions have been used here.',/)
+      if(Iwarn3.eq.1)write(16,1303)
+ 1303 format('** WARNING #6',9('*'),/,'\\ The ozone amount was not pro'
+     1 ,'vided and no reference atmosphere was specified!',/,'\\ USSA',
+     2 ' conditions have been used here.',/)
+      if(Iwarn7.eq.1)write(16,1307)
+ 1307 format('** WARNING #7',9('*'),/,'\\ The aerosol type has been ',
+     1 'changed to "S&F_TROPO" because either the receiver''s height ',
+     2 'above ground',/,'\\ is > 2 km or its elevation is > 6 km ',
+     3 'above sea level.',/)
+      if(Iwarn9.eq.1)goto 1311
+      if(Iwarn8.ne.1.or.height.le.2.0)goto 1311
+      if(Zalt.lt.15.0.or.Zalt.gt.22.)goto 1310
+      write(16,1309,iostat=Ierr13)Tau550,Taumin,Taumax
+ 1309 format('** WARNING #8',9('*'),/,'\\ The aerosol optical depth ',
+     1 'at 550 nm, ',f6.4,' is outside the most probable limits of ',
+     2 f6.4,' and ',f6.4,/,'\\ for this altitude, assuming a slight ',
+     3 'background amount of volcanic aerosols. This may produce ',
+     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
+     4 'value of your turbidity input on Card 9a.',/)
+      goto 1311
+ 1310 continue
+      write(16,1308,iostat=Ierr14)Tau550,Taumin,Taumax
+ 1308 format('** WARNING #9',9('*'),/,'\\ The aerosol optical depth ',
+     1 'at 550 nm, ',f6.4,' is outside the most probable limits of ',
+     2 f6.4,' and ',f6.4,/,'\\ for this altitude. This may produce ',
+     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
+     4 'value of your turbidity input on Card 9a.',/)
+ 1311 continue
+      if(Iwarn9.eq.1)write(16,1312)
+ 1312 format('** WARNING #20',9('*'),/,'\\ Receiver is at more than 6 ',
+     1 'km above sea level, hence the aerosol optical depth has ',
+     2 'been fixed to a default value, dependent only on altitude.',/)
 c
 C***      CARD 10
 C
-C      Read(14,*) Ialbdx
+      Read(14,*) Ialbdx
       Rhox=0.2
       If(Ialbdx.lt.0)goto 383
       Call Albdat(Ialbdx,Nwal1,Filen1,Lambr1,Wvla1,Albdo1)
@@ -1127,33 +1079,33 @@ C
 C***      CARD 10a
 C
  383  continue
-C      READ(14,*) Rhox
+      READ(14,*) Rhox
       
  384  Continue
 C
 C***      CARD 10b
 C      
-C      Read(14,*)Itilt
+      Read(14,*)Itilt
       Tilt=0.
       Rhog=0.
       Wazim=0.
       If (Itilt.eq.0)Goto 389
-c      if(height.gt.0.5)write(16,1314)
-c 1314 format('** WARNING #21',9('*'),/,'\\ Receiver is at more than ',
-c     1 '0,5 km above ground, hence the calculation of the reflected ',
-c     2 'irradiance from the ground to the tilted plane is not',
-c     3 ' accurate.',/)
+      if(height.gt.0.5)write(16,1314)
+ 1314 format('** WARNING #21',9('*'),/,'\\ Receiver is at more than ',
+     1 '0,5 km above ground, hence the calculation of the reflected ',
+     2 'irradiance from the ground to the tilted plane is not',
+     3 ' accurate.',/)
 C
 C***      CARD 10c
 C      
-C      Read(14,*)Ialbdg,TILT,WAZIM
+      Read(14,*)Ialbdg,TILT,WAZIM
 c      
       Rhog=Rhox
       If(Ialbdg.ge.0)Goto 385
 C
 C***      CARD 10d
 C      
-C      Read(14,*)Rhog
+      Read(14,*)Rhog
 c      
       Goto 389
  385  Continue
@@ -1165,7 +1117,7 @@ c
 C
 C***      CARD 11 - Modified in 2.9
 C
-C      READ(14,*)WLMN,WLMX,Suncor,SolarC
+      READ(14,*)WLMN,WLMX,Suncor,SolarC
       
       If(Ialbdx.ge.0.and.Ialbdx.ne.2)
      2  Call Albchk(Nwal1,Filen1,Wvla1,Albdo1,.001*wlmn,.001*wlmx)
@@ -1175,26 +1127,26 @@ C      READ(14,*)WLMN,WLMX,Suncor,SolarC
 C
 C***      CARD 12
 C
-C      READ(14,*) IPRT
+      READ(14,*) IPRT
       IF(IPRT.EQ.0) GOTO 392
 C
 C***      CARD 12a if IPRT=1 TO 3 - Modified in 2.9
 C      
-C      READ(14,*)WPMN,WPMX,INTVL
+      READ(14,*)WPMN,WPMX,INTVL
       
-c      IF(INTVL.LT.0.5)WRITE(16,198)
-c 198  FORMAT(' *** WARNING #18 ***',/,'  Parameter INTVL on Card 12a',
-c     & ' is too low and will be defaulted to 0.5 nm.')
+      IF(INTVL.LT.0.5)WRITE(16,198)
+ 198  FORMAT(' *** WARNING #18 ***',/,'  Parameter INTVL on Card 12a',
+     & ' is too low and will be defaulted to 0.5 nm.')
       IF(IPRT.lt.2)goto 392
       OPEN(UNIT=17,FILE=FileExt,STATUS='NEW')
 C
 C***      CARDS 12b if IPRT=2 TO 3
 C      
-C      READ(14,*)IOTOT
+      READ(14,*)IOTOT
 C
 C***      CARDS 12c if IPRT=2 TO 3
 C      
-C      READ(14,*)(IOUT(i),i=1,IOTOT)
+      READ(14,*)(IOUT(i),i=1,IOTOT)
 c
 c=======================================         
       Out(1) ='Extraterrestrial_spectrm'
@@ -1250,25 +1202,25 @@ c
 c
 c=======================================      
 c    
-c      Write(16,147,iostat=Ierr15)FileExt
-c 147  Format(/,'The following spectral variables will be output to ',
-c     2 'file: ',A24,/)
+      Write(16,147,iostat=Ierr15)FileExt
+ 147  Format(/,'The following spectral variables will be output to ',
+     2 'file: ',A24,/)
       Do 390 i=1,IOTOT
       j=IOUT(i)
-c      Write(16,148,iostat=Ierr16) Out(j)
-c 148  Format(' * ',A24)
+      Write(16,148,iostat=Ierr16) Out(j)
+ 148  Format(' * ',A24)
  390  continue
  392  continue
 C
 C***      CARD 13
 C
-C      READ(14,*) ICIRC
+      READ(14,*) ICIRC
       
       IF(ICIRC.EQ.0)goto 401
 C
 C***      CARD 13a if ICIRC=1
 C
-C      READ(14,*)slope,apert,limit
+      READ(14,*)slope,apert,limit
       Icirc=-2
       if(apert.le.0.0.and.slope.le.0.0)goto 401
       if(apert.le.0.0.and.limit.le.0.0)goto 401
@@ -1297,19 +1249,19 @@ C      READ(14,*)slope,apert,limit
 C
 C***      CARD 14
 C
-C      READ(14,*) ISCAN
+      READ(14,*) ISCAN
 C
 C***      CARD 14a if ISCAN=1 - Modified in 2.9
 C
-C      FWHM=0.
+      FWHM=0.
       IF(ISCAN.ne.1)goto 379
-C      READ(14,*)IFILT,WV1,WV2,step,FWHM
+      READ(14,*)IFILT,WV1,WV2,step,FWHM
       OPEN (UNIT=18,FILE=FileScn,STATUS='NEW')
  379  continue
 C
 C***      CARD 15
 C
-C      READ(14,*)ILLUM
+      READ(14,*)ILLUM
       IF(ILLUM.EQ.0)GOTO 408
       If(Illum.ge.1)Goto 403
       OPEN (UNIT=19,FILE='CIE_data/VLambda.dat',STATUS='OLD')
@@ -1335,7 +1287,7 @@ C
 C***      CARD 16
 C
  408  continue
-C      READ(14,*)IUV
+      READ(14,*)IUV
 C
 C      WAVELENGTH LIMITS MANIPULATION
 C
@@ -1361,39 +1313,39 @@ C
 c
       Area='ZONAL'
       If(Ialbdx.ge.0)goto 450
-c      WRITE(16,171,iostat=Ierr17) Area,RHOX
-c 171  FORMAT(//,3x,A6,' ALBEDO (constant and Lambertian) = ',F5.3,//)
+      WRITE(16,171,iostat=Ierr17) Area,RHOX
+ 171  FORMAT(//,3x,A6,' ALBEDO (constant and Lambertian) = ',F5.3,//)
       Goto 451
  450  Continue
-c      Write(16,173,iostat=Ierr18) Area,Filen1,Lambr1
-c 173  Format(//,'      Spectral ',A5,' albedo data: ',A24,/,
-c     2  '      with a reflection process: ',A24,//)
+      Write(16,173,iostat=Ierr18) Area,Filen1,Lambr1
+ 173  Format(//,'      Spectral ',A5,' albedo data: ',A24,/,
+     2  '      with a reflection process: ',A24,//)
  451  Continue
-c      IF(ICIRC.ge.1)WRITE(16,115,iostat=Ierr19)slope,APERT,limit
-c 115  FORMAT('* GEOMETRY (half-angles) OF THE SIMULATED RADIOMETER ',
-c     2 '(deg.):',/,'   Slope = ',F5.2,'      Aperture = ',F5.2,
-c     3 '   Limit = ',F5.2,/)
-c      If (Icirc.eq.-2) Write(16,151)
-c 151  Format('** WARNING #10',9('*'),/,'\\ The values of both Apert ',
-c     2 'and Slope or Limit for the circumsolar',/,'\\ correction are ',
-c     3 'incorrectly less than or equal to 0.',/,'\\ This calculation ',
-c     4 'is therefore skipped!',/)
-c      If(Icirc.eq.1) Write(16,152)
-c 152  Format('** WARNING #11',9('*'),/'\\ The radiometer''s Slope ',
-c     2 'and Limit angles are not provided.',/,'\\ Circumsolar calcula',
-c     3 'tions will therefore be performed for',/,'\\ an average geome',
-c     4 'try corresponding to the Aperture angle.',/)
-c      If(Icirc.eq.-1) Write(16,153)
-c 153  Format('** WARNING #12',9('*'),/,'\\ Circumsolar calculations ',
-c     1 'cannot be done for this geometry.',/,'\\ All half angles must',
-c     2 ' be < 10 deg.',/)
+      IF(ICIRC.ge.1)WRITE(16,115,iostat=Ierr19)slope,APERT,limit
+ 115  FORMAT('* GEOMETRY (half-angles) OF THE SIMULATED RADIOMETER ',
+     2 '(deg.):',/,'   Slope = ',F5.2,'      Aperture = ',F5.2,
+     3 '   Limit = ',F5.2,/)
+      If (Icirc.eq.-2) Write(16,151)
+ 151  Format('** WARNING #10',9('*'),/,'\\ The values of both Apert ',
+     2 'and Slope or Limit for the circumsolar',/,'\\ correction are ',
+     3 'incorrectly less than or equal to 0.',/,'\\ This calculation ',
+     4 'is therefore skipped!',/)
+      If(Icirc.eq.1) Write(16,152)
+ 152  Format('** WARNING #11',9('*'),/'\\ The radiometer''s Slope ',
+     2 'and Limit angles are not provided.',/,'\\ Circumsolar calcula',
+     3 'tions will therefore be performed for',/,'\\ an average geome',
+     4 'try corresponding to the Aperture angle.',/)
+      If(Icirc.eq.-1) Write(16,153)
+ 153  Format('** WARNING #12',9('*'),/,'\\ Circumsolar calculations ',
+     1 'cannot be done for this geometry.',/,'\\ All half angles must',
+     2 ' be < 10 deg.',/)
       If(Itilt.eq.0)Goto 464
       Area='LOCAL'
       If(Ialbdg.ge.0)goto 454
-c      WRITE(16,171) Area,RHOG
+      WRITE(16,171) Area,RHOG
       Goto 464
  454  continue
-c      Write(16,173) Area, Filen2,Lambr2
+      Write(16,173) Area, Filen2,Lambr2
  464  Continue
 C
 C      PRELIMINARY CALCULATIONS FOR SPECTRAL FUNCTIONS
@@ -1403,7 +1355,7 @@ C
 C
 C***      CARD 17
 C
-C      READ(14,*) IMASS
+      READ(14,*) IMASS
       
 C
 C      SOLAR POSITION LONG DO-LOOP
@@ -1418,7 +1370,7 @@ C
 C
 C***      CARD 17a if IMASS=1
 C
-C      READ(14,*,END=998)ELEV,Azim
+      READ(14,*,END=998)ELEV,Azim
       Zenit=90.-ELEV
       GOTO 3
  11   CONTINUE
@@ -1428,13 +1380,13 @@ C      READ(14,*,END=998)ELEV,Azim
 C
 C***      CARD 17a if IMASS=0
 C
-C      READ(14,*,END=998)Zenit,Azim
+      READ(14,*,END=998)Zenit,Azim
       GOTO 3
  19   continue
 C
 C***      CARD 17a if IMASS=4
 C
-C      READ(14,*,END=998) month,Latit,Dstep
+      READ(14,*,END=998) month,Latit,Dstep
       iscan=0
       if(iprt.eq.2)iprt=0
       if(iprt.eq.3)iprt=1
@@ -1442,12 +1394,12 @@ C      READ(14,*,END=998) month,Latit,Dstep
       dsun=decli(month)
       testx=abs(dsun-Latit)
       if(testx.le.85.)goto 897
-c      write(16,1099,iostat=Ierr20)testx
-c 1099 format(/,90('*'),//,'*** ERROR #6 *** Sun is too low for the',
-c     1 ' specified date.',/,'[This condition must be ful',
-c     2 'filled: |declination - latitude| < 85 deg.',/,'The input data',
-c     3 ' for this day are such that |declination - latitude| = ',f6.1,
-c     4 ' deg.]',/,' RUN ABORTED!')
+      write(16,1099,iostat=Ierr20)testx
+ 1099 format(/,90('*'),//,'*** ERROR #6 *** Sun is too low for the',
+     1 ' specified date.',/,'[This condition must be ful',
+     2 'filled: |declination - latitude| < 85 deg.',/,'The input data',
+     3 ' for this day are such that |declination - latitude| = ',f6.1,
+     4 ' deg.]',/,' RUN ABORTED!')
       goto 898
  897  continue
 c 
@@ -1505,23 +1457,23 @@ c      Hiext=0.
 c
 c      Daily results
 c      
-c      write(16,1002,iostat=Ierr21)H0hd,cstep*Hbhx,cstep*Hdx,cstep*Hglob,
-c     1 cstep*Hglobs,cstep*Hbnx,cstep*Hglob/H0hd
-c 1002 Format('* Monthly-average daily-total irradiations (MJ/m2)',/,
-c     1  '   - Horizontal ',
-c     3 'surface',/,'   Extraterrestrial: ',f8.3,'   Direct: ',f8.3,
-c     4 '   Diffuse: ',f8.3,'   Global: ',f8.3,//,'   - Tilted surface',
-c     5 /,'   Global: ',f8.3,'   Direct normal: ',f8.3,//,'   - Clear',
-c     6 'ness index (Kt, dimensionless): ',f6.4)
-c      if(IUV.ne.0)write(16,1003,iostat=Ierr22)1000.*cstep*Hdose
-c 1003 format(//,'* Monthly-average daily-total UV dose (kJ/m2): ',
-c     1 f8.3)
-c      if(iLLUM.ne.0)write(16,1004,iostat=Ierr23)
-c     1 cstepi*Hibx,cstepi*Hidx,cstepi*Hig,cstepi*His,Hiext
-c 1004 format(//,'* Monthly-average illuminances (klux)',/,
-c     +  '   - Horizontal surface',/,'   Direct: ',f8.3,'   Diffuse: ',
-c     1 f8.3,'   Global: ',f8.3,//,'   - Tilted surface',/,'   Global: '
-c     2 ,f8.3,'   Extraterrestrial normal: ',f8.3,/)
+      write(16,1002,iostat=Ierr21)H0hd,cstep*Hbhx,cstep*Hdx,cstep*Hglob,
+     1 cstep*Hglobs,cstep*Hbnx,cstep*Hglob/H0hd
+ 1002 Format('* Monthly-average daily-total irradiations (MJ/m2)',/,
+     1  '   - Horizontal ',
+     3 'surface',/,'   Extraterrestrial: ',f8.3,'   Direct: ',f8.3,
+     4 '   Diffuse: ',f8.3,'   Global: ',f8.3,//,'   - Tilted surface',
+     5 /,'   Global: ',f8.3,'   Direct normal: ',f8.3,//,'   - Clear',
+     6 'ness index (Kt, dimensionless): ',f6.4)
+      if(IUV.ne.0)write(16,1003,iostat=Ierr22)1000.*cstep*Hdose
+ 1003 format(//,'* Monthly-average daily-total UV dose (kJ/m2): ',
+     1 f8.3)
+      if(iLLUM.ne.0)write(16,1004,iostat=Ierr23)
+     1 cstepi*Hibx,cstepi*Hidx,cstepi*Hig,cstepi*His,Hiext
+ 1004 format(//,'* Monthly-average illuminances (klux)',/,
+     +  '   - Horizontal surface',/,'   Direct: ',f8.3,'   Diffuse: ',
+     1 f8.3,'   Global: ',f8.3,//,'   - Tilted surface',/,'   Global: '
+     2 ,f8.3,'   Extraterrestrial normal: ',f8.3,/)
       goto 898
 c
  895  continue
@@ -1544,7 +1496,7 @@ c
 C
 C***      CARD 17a if IMASS=3 - Modified in 2.9
 C
-C      READ(14,*,END=998)YEAR,month,DAY,HOUR,Latit,Longit,ZONE
+      READ(14,*,END=998)YEAR,month,DAY,HOUR,Latit,Longit,ZONE
 c
       HourUT=Hour-Zone
       DayUT=Day
@@ -1559,11 +1511,10 @@ c
       CALL SunPSA(HourUT,Latit,Longit,dec,
      1 Zenit,Azim,Julian,Radius,EOT,SPR,TK,Year,Month,DayUT)
  3    CONTINUE
-      IF(Zenit.LE.90.)GOTO 13     
-c            
-c      WRITE(16,103,iostat=Ierr24)Zenit
-c 103  FORMAT(//,'** ERROR #7 *** Value of Zenit = ',F6.2,' is > 90 deg.'
-c     1 ,' RUN ABORTED!')
+      IF(Zenit.LE.90.)GOTO 13
+      WRITE(16,103,iostat=Ierr24)Zenit
+ 103  FORMAT(//,'** ERROR #7 *** Value of Zenit = ',F6.2,' is > 90 deg.'
+     1 ,' RUN ABORTED!')
       GOTO 898
  13   CONTINUE
       AmR=AMZ(Zenit)
@@ -1579,7 +1530,7 @@ C
 C***      CARD 17a if IMASS=2
 C
  4    continue
-C      READ(14,*,END=998) AMASS
+      READ(14,*,END=998) AMASS
       Azim=180.
       IF(AMASS.GT.1.0)GOTO 6
       Zenit=0.
@@ -1596,9 +1547,9 @@ C
       ZX=ZXR/RPD
  99   continue
       If(Amass.le.38.2)goto 98
-c      Write(16,109,iostat=Ierr25)Amass
-c 109  Format(//,'** ERROR #8 *** Value of AMASS = ',f6.2,' is > 38.2. ',
-c     1 'RUN ABORTED!')
+      Write(16,109,iostat=Ierr25)Amass
+ 109  Format(//,'** ERROR #8 *** Value of AMASS = ',f6.2,' is > 38.2. ',
+     1 'RUN ABORTED!')
       Goto 898
  98   continue
       ITER=0
@@ -1662,22 +1613,22 @@ c      AmN2O5=1./(ZCOS+1.0497*(Zenit**.48545)*(99.455-Zenit)**(-2.1117))
       AmPOL=1./(.0001569+.9998431*zcos*zcos)**.5
       Amdif=1.732
 c
-c      if(imass.ne.4)WRITE(16,172,iostat=Ierr26)Zenit,Azim,AmR,
-c     1 Real(AmH2O),AMO3,AMNO2,AmAER
-c 172  FORMAT(2(/,100('=')),//,'* SOLAR POSITION (deg.):',/,4x,
-c     1 'Zenith Angle (apparent) = ',F6.3,'  Azimuth (from North) = ',
-c     2 F7.2,//,'      RELATIVE OPTICAL MASSES:',/,'  - Rayleigh',
-c     #' = ',F6.3,/,'  - Water Vapor = ',F6.3,/,'  - Ozone'
-c     4,' = ',F6.3,/,'  - NO2 = ',F6.3,/,'  - Aerosols = ',F6.3,/)
-c      IF(IMASS.EQ.3)WRITE(16,170,iostat=Ierr27)YEAR,Month,DAY,Hour,
-c     1 DayoYr,DayUT,HourUT,Real(Julian),Real(Dec),RADIUS,EOT,SolarH
-c 170      FORMAT('  Results below are for this specific day:',/,' Year',
-c     1 ' = ',I4,'   Month = ',i2,'  Day = ',I2,'   Hour (LST) = ',f6.3,
-c     2 '   Day of Year = ',i3,/,'   In Universal Time:',/,
-c     3 '   Day (UT) = ',i2,'   Hour (UT) = ',F6.3,/,
-c     3 '   Julian Day = ',f12.3,'  Declination = ',F7.3,' deg.',
-c     5 '  Radius vector = ',F7.5,'   Equation of Time (min) = ',f7.3,
-c     5 /,'   Local Apparent Time (or Solar Time): ',f7.3,//)
+      if(imass.ne.4)WRITE(16,172,iostat=Ierr26)Zenit,Azim,AmR,
+     1 Real(AmH2O),AMO3,AMNO2,AmAER
+ 172  FORMAT(2(/,100('=')),//,'* SOLAR POSITION (deg.):',/,4x,
+     1 'Zenith Angle (apparent) = ',F6.3,'  Azimuth (from North) = ',
+     2 F7.2,//,'      RELATIVE OPTICAL MASSES:',/,'  - Rayleigh',
+     #' = ',F6.3,/,'  - Water Vapor = ',F6.3,/,'  - Ozone'
+     4,' = ',F6.3,/,'  - NO2 = ',F6.3,/,'  - Aerosols = ',F6.3,/)
+      IF(IMASS.EQ.3)WRITE(16,170,iostat=Ierr27)YEAR,Month,DAY,Hour,
+     1 DayoYr,DayUT,HourUT,Real(Julian),Real(Dec),RADIUS,EOT,SolarH
+ 170      FORMAT('  Results below are for this specific day:',/,' Year',
+     1 ' = ',I4,'   Month = ',i2,'  Day = ',I2,'   Hour (LST) = ',f6.3,
+     2 '   Day of Year = ',i3,/,'   In Universal Time:',/,
+     3 '   Day (UT) = ',i2,'   Hour (UT) = ',F6.3,/,
+     3 '   Julian Day = ',f12.3,'  Declination = ',F7.3,' deg.',
+     5 '  Radius vector = ',F7.5,'   Equation of Time (min) = ',f7.3,
+     5 /,'   Local Apparent Time (or Solar Time): ',f7.3,//)
 c
       if(imass.eq.4)goto 223
       Zenith=Zenit
@@ -1737,19 +1688,19 @@ c      AbNH3=.0068778*(pp0**5.0426)*exp(-1.7876-.96817*pp0-.91191*pp0x2)
  288  continue
 c
       if(iday.ne.1.or.jday.gt.1)goto 5000
-c      write(16,174,iostat=ierr28)qCO2
-c 174  format(/,' CO2 Mixing Ratio (ppmv): ',f6.1,//)
+      write(16,174,iostat=ierr28)qCO2
+ 174  format(/,' CO2 Mixing Ratio (ppmv): ',f6.1,//)
  5000 continue
-      if(iday.ne.1.or.jday.gt.1.or.nread.ne.1)goto 5002 
-c      Write(16,101,iostat=ierr29)
-c     3 AbBrO,AbCH2O,AbCH4,AbClNO,AbCO,AbCO2,AbHNO2,AbHNO3,AbNH3,AbNO,
-c     2 AbNO2,AbNO3,AbN2*1e5,AbN2O,AbO2,AbO3,AbO2,AbSO2
-c 101  Format(/,' Total column abundances (atm-cm) for all gases except',
-c     1 ' H2O, and for normal/standard conditions:',//,
-c     2 '    BrO',7x,'CH2O',8x,'CH4',6x,'ClNO3',9x,'CO',8x,'CO2',7x,
-c     3 'HNO2',7x,'HNO3',8x,'NH3',//,9(e10.4,1x),///,
-c     3 '     NO',8x,'NO2',8x,'NO3',9x,'N2',8x,'N2O',9x,
-c     4 'O2',9x,'O3',9x,'O4',8x,'SO2',//,9(e10.4,1x),///)
+      if(iday.ne.1.or.jday.gt.1.or.nread.ne.1)goto 5002
+      Write(16,101,iostat=ierr29)
+     3 AbBrO,AbCH2O,AbCH4,AbClNO,AbCO,AbCO2,AbHNO2,AbHNO3,AbNH3,AbNO,
+     2 AbNO2,AbNO3,AbN2*1e5,AbN2O,AbO2,AbO3,AbO2,AbSO2
+ 101  Format(/,' Total column abundances (atm-cm) for all gases except',
+     1 ' H2O, and for normal/standard conditions:',//,
+     2 '    BrO',7x,'CH2O',8x,'CH4',6x,'ClNO3',9x,'CO',8x,'CO2',7x,
+     3 'HNO2',7x,'HNO3',8x,'NH3',//,9(e10.4,1x),///,
+     3 '     NO',8x,'NO2',8x,'NO3',9x,'N2',8x,'N2O',9x,
+     4 'O2',9x,'O3',9x,'O4',8x,'SO2',//,9(e10.4,1x),///)
  5002 continue
       if(iGas.eq.1)goto 837
       AtCH4=AbCH4+ApCH4
@@ -1770,15 +1721,15 @@ c     4 'O2',9x,'O3',9x,'O4',8x,'SO2',//,9(e10.4,1x),///)
       AtBrO=AbBrO
       AtClNO=AbClNO
 c      
-c      if(iday.eq.1.and.jday.le.1)Write(16,102,iostat=ierr30)Load,
-c     2 AtBrO,AtCH2O,AtCH4,AtClNO,AtCO,AtCO2,AtHNO2,AtHNO3,AtNH3,AtNO,
-c     3 AtNO2,AtNO3,AtN2*1e5,AtN2O,AtO2,AtO3,AtO2,AtSO2
-c 102  Format(' Corrected total column abundances for all gases '
-c     1 ,'(atm-cm)',/,' with these realistic conditions: ',A24,//,
-c     2 '    BrO',7x,'CH2O',8x,'CH4',6x,'ClNO3',9x,'CO',8x,'CO2',7x,
-c     3 'HNO2',7x,'HNO3',8x,'NH3',//,9(e10.4,1x),///,
-c     3 '     NO',8x,'NO2',8x,'NO3',9x,'N2',8x,'N2O',9x,
-c     4 'O2',9x,'O3',9x,'O4',8x,'SO2',//,9(e10.4,1x),///)
+      if(iday.eq.1.and.jday.le.1)Write(16,102,iostat=ierr30)Load,
+     2 AtBrO,AtCH2O,AtCH4,AtClNO,AtCO,AtCO2,AtHNO2,AtHNO3,AtNH3,AtNO,
+     3 AtNO2,AtNO3,AtN2*1e5,AtN2O,AtO2,AtO3,AtO2,AtSO2
+ 102  Format(' Corrected total column abundances for all gases '
+     1 ,'(atm-cm)',/,' with these realistic conditions: ',A24,//,
+     2 '    BrO',7x,'CH2O',8x,'CH4',6x,'ClNO3',9x,'CO',8x,'CO2',7x,
+     3 'HNO2',7x,'HNO3',8x,'NH3',//,9(e10.4,1x),///,
+     3 '     NO',8x,'NO2',8x,'NO3',9x,'N2',8x,'N2O',9x,
+     4 'O2',9x,'O3',9x,'O4',8x,'SO2',//,9(e10.4,1x),///)
  837  continue
 C
 C
@@ -1822,14 +1773,14 @@ C
       RDC=EXP(DA0+DA1*CS1+DA2*CS2+DA3*CS3)
       RDS=(1.-.2249*SSR**2+.1231*SIN(2.*SR)-.0342*SIN(4.*SR))/.7751
       RD=RDC+RDH0*RDS
-c      if(imass.ne.4) WRITE(16,112,iostat=ierr31)TILT,WAZIM,TETAS,Rdi,Rd
-c 112  FORMAT(/,'* ANGLES (deg.) FOR TILTED SURFACE CALCULATIONS: ',/,
-c     %'   Surface Tilt = ',F7.3,
-c     2 '   Surface Azimuth (from North) = ',F7.3,/,1X,
-c     #'  Incidence Angle = ',F7.3,//,
-c     5'  Diffuse irradiance ratios (tilted plane/horizontal):',/,
-c     6 5x,F7.4,'  (isotropic approximate conversion--for reference)',
-c     7 /,5x,F7.4,'  (anisotropic conversion model--used here)',//)
+      if(imass.ne.4) WRITE(16,112,iostat=ierr31)TILT,WAZIM,TETAS,Rdi,Rd
+ 112  FORMAT(/,'* ANGLES (deg.) FOR TILTED SURFACE CALCULATIONS: ',/,
+     %'   Surface Tilt = ',F7.3,
+     2 '   Surface Azimuth (from North) = ',F7.3,/,1X,
+     #'  Incidence Angle = ',F7.3,//,
+     5'  Diffuse irradiance ratios (tilted plane/horizontal):',/,
+     6 5x,F7.4,'  (isotropic approximate conversion--for reference)',
+     7 /,5x,F7.4,'  (anisotropic conversion model--used here)',//)
       Tilt=Tilt0
       Wazim=Wazim0
  453  Continue
@@ -2069,27 +2020,27 @@ C
       Scor=Escc/Esc
       Scor2=SolarC/Esc
 c 
-c      if(iday.eq.1.and.nread.le.1)WRITE(16,126,iostat=ierr32)ESCC,
-c     1 SUNCOR,SolarC,Spctrm
-c 126  FORMAT(/,33('*',2x),//,'** SPECTRUM:',/,'   Total (0-100 Aum) ',
-c     1 'Extraterrestrial Irradiance used here = ',F7.2,' W/m2',/,
-c     #'  (i.e., ',F6.4,' times the selected solar constant, ',f7.2,
-c     4 ' W/m2, due to the actual Sun-Earth distance.)',/,'   Source'
-c     5 ,' for selected solar spectrum: ',A64,/)
-c      If(abs(Scor2-1.).gt.1e-4.and.iday.eq.1.and.jday.le.1.and.
-c     1 nread.le.1)write(16,127,iostat=ierr33)Scor2
-c 127  format(' To account for the chosen Solar Constant value, the ',
-c     2 'selected solar spectrum has been uniformly multiplied',/,
-c     3 ' by this scaling coefficient = ',f6.4,/)
+      if(iday.eq.1.and.nread.le.1)WRITE(16,126,iostat=ierr32)ESCC,
+     1 SUNCOR,SolarC,Spctrm
+ 126  FORMAT(/,33('*',2x),//,'** SPECTRUM:',/,'   Total (0-100 Aum) ',
+     1 'Extraterrestrial Irradiance used here = ',F7.2,' W/m2',/,
+     #'  (i.e., ',F6.4,' times the selected solar constant, ',f7.2,
+     4 ' W/m2, due to the actual Sun-Earth distance.)',/,'   Source'
+     5 ,' for selected solar spectrum: ',A64,/)
+      If(abs(Scor2-1.).gt.1e-4.and.iday.eq.1.and.jday.le.1.and.
+     1 nread.le.1)write(16,127,iostat=ierr33)Scor2
+ 127  format(' To account for the chosen Solar Constant value, the ',
+     2 'selected solar spectrum has been uniformly multiplied',/,
+     3 ' by this scaling coefficient = ',f6.4,/)
 c
       if(imass.ne.4.or.iday.ne.1)goto 5007
-c      write(16,1001,iostat=ierr34)month,
-c     1 Real(Latit),srise,daylth,Dstep
-c 1001 Format(//,' Mean daily results for the average day of'
-c     1 ,' month ',i2,' at latitude: ',f7.3,' deg.',/,' Solar time of '
-c     2 ,'sunrise (hr): ',f6.3,'   Daylength (hr): ',f6.3,'   Time ',
-c     3 'integration step (min): ',f5.1,/)
- 5007   continue
+      write(16,1001,iostat=ierr34)month,
+     1 Real(Latit),srise,daylth,Dstep
+ 1001 Format(//,' Mean daily results for the average day of'
+     1 ,' month ',i2,' at latitude: ',f7.3,' deg.',/,' Solar time of '
+     2 ,'sunrise (hr): ',f6.3,'   Daylength (hr): ',f6.3,'   Time ',
+     3 'integration step (min): ',f5.1,/)
+ 5007	continue
 c
 c      Rewind data files for new runs
 c
@@ -2147,13 +2098,13 @@ C
       Scor=Escc/Esc
       Scor2=SolarC/Esc
 c 
-c      if(iday.eq.1)WRITE(16,126)ESCC,
-c     1 SUNCOR,SolarC,Spctrm
-c      If(abs(Scor2-1.).gt.1e-4.and.iday.eq.1.and.jday.le.1)
-c     1 write(16,127)Scor2
+      if(iday.eq.1)WRITE(16,126)ESCC,
+     1 SUNCOR,SolarC,Spctrm
+      If(abs(Scor2-1.).gt.1e-4.and.iday.eq.1.and.jday.le.1)
+     1 write(16,127)Scor2
 c
-c      if(imass.eq.4.and.iday.eq.1)write(16,1001)month,
-c     1 Real(Latit),srise,daylth,Dstep
+      if(imass.eq.4.and.iday.eq.1)write(16,1001)month,
+     1 Real(Latit),srise,daylth,Dstep
 c
  788  continue
 C
@@ -2209,46 +2160,46 @@ C
 C
       IF(IPRT.le.0.or.IPRT.eq.2.or.imass.eq.4)goto 65
       If(Itilt.ne.0.or.Icirc.ne.0)goto 60
-c      WRITE(16,110)
-c 110  FORMAT('*** IRRADIANCES IN W/(m2 nm) AND TRANSMITTANCES FOR A ',
-c     2  'GIVEN WAVELENGTH (in nm)',
-c     3  //,' WVLGTH',2X,'SPCTRM',5X,'BEAM',8X,'BEAM',8X,'DIFF',
-c     4  8X,'GLOB',/,
-c     7  18X,' NORMAL',3X,'------------ HORIZONTAL -----------',/)
+      WRITE(16,110)
+ 110  FORMAT('*** IRRADIANCES IN W/(m2 nm) AND TRANSMITTANCES FOR A ',
+     2  'GIVEN WAVELENGTH (in nm)',
+     3  //,' WVLGTH',2X,'SPCTRM',5X,'BEAM',8X,'BEAM',8X,'DIFF',
+     4  8X,'GLOB',/,
+     7  18X,' NORMAL',3X,'------------ HORIZONTAL -----------',/)
       goto 65
  60   continue
       IF(Itilt.ne.0.or.Icirc.ne.1)goto 61
-c      WRITE(16,114)
-c 114  FORMAT('*** IRRADIANCES IN W/(m2 nm) FOR A ',
-c     2  'GIVEN WAVELENGTH (in nm)',
-c     3  //,'WVLGTH',2X,'SPCTRM',6X,'BEAM',8X,'DIFF',
-c     4  8X,'GLOB',8X,'BEAM_EXP',4X,'DIF_EXP',/,
-c     5  18X,' NORMAL',3X,'------ HORIZONTAL -----    ------- NORMAL',
-c     6  ' -------',/)
+      WRITE(16,114)
+ 114  FORMAT('*** IRRADIANCES IN W/(m2 nm) FOR A ',
+     2  'GIVEN WAVELENGTH (in nm)',
+     3  //,'WVLGTH',2X,'SPCTRM',6X,'BEAM',8X,'DIFF',
+     4  8X,'GLOB',8X,'BEAM_EXP',4X,'DIF_EXP',/,
+     5  18X,' NORMAL',3X,'------ HORIZONTAL -----    ------- NORMAL',
+     6  ' -------',/)
       goto 65
  61   continue
       IF(Itilt.ne.1.or.Icirc.ne.0)goto 62
-c      WRITE(16,111)
-c 111  FORMAT('*** IRRADIANCES IN W/m2 nm FOR A ',
-c     2  'GIVEN WAVELENGTH (in nm)',//
-c     3  ,'WVLGTH',2X,'SPCTRM',6X,'BEAM',8X,'DIFF',
-c     4  8X,'GLOB',8X,'DIFF',7X,'GLOB',/,
-c     7  18X,' NORMAL',3X,'------ HORIZONTAL -----',
-c     8  3X,'-------- TILTED -------',/)
+      WRITE(16,111)
+ 111  FORMAT('*** IRRADIANCES IN W/m2 nm FOR A ',
+     2  'GIVEN WAVELENGTH (in nm)',//
+     3  ,'WVLGTH',2X,'SPCTRM',6X,'BEAM',8X,'DIFF',
+     4  8X,'GLOB',8X,'DIFF',7X,'GLOB',/,
+     7  18X,' NORMAL',3X,'------ HORIZONTAL -----',
+     8  3X,'-------- TILTED -------',/)
       GOTO 65
  62   CONTINUE
-c      WRITE(16,116)
-c 116  FORMAT('*** IRRADIANCES IN W/m2 nm FOR A ',
-c     2  'GIVEN WAVELENGTH (in nm)',//
-c     3  ,'WVLGTH',2X,'SPCTRM',6X,'BEAM',8X,'DIFF',
-c     4  8X,'GLOB',8X,'BEAM_EXP',8X,'DIFF',8X,'GLOB',/,
-c     7  18X,' NORMAL',3X,'------ HORIZONTAL -----   -- NORMAL--',
-c     8  '       ---- TILTED PLANE ---',/)
+      WRITE(16,116)
+ 116  FORMAT('*** IRRADIANCES IN W/m2 nm FOR A ',
+     2  'GIVEN WAVELENGTH (in nm)',//
+     3  ,'WVLGTH',2X,'SPCTRM',6X,'BEAM',8X,'DIFF',
+     4  8X,'GLOB',8X,'BEAM_EXP',8X,'DIFF',8X,'GLOB',/,
+     7  18X,' NORMAL',3X,'------ HORIZONTAL -----   -- NORMAL--',
+     8  '       ---- TILTED PLANE ---',/)
  65   CONTINUE
       If(IPRT.lt.2) goto 5008
       Write(17,113,iostat=ierr35) (Out(Iout(i)),i=1,IOTOT)
  113  Format('Wvlgth',50(1x,a24))
- 5008   continue
+ 5008	continue
 C
 c-----------------------------------------------
 c-----------------------------------------------
@@ -3334,26 +3285,26 @@ C
       IF(wvln.LT.WPMN.OR.wvln.GT.WPMX)GOTO 953
       IF(IPRT.ne.1.and.IPRT.ne.3)goto 426
       If(Itilt.ne.0.or.Icirc.ne.0)goto 422
-c      WRITE(16,128,iostat=ierr6)WVLN,H0,real(DIR),Real(DirH),Real(Dif),
-c     1 Real(Glob),Real(DRay),Real(DAer)
-c 128  FORMAT(f7.1,1X,F7.3,2X,7(E11.5,1X))
+      WRITE(16,128,iostat=ierr6)WVLN,H0,real(DIR),Real(DirH),Real(Dif),
+     1 Real(Glob),Real(DRay),Real(DAer)
+ 128  FORMAT(f7.1,1X,F7.3,2X,7(E11.5,1X))
       goto 426
  422  continue
       IF(Itilt.ne.0.or.Icirc.ne.1)goto 423
-c      WRITE(16,120,iostat=ierr37)WVLN,H0,real(DIR),Real(Dif),Real(Glob),
-c     1 Real(DirExp),Real(DifExp),Real(DRay),Real(DAer)
-c 120  FORMAT(f7.1,1X,F7.3,2X,3(E11.5,1X),2X,5(E11.5,1X))
+      WRITE(16,120,iostat=ierr37)WVLN,H0,real(DIR),Real(Dif),Real(Glob),
+     1 Real(DirExp),Real(DifExp),Real(DRay),Real(DAer)
+ 120  FORMAT(f7.1,1X,F7.3,2X,3(E11.5,1X),2X,5(E11.5,1X))
       goto 426
  423  continue
       IF(Itilt.ne.1.or.Icirc.ne.0)goto 424
-c      WRITE(16,124,iostat=ierr38)WVLN,H0,real(DIR),Real(Dif),Real(Glob),
-c     1 Real(DifS),Real(GlobS)
-c 124  FORMAT(f7.1,1X,F7.3,2X,3(E11.5,1X),2X,2(E11.5,1X))
+      WRITE(16,124,iostat=ierr38)WVLN,H0,real(DIR),Real(Dif),Real(Glob),
+     1 Real(DifS),Real(GlobS)
+ 124  FORMAT(f7.1,1X,F7.3,2X,3(E11.5,1X),2X,2(E11.5,1X))
       GOTO 426
  424  CONTINUE
-c      WRITE(16,125,iostat=ierr39)WVLN,H0,real(DIR),Real(Dif),Real(Glob),
-c     1 Real(DirExp),Real(DifS),Real(GlobS)
-c 125  FORMAT(f7.1,1X,F7.3,2X,3(E11.5,1X),2X,E11.5,3X,2(E11.5,1X))
+      WRITE(16,125,iostat=ierr39)WVLN,H0,real(DIR),Real(Dif),Real(Glob),
+     1 Real(DirExp),Real(DifS),Real(GlobS)
+ 125  FORMAT(f7.1,1X,F7.3,2X,3(E11.5,1X),2X,E11.5,3X,2(E11.5,1X))
  426  continue
       IF(IPRT.ne.2.and.IPRT.ne.3)goto 953
 c
@@ -3499,89 +3450,89 @@ c      Print results
 c
 c-----------------------------------------------
 C      
-c      WRITE(16,122,iostat=ierr60) wlmn,wlmx,NWMX,SUM0,Real(SumBn),
-c     1 Real(SumBn)/sum0,SUMB,Real(SumD),SUMG,sumg/Escc
-c 122  FORMAT(/,'Wavelength Range = '
-c     % ,f6.1,' to ',f6.1,' nm;',2X,'Number of Wavelengths = ',I5,
-c     % //,'*** BROADBAND IRRADIANCES (W/m2):',//,'* DIRECT BEAM AT ',
-c     3 'NORMAL INCIDENCE:',/,2x,'Extraterrestrial = ',F7.2,3X,
-c     % 'Terrestrial = ',F7.2,3x,'Atmospheric Transmittance = ',f6.4,//,
-c     2 '* FOR THE HORIZONTAL PLANE:',/,2x,
-c     6 'Direct Beam = ',F7.2,'   Diffuse = ',F6.2,'   Global = ',F7.2,
-c     7 '   Clearness index, KT = ',f6.4)
-c      WRITE(16,135,iostat=ierr62)Real(SUMD0),Real(SumD-SUMD0)
-c 135  FORMAT('  Diffuse irradiance origination details:',/,
-c     1 '   Sky diffuse = ',F6.2,'   Back-scattered diffuse = ',F6.2,/)
+      WRITE(16,122,iostat=ierr60) wlmn,wlmx,NWMX,SUM0,Real(SumBn),
+     1 Real(SumBn)/sum0,SUMB,Real(SumD),SUMG,sumg/Escc
+ 122  FORMAT(/,'Wavelength Range = '
+     % ,f6.1,' to ',f6.1,' nm;',2X,'Number of Wavelengths = ',I5,
+     % //,'*** BROADBAND IRRADIANCES (W/m2):',//,'* DIRECT BEAM AT ',
+     3 'NORMAL INCIDENCE:',/,2x,'Extraterrestrial = ',F7.2,3X,
+     % 'Terrestrial = ',F7.2,3x,'Atmospheric Transmittance = ',f6.4,//,
+     2 '* FOR THE HORIZONTAL PLANE:',/,2x,
+     6 'Direct Beam = ',F7.2,'   Diffuse = ',F6.2,'   Global = ',F7.2,
+     7 '   Clearness index, KT = ',f6.4)
+      WRITE(16,135,iostat=ierr62)Real(SUMD0),Real(SumD-SUMD0)
+ 135  FORMAT('  Diffuse irradiance origination details:',/,
+     1 '   Sky diffuse = ',F6.2,'   Back-scattered diffuse = ',F6.2,/)
 C
       IF(ITILT.le.0)goto 6010
-c      WRITE(16,123,iostat=ierr64)SUMBS,SUMDS,SUMRS,SUMGS
-c 123  FORMAT( '* FOR THE TILTED PLANE: ',/,'  Direct Beam = ',F7.2,
-c     % '   Sky Diffuse = ',F6.2,'   Ground Reflected = ',F6.2,
-c     # '   Global = ',F7.2,/)
+      WRITE(16,123,iostat=ierr64)SUMBS,SUMDS,SUMRS,SUMGS
+ 123  FORMAT( '* FOR THE TILTED PLANE: ',/,'  Direct Beam = ',F7.2,
+     % '   Sky Diffuse = ',F6.2,'   Ground Reflected = ',F6.2,
+     # '   Global = ',F7.2,/)
  6010 continue
 c
       IF(ICIRC.le.0)goto 6012
-c      WRITE(16,137,iostat=ierr66)Real(SumBx),Real(SumDx),sumg
-c 137  FORMAT('* EXPERIMENTAL (WITH CIRCUMSOLAR CORRECTION):',/,2x,
-c     # 'Direct Beam, Normal Incidence = ',f7.2,'   Diffuse Horizontal ',
-c     2 '= ',F6.2,'   Global Horizontal = ',F7.2,/)
+      WRITE(16,137,iostat=ierr66)Real(SumBx),Real(SumDx),sumg
+ 137  FORMAT('* EXPERIMENTAL (WITH CIRCUMSOLAR CORRECTION):',/,2x,
+     # 'Direct Beam, Normal Incidence = ',f7.2,'   Diffuse Horizontal ',
+     2 '= ',F6.2,'   Global Horizontal = ',F7.2,/)
  6012 continue
 c
       IF(ILLUM.eq.0)goto 779
-c      WRITE(16,188,iostat=ierr68)CIEYr,XILLM,BILLM,DILLM,GILLM,SILLM,
-c     2  PARb,PARd,PARg,PARgs,PPFDb,PPFDd,PPFDg,PPFDgs
-c 188  FORMAT(///,'*** ILLUMINANCES (klux) obtained with the Vlambda'
-c     2 ,' curve from CIE 19',i2,':',/,' E.T. = ',F6.2,2x,
-c     % 'BEAM NORMAL = ',F6.2,'  DIFFUSE HORIZONTAL = ',F7.2,'  GLOBAL'
-c     4,' HORIZONTAL = ',F7.2,'  GLOBAL TILT = ',F7.2,//,'*** PHOTOSY',
-c     5 'NTHETIC IRRADIANCE (W/m2) for 400-700 nm:',/,' BEAM NORMAL =',
-c     6 1x,f6.2,'  DIFFUSE HORIZONTAL = ',f6.2,'  GLOBAL HORIZONTAL =',
-c     7 1x,f6.2,'  GLOBAL TILT = ',f6.2,//,'*** PHOTOSYNTHETIC PHOTON '
-c     8 ,'FLUX DENSITY (Aumol m-2 s-1) for 400-700 nm:',/,' BEAM NORMAL'
-c     6 ,' = ',f6.1,'  DIFFUSE HORIZONTAL = ',f6.1,
-c     7 '  GLOBAL HORIZONTAL = ',f6.1,'  GLOBAL TILT = ',f6.1,/)
+      WRITE(16,188,iostat=ierr68)CIEYr,XILLM,BILLM,DILLM,GILLM,SILLM,
+     2  PARb,PARd,PARg,PARgs,PPFDb,PPFDd,PPFDg,PPFDgs
+ 188  FORMAT(///,'*** ILLUMINANCES (klux) obtained with the Vlambda'
+     2 ,' curve from CIE 19',i2,':',/,' E.T. = ',F6.2,2x,
+     % 'BEAM NORMAL = ',F6.2,'  DIFFUSE HORIZONTAL = ',F7.2,'  GLOBAL'
+     4,' HORIZONTAL = ',F7.2,'  GLOBAL TILT = ',F7.2,//,'*** PHOTOSY',
+     5 'NTHETIC IRRADIANCE (W/m2) for 400-700 nm:',/,' BEAM NORMAL =',
+     6 1x,f6.2,'  DIFFUSE HORIZONTAL = ',f6.2,'  GLOBAL HORIZONTAL =',
+     7 1x,f6.2,'  GLOBAL TILT = ',f6.2,//,'*** PHOTOSYNTHETIC PHOTON '
+     8 ,'FLUX DENSITY (Aumol m-2 s-1) for 400-700 nm:',/,' BEAM NORMAL'
+     6 ,' = ',f6.1,'  DIFFUSE HORIZONTAL = ',f6.1,
+     7 '  GLOBAL HORIZONTAL = ',f6.1,'  GLOBAL TILT = ',f6.1,/)
       IF(ICIRC.ne.1.and.ICIRC.ne.2)goto 779
-c      WRITE(16,189,iostat=ierr70)BILLMX,DILLMX
-c 189  FORMAT(6x,'ILLUMINANCES WITH CIRCUMSOLAR CORRECTION (klux):',/,
-c     & 7x,'BEAM NORMAL = ',F6.2,'   DIFFUSE = ',F7.2,/)
+      WRITE(16,189,iostat=ierr70)BILLMX,DILLMX
+ 189  FORMAT(6x,'ILLUMINANCES WITH CIRCUMSOLAR CORRECTION (klux):',/,
+     & 7x,'BEAM NORMAL = ',F6.2,'   DIFFUSE = ',F7.2,/)
  779  continue
       IF(abs(ILLUM).ne.2)goto 6014
-c      WRITE(16,180,iostat=ierr72)EFF0,EFFB,EFFD,EFFG,EFFS
-c 180  FORMAT('*** LUMINOUS EFFICACY (lm/W):',/,
-c     & ' E.T. = ',F6.2,'   BEAM = ',F7.3, '   DIFFUSE = ',
-c     % F7.3,'   GLOBAL = ',F7.3,'   GLOBAL TILT = ',F7.3,/)
-c      IF(ICIRC.EQ.1.or.ICIRC.EQ.2)WRITE(16,181,iostat=ierr74)
-c     1 EFFBX,EFFDX
-c 181  FORMAT(6x,'LUMINOUS EFFICACY WITH CIRCUMSOLAR CORRECTION (lm/W)'
-c     & ,':',/,7x,'BEAM = ',F7.3, '   DIFFUSE = ',F7.3,/)
+      WRITE(16,180,iostat=ierr72)EFF0,EFFB,EFFD,EFFG,EFFS
+ 180  FORMAT('*** LUMINOUS EFFICACY (lm/W):',/,
+     & ' E.T. = ',F6.2,'   BEAM = ',F7.3, '   DIFFUSE = ',
+     % F7.3,'   GLOBAL = ',F7.3,'   GLOBAL TILT = ',F7.3,/)
+      IF(ICIRC.EQ.1.or.ICIRC.EQ.2)WRITE(16,181,iostat=ierr74)
+     1 EFFBX,EFFDX
+ 181  FORMAT(6x,'LUMINOUS EFFICACY WITH CIRCUMSOLAR CORRECTION (lm/W)'
+     & ,':',/,7x,'BEAM = ',F7.3, '   DIFFUSE = ',F7.3,/)
  6014 continue
 c
       IF(IUV.ne.1)goto 778
-c      WRITE(16,143,iostat=ierr76)SUVA1,SUVB1,SUVA2,SUVB2,SERY0,SERY1,
-c     @ SERY2,SERY4,SDNA,SPHO,SACG,SECAL,SPOL,SSIS,SPRT,SSCUPH,
-c     & SSCUPM
-c      WRITE(16,144,iostat=ierr78)DOSE,UVindx
+      WRITE(16,143,iostat=ierr76)SUVA1,SUVB1,SUVA2,SUVB2,SERY0,SERY1,
+     @ SERY2,SERY4,SDNA,SPHO,SACG,SECAL,SPOL,SSIS,SPRT,SSCUPH,
+     & SSCUPM
+      WRITE(16,144,iostat=ierr78)DOSE,UVindx
  778  continue
-c 143  FORMAT(///,'*** UV IRRADIANCES (W/m2):',//,' TOTAL UV-A IRRADIAN'
-c     1,'CE (315-400 nm) = ',F9.5,/,' TOTAL UV-B IRRADIANCE (280-315 nm'
-c     #,') = ',F8.5,//,' TOTAL UV-A IRRADIANCE (320-400 nm) = ',F9.5,/,
-c     #' TOTAL UV-B IRRADIANCE (280-320 nm) = ',F8.5,///,'*** ACTION-WE'
-c     % ,'IGHTED DOSE RATES (W/m2) USING SELECTED ACTION CURVES',//,' E'
-c     % ,'RYTHEMAL C.I.E. (McKinley & Diffey, 1987) = ',E10.4,/,' ERYT',
-c     % 'HEMAL from Green et al. (1974) = ',E10.4,/,' ERYTHEMAL from ',
-c     # 'Green et al. (1975) = ',E10.4,/,' ERYTHEMAL from ',
-c     #'Diffey (1982) modified by Bjorn (1989) = ',E10.4,/,' DNA DAMA',
-c     9 'GE from Setlow (1974) = ',E10.4,/,' PHOTOSYNTHESIS INHIBITION'
-c     5 ,' from Caldwell et al. (1986) = ',E10.4,/,' ACGIH SAFETY ',
-c     %'SPECTRUM from Wester (1981) = ',E10.4,/,' BIOLOGICAL ACTION '
-c     # ,'from Caldwell (1971) and Green (1974) = ',E10.4,/,' POLYCHRO'
-c     %,'MATIC ACTION FOR HIGHER PLANTS from Caldwell et al. (1986) = ',
-c     # E10.4,/,' SYSTEMIC IMMUNOSUPPRESSION from deFabo et al. (1990)
-c     % = ',E10.4,/,' DNA TO PROTEIN CROSSLINKS from Peak & Peak ',
-c     %'(1986) = ',E10.4,/,' SKIN CARCINOGENESIS from deGruijl & Van'
-c     & ,'derLeun (1994) = ',E10.4,' (humans); ',E10.4,' (mice)',//)
-c 144  FORMAT('*** DOSE RATE IN MED/h from an ideal Robertson-Berger',
-c     % ' instrument = ',E10.4,///,'*** UV Index = ',f7.3,//)
+ 143  FORMAT(///,'*** UV IRRADIANCES (W/m2):',//,' TOTAL UV-A IRRADIAN'
+     1,'CE (315-400 nm) = ',F9.5,/,' TOTAL UV-B IRRADIANCE (280-315 nm'
+     #,') = ',F8.5,//,' TOTAL UV-A IRRADIANCE (320-400 nm) = ',F9.5,/,
+     #' TOTAL UV-B IRRADIANCE (280-320 nm) = ',F8.5,///,'*** ACTION-WE'
+     % ,'IGHTED DOSE RATES (W/m2) USING SELECTED ACTION CURVES',//,' E'
+     % ,'RYTHEMAL C.I.E. (McKinley & Diffey, 1987) = ',E10.4,/,' ERYT',
+     % 'HEMAL from Green et al. (1974) = ',E10.4,/,' ERYTHEMAL from ',
+     # 'Green et al. (1975) = ',E10.4,/,' ERYTHEMAL from ',
+     #'Diffey (1982) modified by Bjorn (1989) = ',E10.4,/,' DNA DAMA',
+     9 'GE from Setlow (1974) = ',E10.4,/,' PHOTOSYNTHESIS INHIBITION'
+     5 ,' from Caldwell et al. (1986) = ',E10.4,/,' ACGIH SAFETY ',
+     %'SPECTRUM from Wester (1981) = ',E10.4,/,' BIOLOGICAL ACTION '
+     # ,'from Caldwell (1971) and Green (1974) = ',E10.4,/,' POLYCHRO'
+     %,'MATIC ACTION FOR HIGHER PLANTS from Caldwell et al. (1986) = ',
+     # E10.4,/,' SYSTEMIC IMMUNOSUPPRESSION from deFabo et al. (1990)
+     % = ',E10.4,/,' DNA TO PROTEIN CROSSLINKS from Peak & Peak ',
+     %'(1986) = ',E10.4,/,' SKIN CARCINOGENESIS from deGruijl & Van'
+     & ,'derLeun (1994) = ',E10.4,' (humans); ',E10.4,' (mice)',//)
+ 144  FORMAT('*** DOSE RATE IN MED/h from an ideal Robertson-Berger',
+     % ' instrument = ',E10.4,///,'*** UV Index = ',f7.3,//)
 C
 C-----------------------------------
 c
@@ -3610,9 +3561,9 @@ C
       GOTO 898
  998  CONTINUE
 c
-c      CLOSE (UNIT=14,STATUS='KEEP')
+      CLOSE (UNIT=14,STATUS='KEEP')
       CLOSE (UNIT=15,STATUS='KEEP')
-c      CLOSE (UNIT=16,STATUS='KEEP')
+      CLOSE (UNIT=16,STATUS='KEEP')
       IF(IPRT.ge.2)CLOSE (UNIT=17,STATUS='KEEP')
       IF(Iscan.eq.1)CLOSE (UNIT=18,STATUS='KEEP')
       CLOSE (UNIT=20,STATUS='KEEP')
@@ -3638,9 +3589,9 @@ c      CLOSE (UNIT=16,STATUS='KEEP')
       CLOSE (UNIT=40,STATUS='KEEP')
       CLOSE (UNIT=41,STATUS='KEEP')
 c
-        TotTime    = etime(time) - TotTime
-        write(6, 9910) TotTime
- 9910   format ("Total CPU time: ",f7.3," sec")
+		TotTime    = etime(time) - TotTime
+		write(6, 9910) TotTime
+ 9910	format ("Total CPU time: ",f7.3," sec")
 c
 c      STOP
       END
@@ -3665,14 +3616,14 @@ c
       if(Wlmin.gt.1.702)dwvl=.005
       wvl1=Wvla(1)-dwvl
       wvln=Wvla(N)+dwvl
-c      If(wvl1.gt.Wlmin.or.Wvln.lt.Wlmax)Write(16,195)Name,
-c     2  Wvla(1),Wvla(N),Wlmin,Wlmax,Minalb,Wvla(1),Maxalb,Wvla(N)
-c 195  Format('** WARNING #13 ',9('*'),/,'\\ Ground reflectance data ',
-c     2 'for ', A24,/,'\\ extend only from ',f6.4,' to ',
-c     3  f6.4,' Aum,',/,'\\ whereas the wavelength limits for this run ',
-c     4 'are ',f6.4,' and ',f6.4,' Aum.',/,'\\ Consequently, reflect',
-c     5 'ance is fixed at ',F5.3,' below ',f6.4,' Aum and at ',F5.3,
-c     6 ' above ',f6.4,' Aum.',//)
+      If(wvl1.gt.Wlmin.or.Wvln.lt.Wlmax)Write(16,195)Name,
+     2  Wvla(1),Wvla(N),Wlmin,Wlmax,Minalb,Wvla(1),Maxalb,Wvla(N)
+ 195  Format('** WARNING #13 ',9('*'),/,'\\ Ground reflectance data ',
+     2 'for ', A24,/,'\\ extend only from ',f6.4,' to ',
+     3  f6.4,' Aum,',/,'\\ whereas the wavelength limits for this run ',
+     4 'are ',f6.4,' and ',f6.4,' Aum.',/,'\\ Consequently, reflect',
+     5 'ance is fixed at ',F5.3,' below ',f6.4,' Aum and at ',F5.3,
+     6 ' above ',f6.4,' Aum.',//)
       Return
       End
 c
@@ -4026,9 +3977,9 @@ c
       Goto 371
  370  Continue
       Ntot=Ial-1
-c      if(Ntot.gt.3000)write(16,911)Ialbd,Ntot
-c 911  format('** WARNING #19 ** Error in albedo file # ',i2,': Number ',
-c     1 'of data rows is ',i8,/,' but should be <= 3000.',/)
+      if(Ntot.gt.3000)write(16,911)Ialbd,Ntot
+ 911  format('** WARNING #19 ** Error in albedo file # ',i2,': Number ',
+     1 'of data rows is ',i8,/,' but should be <= 3000.',/)
       Lamber='NON_LAMBERTIAN'
       If(Ialbd.le.0)Lamber='LAMBERTIAN'
       Close (Unit=20,status='keep')

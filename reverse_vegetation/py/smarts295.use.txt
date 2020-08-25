@@ -1,0 +1,19 @@
+Compile python library pysmarts from smarts295MOD.f:
+	python -m numpy.f2py -c smarts295MOD.f -m pysmarts
+
+Create 2 arrays:
+	l = np.zeros(shape=(14,636))	# holds full wavelengths, and 13 spectra
+	c = np.zeros(shape=(6,851))		# holds convolved wavelengths, and 5 spectra
+
+Call subroutine:
+	l, c = smarts295 (myAtmos,myW,myAbO3,
+	          		  myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3,
+	          		  myApNO,myApNO2,myApNO3,myApO3,myApSO2,
+	          		  myqCO2,myALPHA1,myALPHA2,myOMEGL,myGG,
+	          		  myTAU5,myIALBDX,myIalbdg,
+	          		  myYEAR,mymonth,myDAY,myHOUR,
+	          		  FullSpectra, ConvSpectra)
+
+l,c = pysmarts.smarts295('MLS', 10.0, 0.33,0.007,0.3,0.35,0.002,0.005,0.2,0.02,5e-5,0.053,0.05, 370.0,0.9111,1.3529,0.8,0.7,0.084,18,18,2016,5,5,14.02,l,c)
+
+**CHANGE ATMOS**
