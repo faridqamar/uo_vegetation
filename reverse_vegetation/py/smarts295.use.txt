@@ -6,14 +6,64 @@ Create 2 arrays:
 	c = np.zeros(shape=(6,851))		# holds convolved wavelengths, and 5 spectra
 
 Call subroutine:
-	l, c = smarts295 (myAtmos,myW,myAbO3,
-	          		  myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3,
-	          		  myApNO,myApNO2,myApNO3,myApO3,myApSO2,
-	          		  myqCO2,myALPHA1,myALPHA2,myOMEGL,myGG,
-	          		  myTAU5,myIALBDX,myIalbdg,
-	          		  myYEAR,mymonth,myDAY,myHOUR,
-	          		  FullSpectra, ConvSpectra)
+	l, c = smarts295(myTAIR,myRH,myTDAY,myW,myAbO3,
+                     myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3,
+                     myApNO,myApNO2,myApNO3,myApO3,myApSO2,
+                     myqCO2,myALPHA1,myALPHA2,myOMEGL,myGG,
+                     myTAU5,myIALBDX,myIalbdg,
+                     myYEAR,mymonth,myDAY,myHOUR,
+                     FullSpectra, ConvSpectra)
+	
+	
+					 myTAIR,		# Atmospheric temp. at site level [C] (-120 < T < 50)
+					 myRH,			# Relative Humidity at site level [%] (0 < H < 100)
+					 myTDAY,		# Average daily temperature at site level [C] (-120 < T < 50)
+					 myW,			# Precipitable water above the site altitude [cm or g/cm^2] (<= 12)
+					 myAbO3,		# Site level ozone total-column abundance [atm-cm] (normally 0.2 - 0.5)
+	          		 myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3,
+	          		 myApNO,myApNO2,myApNO3,myApO3,myApSO2,		# Pollutant volumetric concentations in the assumed 1-km
+	          		 											# deep tropospheric pollution layer [ppmv]
+	          		 											# Formaldehyde, Methane, Carbon Monoxide, Nitrous Acid,
+	          		 											# Nitric Acid, Nitric Oxide, Nitrogen Dioxide, 
+	          		 											# Nitrogen Trioxide, Ozone, Sulfur Dioxide
+	          		 myqCO2,		# CO2 columnar volumetric concentration [ppmv] (~370)
+	          		 myALPHA1,      # Average volume of Angstrom's wavelength exponent for wavelengths < 500nm (0.0 - 2.6)
+	          		 myALPHA2,		# Average volume of Angstrom's wavelength exponent for wavelengths >= 500nm (0.0 - 2.6)
+	          		 myOMEGL,		# Aerosol single scattering albedo (0.6 - 1.0)
+	          		 myGG,			# Aerosol asymmetry parameter (0.5 - 0.9)
+	          		 myTAU5,		# Aerosol optical depth at 500nm
+	          		 myIALBDX,		# Correct Zonal (or far-field) albedo [18 for concrete slab, 42 for Red construction brick]
+	          		 myIalbdg,		# Foreground local albedo seen by a tilted surface
+	          		 myYEAR,		# year (integer, ex. 2016)
+	          		 mymonth,       # month (integer, 1 - 12)
+	          		 myDAY,			# day of the month (integer 1 - 31)
+	          		 myHOUR,		# Local Standard Time (LST) in decimal hour (ex. 14.02 for 2:01pm)
+	          		 FullSpectra,	# our defined l array of shape (14,636) to contain full wavelengths and calculated spectra
+	          		 ConvSpectra	# our defined c array of shape (6,851) to contain wavelengths and convolved spectra
 
-l,c = pysmarts.smarts295('MLS', 10.0, 0.33,0.007,0.3,0.35,0.002,0.005,0.2,0.02,5e-5,0.053,0.05, 370.0,0.9111,1.3529,0.8,0.7,0.084,18,18,2016,5,5,14.02,l,c)
+example:
+l,c = pysmarts.smarts295(20,70,18, 10.0, 0.33,0.007,0.3,0.35,0.002,0.005,0.2,0.02,5e-5,0.053,0.05, 370.0,0.9111,1.3529,0.8,0.7,0.084,18,18,2016,5,5,14.02,l,c)
 
-**CHANGE ATMOS**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

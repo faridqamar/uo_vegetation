@@ -17,7 +17,7 @@ C***        Card 2: ISPR=2 [336]
 C***        Card 2a: Latit=40.69442 [387]
 C***                 Altit=0.011458 [388]
 C***                 Height=0.122   [389]
-C***        Card 3: iAtmos=1 [419]
+C***        Card 3: iAtmos=0 [419]
 C***        Card 4: IH2O=0 [429]
 C***        Card 5: IO3=0 [540]
 C***        Card 5a: IALT=0 [581]
@@ -50,14 +50,13 @@ C***        Card 16: IUV=0 [1343]
 C***        Card 17: IMASS=3 [1414]
 C
 c
-      Subroutine smarts295 (myAtmos,myW,myAbO3,
+      Subroutine smarts295 (myTAIR,myRH,myTDAY,myW,myAbO3,
      1                      myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3,
      2                      myApNO,myApNO2,myApNO3,myApO3,myApSO2,
      3                      myqCO2,myALPHA1,myALPHA2,myOMEGL,myGG,
      4                      myTAU5,myIALBDX,myIalbdg,
      5                      myYEAR,mymonth,myDAY,myHOUR,
      6                      FullSpectra, ConvSpectra)
-cc      Subroutine smarts295 (TAIR,RH,SEASON,TDAY, W, AbO3, qCO2)
 
       REAL FullSpectra(14,636), ConvSpectra(6,851)
 Cf2py intent(in,out,copy) FullSpectra
@@ -447,13 +446,17 @@ C
 C***      CARD 3
 C
 cc      READ(14,*) iAtmos
-      iAtmos = 1
+      iAtmos = 0
 C
 C***      CARD 3a
 C
 cc      IF(iAtmos.EQ.0)READ(14,*)TAIR,RH,SEASON,TDAY
 cc      IF(iAtmos.EQ.1)READ(14,*)Atmos
-      Atmos = myAtmos
+cc      Atmos = myAtmos
+      TAIR = myTAIR
+      RH = myRH
+      TDAY = myTDAY
+      SEASON = 'Summer' 
 C
 C***      CARD 4
 C
