@@ -56,11 +56,10 @@ c
      3                      myqCO2,myALPHA1,myALPHA2,myOMEGL,myGG,
      4                      myTAU5,myIALBDX,myIalbdg,
      5                      myYEAR,mymonth,myDAY,myHOUR,
-     6                      FullSpectra, ConvSpectra)
+     6                      FullSpectra)
 
-      REAL FullSpectra(14,636), ConvSpectra(6,851)
+      REAL FullSpectra(14,636)
 Cf2py intent(in,out,copy) FullSpectra
-Cf2py intent(in,out,copy) ConvSpectra
       
       Double Precision TO3,TAUZ3,DIR,DIF0,DIF,GLOB,GLOBS,DIRH,FHTO,rocb
       Double Precision DIRS,DIFS,DIREXP,DIFEXP,DGRND,HT,DRAY,TH2O,TH2OP
@@ -317,7 +316,7 @@ c**********************************************************************
 c
 c
  3003  continue
-      TotTime    = etime(time)
+cc      TotTime    = etime(time)
 
 cc      OPEN (UNIT=14,FILE=FileIn,STATUS='OLD')
 cc      OPEN (UNIT=16,FILE=FileOut,STATUS='NEW')
@@ -3669,7 +3668,7 @@ cc      WRITE(18,193)
       IF(IFILT.NE.1)GOTO 91
       sigma2=fwhm*fwhm/5.5451774
       fk=fwhm*2.
-      CALL ScanG(step,FWHM,fk,sigma2,Nwmx,ConvSpectra)
+      CALL ScanG(step,FWHM,fk,sigma2,Nwmx)
       GOTO 92
  91   CONTINUE
       fk=fwhm
@@ -3707,9 +3706,9 @@ cc      IF(Iscan.eq.1)CLOSE (UNIT=18,STATUS='KEEP')
       CLOSE (UNIT=40,STATUS='KEEP')
       CLOSE (UNIT=41,STATUS='KEEP')
 c
-        TotTime    = etime(time) - TotTime
-        write(6, 9910) TotTime
- 9910   format ("Total CPU time: ",f7.3," sec")
+cc        TotTime    = etime(time) - TotTime
+cc        write(6, 9910) TotTime
+cc 9910   format ("Total CPU time: ",f7.3," sec")
 c
 c      STOP
       Return
@@ -5555,11 +5554,11 @@ c
 c
 c
 c
-      Subroutine ScanG(step,FWHM,fk,sigma2,N,ConvSpectra)
+      Subroutine ScanG(step,FWHM,fk,sigma2,N)
 c
 c      Smoothes irradiance with a Gaussian filter
 c
-      Real wv(2002),ET(2002),limit1,limit2,ConvSpectra(6,851)
+      Real wv(2002),ET(2002),limit1,limit2
       DOUBLE PRECISION TB,TG,TT,TX
       DOUBLE PRECISION BNORM(2002),GLOBH(2002),GLOBT(2002),DIRX(2002)
       COMMON /SOLAR1/ WV,WvLMN,WvLMX,WV1,WV2
@@ -5593,7 +5592,6 @@ c
 c      Find the limits for spectral integration
 c
       wvc=wv1
-      cind = 1
  40   continue
       dw1=1.
       d1=aint(wvc-fk)
@@ -5647,13 +5645,6 @@ c
 c
 cc      write(18,200)wvc,T0,TB,TX,TG,TT
  200  FORMAT(3x,f6.1,2X,5(E10.4,2X))
-      ConvSpectra(1,cind)=wvc
-      ConvSpectra(2,cind)=T0
-      ConvSpectra(3,cind)=TB
-      ConvSpectra(4,cind)=TX
-      ConvSpectra(5,cind)=TG
-      ConvSpectra(6,cind)=TT
-      cind = cind + 1
       wvc=wvc+step
       if(wvc.le.wv2)goto 40
  999  continue
