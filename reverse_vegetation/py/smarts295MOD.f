@@ -55,11 +55,15 @@ c
      2                      myApNO,myApNO2,myApNO3,myApO3,myApSO2,
      3                      myqCO2,myALPHA1,myALPHA2,myOMEGL,myGG,
      4                      myTAU5,myIALBDX,myIalbdg,
-     5                      myYEAR,mymonth,myDAY,myHOUR,
-     6                      FullSpectra)
+     5                      Wvla1,Albdo1,Nwal1,
+     6                      myYEAR,mymonth,myDAY,myHOUR,
+     7                      FullSpectra)
 
       REAL FullSpectra(14,636)
 Cf2py intent(in,out,copy) FullSpectra
+Cf2py intent(in) Wvla1
+Cf2py intent(in) Albdo1
+Cf2py intent(in) Nwal1
       
       Double Precision TO3,TAUZ3,DIR,DIF0,DIF,GLOB,GLOBS,DIRH,FHTO,rocb
       Double Precision DIRS,DIFS,DIREXP,DIFEXP,DGRND,HT,DRAY,TH2O,TH2OP
@@ -1145,9 +1149,12 @@ C***      CARD 10
 C
 cc      Read(14,*) Ialbdx
       Ialbdx = myIALBDX
+      Filen1 = 'USER_DEFINED'
+      Lambr1 = 'NON_LAMBERTIAN'
       Rhox=0.2
       If(Ialbdx.lt.0)goto 383
-      Call Albdat(Ialbdx,Nwal1,Filen1,Lambr1,Wvla1,Albdo1)
+      If(Ialbdx.ne.1)Call Albdat(Ialbdx,Nwal1,Filen1,
+     1                           Lambr1,Wvla1,Albdo1)
       Goto 384
 C
 C***      CARD 10a
