@@ -320,7 +320,7 @@ c**********************************************************************
 c
 c
  3003  continue
-      TotTime    = etime(time)
+cc      TotTime    = etime(time)
 
 cc      OPEN (UNIT=14,FILE=FileIn,STATUS='OLD')
 cc      OPEN (UNIT=16,FILE=FileOut,STATUS='NEW')
@@ -3713,9 +3713,9 @@ cc      IF(Iscan.eq.1)CLOSE (UNIT=18,STATUS='KEEP')
       CLOSE (UNIT=40,STATUS='KEEP')
       CLOSE (UNIT=41,STATUS='KEEP')
 c
-        TotTime    = etime(time) - TotTime
-        write(6, 9910) TotTime
- 9910   format ("Total CPU time: ",f7.3," sec")
+cc        TotTime    = etime(time) - TotTime
+cc        write(6, 9910) TotTime
+cc 9910   format ("Total CPU time: ",f7.3," sec")
 c
 c      STOP
       Return
