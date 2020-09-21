@@ -319,7 +319,7 @@ c
 c**********************************************************************
 c
 c
- 3003  continue
+cc 3003  continue
 cc      TotTime    = etime(time)
 
 cc      OPEN (UNIT=14,FILE=FileIn,STATUS='OLD')
