@@ -60,10 +60,16 @@ c
      7                      FullSpectra)
 
       REAL FullSpectra(14,636)
-Cf2py intent(in,out,copy) FullSpectra
+Cf2py intent(in,out) FullSpectra
 Cf2py intent(in) Wvla1
 Cf2py intent(in) Albdo1
 Cf2py intent(in) Nwal1
+Cf2py intent(in) myTAIR,myRH,myTDAY,myW,myAbO3
+Cf2py intent(in) myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3
+Cf2py intent(in) myApNO,myApNO2,myApNO3,myApO3,myApSO2
+Cf2py intent(in) myqCO2,myALPHA1,myALPHA2,myOMEGL,myGG
+Cf2py intent(in) myTAU5,myIALBDX,myIalbdg
+Cf2py intent(in) myYEAR,mymonth,myDAY,myHOUR
       
       Double Precision TO3,TAUZ3,DIR,DIF0,DIF,GLOB,GLOBS,DIRH,FHTO,rocb
       Double Precision DIRS,DIFS,DIREXP,DIFEXP,DGRND,HT,DRAY,TH2O,TH2OP
@@ -80,8 +86,8 @@ Cf2py intent(in) Nwal1
       Double Precision AmH2O,wAmw,wAmp,tauw,Bmw,Bmwp,ww02
 
       REAL RB0(4),RB1(4),RB2(4),RB3(4),RDHB(4),limit
-      REAL VL(515),ETSPCT(2002),Output(54),Xout(54),time(2)
-      Real Wvla1(3000),Albdo1(3000),Wvla2(3000),Albdo2(3000)
+      REAL VL(515),ETSPCT(2002),Output(54),Xout(54),timer(2)
+      REAL Wvla1(3000),Albdo1(3000),Wvla2(3000),Albdo2(3000)
       REAL C1(4),C2(4),C3(4),C4(4),C5(4),C6(4),D1(4),D2(4),D3(4),D4(4)
       REAL BP00(4),BP01(4),D5(4),D6(4)
       REAL BP02(4),BP10(4),BP11(4),BP12(4),BP20(4),BP21(4),BP22(4)
@@ -91,16 +97,17 @@ Cf2py intent(in) Nwal1
       REAL BP0(7),BP1(7),BP2(7),BP3(7),AG0(7),AG1(7),AG2(7),AG3(7)
       REAL AG4(7),AG00(4),AG01(4),AG02(4),AG10(4),AG11(4),AG12(4)
       REAL AG20(4),AG21(4),AG22(4),AG30(4),AG31(4),AG32(4),AG40(4) 
-      Real Bmx(2),Bmwx(2),intvl,KW,myW
+      REAL Bmx(2),Bmwx(2),intvl,KW,myW
       REAL DECLI(12),RSUN(12)
-      
+
+      INTEGER systime, time
       INTEGER IOUT(54),myOUT(13),CIEYr,year,day,DayoYr,DayUT
       INTEGER IOTOT, EOF,myyear,mymonth,myday
       
       LOGICAL batch
 c
-      CHARACTER*2000 Path
-      CHARACTER*100 FileIn,FileOut,FileExt,FileScn, Usernm
+cc      CHARACTER*2000 Path
+cc      CHARACTER*100 FileIn,FileOut,FileExt,FileScn, Usernm
       CHARACTER*64 AEROS, Spctrm, Comnt
       Character*48 dummy, smart
       Character*24 Filen1, Filen2, Lambr1, Lambr2
@@ -108,7 +115,9 @@ c
       Character*24 Out(54), Seasn2
       Character*12 Filter
       CHARACTER*6 SEASON, Area
-      CHARACTER*4 myAtmos,Atmos, YesNo
+      CHARACTER*4 Atmos, YesNo
+
+
 
       COMMON /SOLAR1/ WV,WLMN,wlmx,WV1,WV2
       COMMON /SOLAR2/ BNORM,GLOBH,GLOBT,DIRX,ETSPCT
@@ -319,8 +328,15 @@ c
 c**********************************************************************
 c
 c
-cc 3003  continue
-cc      TotTime    = etime(time)
+ 3003  continue
+      TotTime    = etime(timer)
+        
+      systime  = time()
+      write(6,*) "Initial Sys. time: ", systime
+cc      write(6, 9911) timer(1)
+cc      write(6, 9911) timer(2)
+cc 9911   format ("Initial Sys time: ",f7.3," sec")
+      
 
 cc      OPEN (UNIT=14,FILE=FileIn,STATUS='OLD')
 cc      OPEN (UNIT=16,FILE=FileOut,STATUS='NEW')
@@ -772,25 +788,25 @@ cc      READ(14,*)Ispctr
       Ispctr = 0
       
       if(Ispctr.lt.-1.or.Ispctr.gt.8)Ispctr=0
-      if(ispctr.eq.-1)OPEN (UNIT=15,FILE='Solar/Spctrm_U.dat',
+      if(ispctr.eq.-1)OPEN (UNIT=systime,FILE='Solar/Spctrm_U.dat',
      1 STATUS='OLD')
-      if(ispctr.eq.0)OPEN (UNIT=15,FILE='Solar/Spctrm_0.dat',
+      if(ispctr.eq.0)OPEN (UNIT=systime,FILE='Solar/Spctrm_0.dat',
      1 STATUS='OLD')
-      if(ispctr.eq.1)OPEN (UNIT=15,FILE='Solar/Spctrm_1.dat',
+      if(ispctr.eq.1)OPEN (UNIT=systime,FILE='Solar/Spctrm_1.dat',
      1 STATUS='OLD')
-      if(ispctr.eq.2)OPEN (UNIT=15,FILE='Solar/Spctrm_2.dat',
+      if(ispctr.eq.2)OPEN (UNIT=systime,FILE='Solar/Spctrm_2.dat',
      1 STATUS='OLD')
-      if(ispctr.eq.3)OPEN (UNIT=15,FILE='Solar/Spctrm_3.dat',
+      if(ispctr.eq.3)OPEN (UNIT=systime,FILE='Solar/Spctrm_3.dat',
      1 STATUS='OLD')
-      if(ispctr.eq.4)OPEN (UNIT=15,FILE='Solar/Spctrm_4.dat',
+      if(ispctr.eq.4)OPEN (UNIT=systime,FILE='Solar/Spctrm_4.dat',
      1 STATUS='OLD')
-      if(ispctr.eq.5)OPEN (UNIT=15,FILE='Solar/Spctrm_5.dat',
+      if(ispctr.eq.5)OPEN (UNIT=systime,FILE='Solar/Spctrm_5.dat',
      1 STATUS='OLD')
-      if(ispctr.eq.6)OPEN (UNIT=15,FILE='Solar/Spctrm_6.dat',
+      if(ispctr.eq.6)OPEN (UNIT=systime,FILE='Solar/Spctrm_6.dat',
      1 STATUS='OLD')
-      if(ispctr.eq.7)OPEN (UNIT=15,FILE='Solar/Spctrm_7.dat',
+      if(ispctr.eq.7)OPEN (UNIT=systime,FILE='Solar/Spctrm_7.dat',
      1 STATUS='OLD')
-      if(ispctr.eq.8)OPEN (UNIT=15,FILE='Solar/Spctrm_8.dat',
+      if(ispctr.eq.8)OPEN (UNIT=systime,FILE='Solar/Spctrm_8.dat',
      1 STATUS='OLD')
 c
 C
@@ -2134,8 +2150,8 @@ C      Start reading the selected E.T. SPECTRUM file
 C
       if(nread.gt.1)goto 787
       if(imass.eq.4.and.iday.gt.1)goto 787
-      READ(15,*)Spctrm
-      READ(15,*)ESC
+      READ(systime,*)Spctrm
+      READ(systime,*)ESC
       ESCC=SUNCOR*SolarC
       Scor=Escc/Esc
       Scor2=SolarC/Esc
@@ -2212,8 +2228,8 @@ c
 c      
 C      Start reading the selected E.T. SPECTRUM file
 C
-      READ(15,*)Spctrm
-      READ(15,*)ESC
+      READ(systime,*)Spctrm
+      READ(systime,*)ESC
       ESCC=SUNCOR*SolarC
       Scor=Escc/Esc
       Scor2=SolarC/Esc
@@ -2333,7 +2349,7 @@ C
       myind = 1
 c
  15   continue
-      READ (15,*,END=999) IWVLN1,H0
+      READ (systime,*,END=999) IWVLN1,H0
 c 
       WVLn=FLOAT(IWVLN1)/10.
       WVL=wvln/1000.
@@ -3686,7 +3702,7 @@ C
  998  CONTINUE
 c
 cc      CLOSE (UNIT=14,STATUS='KEEP')
-      CLOSE (UNIT=15,STATUS='KEEP')
+      CLOSE (UNIT=systime,STATUS='KEEP')
 cc      CLOSE (UNIT=16,STATUS='KEEP')
 cc      IF(IPRT.ge.2)CLOSE (UNIT=17,STATUS='KEEP')
 cc      IF(Iscan.eq.1)CLOSE (UNIT=18,STATUS='KEEP')
@@ -3713,9 +3729,9 @@ cc      IF(Iscan.eq.1)CLOSE (UNIT=18,STATUS='KEEP')
       CLOSE (UNIT=40,STATUS='KEEP')
       CLOSE (UNIT=41,STATUS='KEEP')
 c
-cc        TotTime    = etime(time) - TotTime
-cc        write(6, 9910) TotTime
-cc 9910   format ("Total CPU time: ",f7.3," sec")
+        TotTime    = etime(timer) - TotTime
+        write(6, 9910) TotTime
+ 9910   format ("Total CPU time: ",f7.3," sec")
 c
 c      STOP
       Return
