@@ -329,10 +329,10 @@ c**********************************************************************
 c
 c
  3003  continue
-      TotTime    = etime(timer)
+cc      TotTime    = etime(timer)
         
-      systime  = time()
-      write(6,*) "Initial Sys. time: ", systime
+cc      systime  = time()
+cc      write(6,*) "Initial Sys. time: ", systime
 cc      write(6, 9911) timer(1)
 cc      write(6, 9911) timer(2)
 cc 9911   format ("Initial Sys time: ",f7.3," sec")
@@ -3729,9 +3729,9 @@ cc      IF(Iscan.eq.1)CLOSE (UNIT=18,STATUS='KEEP')
       CLOSE (UNIT=40,STATUS='KEEP')
       CLOSE (UNIT=41,STATUS='KEEP')
 c
-        TotTime    = etime(timer) - TotTime
-        write(6, 9910) TotTime
- 9910   format ("Total CPU time: ",f7.3," sec")
+cc        TotTime    = etime(timer) - TotTime
+cc        write(6, 9910) TotTime
+cc 9910   format ("Total CPU time: ",f7.3," sec")
 c
 c      STOP
       Return
