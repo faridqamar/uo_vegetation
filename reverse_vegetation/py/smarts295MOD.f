@@ -17,14 +17,15 @@ C***        Card 2: ISPR=2 [336]
 C***        Card 2a: Latit=40.69442 [387]
 C***                 Altit=0.011458 [388]
 C***                 Height=0.122   [389]
-C***        Card 3: iAtmos=0 [419]
+C***        Card 3: iAtmos=1 [419]
+C***        Card3a: Atmos = 'USSA' [420]
 C***        Card 4: IH2O=0 [429]
-C***        Card 5: IO3=0 [540]
+C***        Card 5: IO3=1 [540]
 C***        Card 5a: IALT=0 [581]
 C***        Card 6: IGAS=0 [608]
 C***        Card 6a: ILOAD=0 [616]
 C***        Card 7: Ispctr=0 [744]
-C***        Card 8: AEROS='USER' [748]
+C***        Card 8: AEROS='S&F_URBAN' [748]
 C***        Card 9: ITURB=0 [869]
 C***        Card 10b: Itilt=1 [1107]
 C***        Card 10c: TILT=90. [1171]
@@ -50,14 +51,13 @@ C***        Card 16: IUV=0 [1343]
 C***        Card 17: IMASS=3 [1414]
 C
 c
-      Subroutine smarts295 (myTAIR,myRH,myTDAY,myW,myAbO3,
-     1                      myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3,
+      Subroutine smarts295 (myW,myApCH2O,myApCH4,
+     1                      myApCO,myApHNO2,myApHNO3,
      2                      myApNO,myApNO2,myApNO3,myApO3,myApSO2,
-     3                      myqCO2,myALPHA1,myALPHA2,myOMEGL,myGG,
-     4                      myTAU5,myIALBDX,myIalbdg,
-     5                      Wvla1,Albdo1,Nwal1,
-     6                      myYEAR,mymonth,myDAY,myHOUR,
-     7                      FullSpectra)
+     3                      myqCO2,myTAU5,myIALBDX,myIalbdg,
+     4                      Wvla1,Albdo1,Nwal1,
+     5                      myYEAR,mymonth,myDAY,myHOUR,
+     6                      FullSpectra)
 
       REAL FullSpectra(14,636)
 Cf2py intent(in,out) FullSpectra
@@ -465,17 +465,17 @@ C
 C***      CARD 3
 C
 cc      READ(14,*) iAtmos
-      iAtmos = 0
+      iAtmos = 1
 C
 C***      CARD 3a
 C
 cc      IF(iAtmos.EQ.0)READ(14,*)TAIR,RH,SEASON,TDAY
 cc      IF(iAtmos.EQ.1)READ(14,*)Atmos
-cc      Atmos = myAtmos
-      TAIR = myTAIR
-      RH = myRH
-      TDAY = myTDAY
-      SEASON = 'Summer' 
+      Atmos = 'USSA'
+cc      TAIR = myTAIR
+cc      RH = myRH
+cc      TDAY = myTDAY
+cc      SEASON = 'Summer' 
 C
 C***      CARD 4
 C
@@ -593,7 +593,7 @@ C
       Thick=1.
  329  continue
 cc      READ(14,*)IO3
-      IO3 = 0
+      IO3 = 1
       IF(IO3.ne.1)GOTO 331
       IF(iAtmos.ne.0)goto 348
       Call RefAtm(Zalt,dum1,dum2,dum3,O3ref,dum5,dum6,dum7,1)
@@ -813,16 +813,16 @@ C
 C***      CARD 8
 C
 cc      READ(14,*) AEROS
-      AEROS = 'USER'
+      AEROS = 'S&F_URBAN'
       IF(AEROS.NE.'USER')GOTO 350
 C
 C***      CARD 8a if AEROS='USER'
 C
 cc      READ(14,*) ALPHA1,ALPHA2,OMEGL,GG
-      ALPHA1 = myALPHA1
-      ALPHA2 = myALPHA2
-      OMEGL = myOMEGL
-      GG = myGG
+cc      ALPHA1 = myALPHA1
+cc      ALPHA2 = myALPHA2
+cc      OMEGL = myOMEGL
+cc      GG = myGG
       IAER=0
       GOTO 355
 C

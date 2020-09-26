@@ -9,10 +9,11 @@ import pandas as pd
 import random
 import time
 import matplotlib.pyplot as plt
-import mcmcFuncs as mc
+from mcmcFuncs import *
 import pysmarts
 import emcee
 import corner
+from multiprocessing import Pool
 
 # --  set scan number:
 scan = '108'
@@ -65,12 +66,12 @@ b4 = 0.35
 c4 = 0.01
 d4 = 0.0001
 
-TAIR = 15.5
-RH = 69.0
-TDAY = 12.5
+#TAIR = 15.5
+#RH = 69.0
+#TDAY = 12.5
 
 W = 2.0
-AbO3 = 0.33
+#AbO3 = 0.33
 ApCH2O = 0.007
 #ApCH4 = 0.3
 #ApCO = 0.35
@@ -82,35 +83,46 @@ ApNO3 = 5e-5
 ApO3 = 0.053
 ApSO2 = 0.05
 #qCO2 = 370.0
-ALPHA1 = 0.9111
-ALPHA2 = 1.3529
-OMEGL = 0.8
-GG = 0.7
+#ALPHA1 = 0.9111
+#ALPHA2 = 1.3529
+#OMEGL = 0.8
+#GG = 0.7
 TAU5 = 0.084
     
 amp = 1999.5
-eps = 21.8
+eps = 18.5
 
 init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3,
-                    a4, b4, c4, d4, TAIR, RH, TDAY, W, AbO3, ApCH2O, ApHNO2, ApHNO3,
-                    ApNO2, ApNO3, ApO3, ApSO2, ALPHA1, ALPHA2, OMEGL, GG, TAU5, amp, eps])
+                    a4, b4, c4, d4, W, ApCH2O, ApHNO2, ApHNO3,
+                    ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
 print("   initial parameters = ", init_params)
-
-
-# -- Setting walkers, number of steps, and initial array
-nwalkers, ndim, nsteps = 100, init_params.shape[0], 500
-p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/1000.)
-
-
-# -- Setting up backend to save and monitor progress
-filename = "MCMC_"+scan+".h5"
-backend = emcee.backends.HDFBackend(filename)
-backend.reset(nwalkers, ndim)
 
 
 # -- cut last 200 entries from spectrum
 mywav = cube.waves[:-200]
 myblds = nblds[:-200]
+
+
+# -- define log probability with global wavelengths and spectra arrays
+def log_probability(theta):    
+    lp = log_prior(theta, mywav)
+    if not np.isfinite(lp):
+#        print("LOG_PROBABILITY = ", -np.inf)
+        return -np.inf
+    
+    lk = log_likelihood(theta, mywav, myblds)
+    if not np.isfinite(lk):
+#        print("LOG_LIKELIHOOD = ", -np.inf)
+        return -np.inf
+    lprb = lp + lk
+#    print("LOG_PROBABILITY = ", lprb)
+    return lprb
+
+
+# -- Setting walkers, number of steps, and initial array
+nwalkers, ndim, nsteps = 200, init_params.shape[0], 50000
+p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/100.)
+
 
 # -- Perform MCMC
 print("Starting MCMC:")
@@ -119,13 +131,30 @@ print("   number of dimensions = ", ndim)
 print("   number of steps      = ", nsteps)
 start_time = time.time()
 
-#with Pool() as pool:
-#sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability)#, pool=pool)
-sampler = emcee.EnsembleSampler(nwalkers, ndim, mc.log_probability, args=(mywav, myblds), backend=backend)
-sampler.run_mcmc(p0, nsteps)
+filename = "MCMC_"+scan+".h5"
+if os.path.isfile(filename):
+    backend = emcee.backends.HDFBackend(filename)
+    print("MCMC has already been ran to {0} iterations".format(backend.iteration))
+    os.environ["OMP_NUM_THREADS"] = "1"
+    with Pool(15) as pool:
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, moves=emcee.moves.StretchMove(), 
+                                        backend=backend, pool=pool)
+        nsteps = nsteps - backend.iteration
+        sampler.run_mcmc(None, nsteps)
+else:
+    #Setting up backend to save and monitor progress
+    backend = emcee.backends.HDFBackend(filename)
+    backend.reset(nwalkers, ndim)
+    os.environ["OMP_NUM_THREADS"] = "1"
+    with Pool(15) as pool:
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, moves=emcee.moves.StretchMove(), 
+                                        backend=backend, pool=pool)
+        sampler.run_mcmc(p0, nsteps)
 
 elapsed_time = time.time() - start_time
+print("")
 print("Total MCMC time = ", time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
+print("")
 print("   number of walkers    = ", nwalkers)
 print("   number of dimensions = ", ndim)
 print("   number of steps      = ", nsteps)
@@ -136,10 +165,9 @@ fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
 labels = ['a1', 'b1', 'c1', 'd1',
           'a2', 'b3', 'c2', 'd2',
           'a3', 'b3', 'c3', 'd3',
-          'a4', 'b4', 'c4', 'd4',
-          'T_air', 'R.Humid', 'T_day',          
-          'H2O', 'AbO3', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-          'ApO3', 'ApSO2', 'ALPHA1', 'ALPHA2', 'OMEGL', 'GG', 'TAU5', 'amp', 'eps']
+          'a4', 'b4', 'c4', 'd4',          
+          'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 samples = sampler.get_chain()
 for i in range(ndim):
     ax = axes[i]
@@ -173,14 +201,13 @@ all_samples = np.concatenate(
 
 
 # -- Corner Plot
-f, ax = plt.subplots(37, 37, figsize=(74,74))
+f, ax = plt.subplots(ndim+2, ndim+2, figsize=((ndim+2)*2,(ndim+2)*2))
 labels = ['a1', 'b1', 'c1', 'd1',
           'a2', 'b3', 'c2', 'd2',
           'a3', 'b3', 'c3', 'd3',
-          'a4', 'b4', 'c4', 'd4',
-          'H2O', 'AbO3', 'ApCH2O', 'ApCO', 'ApHNO2', 'ApHNO3', 'ApNO', 'ApNO2', 'ApNO3',
-          'ApO3', 'ApSO2', 'qCO2', 'ALPHA1', 'ALPHA2', 'OMEGL', 'GG', 'TAU5', 'amp', 'eps',
-          'log prob', 'log prior']
+          'a4', 'b4', 'c4', 'd4',          
+          'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps', 'log prob', 'log prior']
 fig = corner.corner(all_samples, labels=labels, truths=np.median(all_samples, axis=0), fig=f)
 f.canvas.draw()
 f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
