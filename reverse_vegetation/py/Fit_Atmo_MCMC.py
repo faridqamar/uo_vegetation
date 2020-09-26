@@ -16,7 +16,7 @@ import corner
 from multiprocessing import Pool
 
 # --  set scan number:
-scan = '108'
+scan = '000'
 
 # -- read the cube from .raw file into float array
 fname = "../../../image_files/veg_00" + scan +".raw"
@@ -186,28 +186,28 @@ tau = sampler.get_autocorr_time()
 burnin = int(3 * np.max(tau))
 thin = int(0.5 * np.min(tau))
 flat_samples = sampler.get_chain(discard=burnin, thin=thin, flat=True)
-log_prob_samples = sampler.get_log_prob(discard=burnin, thin=thin, flat=True)
-log_prior_samples = sampler.get_blobs(discard=burnin, thin=thin, flat=True)
+#log_prob_samples = sampler.get_log_prob(discard=burnin, thin=thin, flat=True)
+#log_prior_samples = sampler.get_blobs(discard=burnin, thin=thin, flat=True)
 
 print("Autocorrelation Time = ", tau)
 print("burn-in = ", burnin)
 print("thin = ", thin)
 print("flat chain shape: ", flat_samples.shape)
-print("flat log prob shape: ", log_prob_samples.shape)
-print("flat log prior shape: ", log_prior_samples.shape)
+#print("flat log prob shape: ", log_prob_samples.shape)
+#print("flat log prior shape: ", log_prior_samples.shape)
 
-all_samples = np.concatenate(
-    (flat_samples, log_prob_samples[:,None], log_prior_samples[:,None]), axis=1)
-
+#all_samples = np.concatenate(
+#    (flat_samples, log_prob_samples[:,None], log_prior_samples[:,None]), axis=1)
+all_samples = flat_samples
 
 # -- Corner Plot
-f, ax = plt.subplots(ndim+2, ndim+2, figsize=((ndim+2)*2,(ndim+2)*2))
+f, ax = plt.subplots(ndim, ndim, figsize=((ndim)*2,(ndim)*2))
 labels = ['a1', 'b1', 'c1', 'd1',
           'a2', 'b3', 'c2', 'd2',
           'a3', 'b3', 'c3', 'd3',
           'a4', 'b4', 'c4', 'd4',          
           'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps', 'log prob', 'log prior']
+          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 fig = corner.corner(all_samples, labels=labels, truths=np.median(all_samples, axis=0), fig=f)
 f.canvas.draw()
 f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
@@ -218,8 +218,8 @@ fig = plt.subplots(figsize=(10,6))
 inds = np.random.randint(len(flat_samples), size=800)
 for ind in inds:
     sample = flat_samples[ind]
-    smrtwav, smrtmod = mc.modelFunc(*sample[:-2])
-    maxmod = mc.interpModel(cube.waves, sample[-2], modwav, modsmrt)
+    smrtwav, smrtmod = modelFunc(*sample[:-2])
+    maxmod = interpModel(cube.waves, sample[-2], smrtwav, smrtmod)
     linm, = plt.plot(cube.waves, maxmod, color='dodgerblue', lw=0.3)
 linb, = plt.plot(cube.waves, nblds, color='darkred')
 plt.xlabel('wavelength [nm]')
