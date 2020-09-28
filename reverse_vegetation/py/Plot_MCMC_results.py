@@ -16,7 +16,7 @@ import corner
 from multiprocessing import Pool
 
 # --  set scan number:
-scan = '108'
+scan = '000'
 
 # -- read the cube from .raw file into float array
 fname = "../../../image_files/veg_00" + scan +".raw"
@@ -90,8 +90,8 @@ else:
      #   print("   EXCEPTION RAISED: ")
      #   print("      emcee.autocorr.AutocorrError: ")
      #   print("      The chain is shorter than 50 times the integrated autocorrelation time for 27 parameter(s)")
-    burnin = 15000
-    thin = 2500
+    burnin = 3000
+    thin = 500
     flat_samples = backend.get_chain(discard=burnin, thin=thin, flat=True)
     #log_prob_samples = backend.get_log_prob(discard=burnin, thin=thin, flat=True)
     #log_prior_samples = backend.get_blobs(discard=burnin, thin=thin, flat=True)
@@ -123,7 +123,7 @@ else:
     inds = np.random.randint(len(flat_samples), size=800)
     for ind in inds:
         sample = flat_samples[ind]
-        smrtwav, smrtmod = modelFunc(*sample[:-2])
+        smrtwav, smrtmod = modelFunc(scan, *sample[:-2])
         maxmod = interpModel(cube.waves, sample[-2], smrtwav, smrtmod)
         linm, = ax.plot(cube.waves, maxmod, color='dodgerblue', lw=0.3)
     linb, = ax.plot(cube.waves, nblds, color='darkred')
@@ -131,18 +131,17 @@ else:
     ax.legend([linb, linm], ['data', 'model'])
     fig.savefig("../output/MCMC_models_"+scan+".png", dpi=300)
     
-    print(
 
     print("Plotting MCMC Albedo Solutions ...")
     fig, ax = plt.subplots(figsize=(10,6))
     inds = np.random.randint(len(flat_samples), size=800)
     for ind in inds:
         sample = flat_samples[ind]
-        albedo = albedoFunc(cube.waves, *sample[:16])
+        albedo = albedoFunc(cube.waves/1000., *sample[:16])
         linm, = ax.plot(cube.waves, albedo, color='dodgerblue', lw=0.2)
     ax.set_xlabel('wavelength [nm]')
-    ax.legend([linb, linm], ['data', 'model'])
-    fig.savefig("../output/MCMC_albedo_"+scan+".png", dpi=300)
+#    ax.set_ylim(-0.1,0.6)
+    fig.savefig("../output/MCMC_albedo_"+scan+"_full.png", dpi=300)
     
 
 

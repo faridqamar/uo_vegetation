@@ -7,7 +7,7 @@ import pysmarts
 from scipy.interpolate import interp1d
 
 
-def modelFunc(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
+def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
               W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, 
               ApO3, ApSO2, TAU5):
 # -- Function to call pySMARTS and produce a model
@@ -15,23 +15,23 @@ def modelFunc(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
     mywav = np.linspace(0.3,1.3,nalb)
     np.around(mywav, 2, mywav)
     albedo = albedoFunc(mywav, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
+    err_set = np.seterr(all='ignore')
     np.around(albedo, 4, albedo)
 
     #TAIR = 15.5
     #RH = 69.0
     #TDAY = 12.5
     
-    # -- scan 108
-    #Year = 2016
-    #Month = 5
-    #Day = 5
-    #Hour = 14.02
-    
-    # -- scan 000
-    Year = 2016
-    Month = 5
-    Day = 2
-    Hour = 17.77
+    if scan == '108':
+        Year = 2016
+        Month = 5
+        Day = 5
+        Hour = 14.02
+    elif scan == '000':
+        Year = 2016
+        Month = 5
+        Day = 2
+        Hour = 17.77
     
     albwav = np.zeros(shape=(3000))
     albalb = np.zeros(shape=(3000))
@@ -48,22 +48,33 @@ def modelFunc(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
 
 def albedoFunc(wav, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4):
 # -- Function to produce an albedo array
-    albedo = ((b1/(2*np.pi))*np.exp(-((wav-a1)**2)/(2*c1))+d1) + ((b2/(2*np.pi))*np.exp(-((wav-a2)**2)/(2*c2))+d2) + \
-    ((b3/(2*np.pi))*np.exp(-((wav-a3)**2)/(2*c3))+d3) + ((b4/(2*np.pi))*np.exp(-((wav-a4)**2)/(2*c4))+d4)
-    
+    err_set = np.seterr(all='raise')
+    try:
+        albedo = ((b1/(2*np.pi))*np.exp(-((wav-a1)**2)/(2*c1))+d1) + ((b2/(2*np.pi))*np.exp(-((wav-a2)**2)/(2*c2))+d2) + \
+                ((b3/(2*np.pi))*np.exp(-((wav-a3)**2)/(2*c3))+d3) + ((b4/(2*np.pi))*np.exp(-((wav-a4)**2)/(2*c4))+d4)
+    except:
+        albedo = np.full(len(wav), -np.inf)
+        
     return np.array(albedo)
+
 
 
 def interpModel(mywav, amp, modelwav, modelsmrt):
 # -- Function to interpolate the pySMARTS model into the cube's wavelengths
 #    and multiply by the given amplitude
-    interpMod = interp1d(modelwav, modelsmrt, fill_value="extrapolate")
-    model = np.array(interpMod(mywav)) * amp
+    err_set = np.seterr(all='raise')
+    try:
+        interpMod = interp1d(modelwav, modelsmrt, fill_value="extrapolate")
+        model = np.array(interpMod(mywav)) * amp
+    except:
+        model = np.full(len(mywav), -np.inf)
     
     return model
 
+
+
 # -- Defining MCMC functions
-def log_prior(theta, wav):
+def log_prior(theta, wav, scan):
     a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, \
     W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
     if eps <= 0:
@@ -77,6 +88,9 @@ def log_prior(theta, wav):
         return -np.inf
     nwav = wav/1000.
     albedo = albedoFunc(nwav, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
+    if any(np.isnan(albedo)) or not any(np.isfinite(albedo)):
+#        print("** ALBEDO has NaN or inf")
+        return -np.inf
     if (any(albedo) < 0) or (any(albedo) > 1):
 #        print("**ALBEDO not in 0-1 range:", a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
         return -np.inf
@@ -108,36 +122,41 @@ def log_prior(theta, wav):
 #        print("**TAU5 = ", TAU5)
         return -np.inf
         
-    modwav, modsmrt = modelFunc(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
+    modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
                                 W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5)
-    if any(np.isnan(modsmrt)):
-        modwav, modsmrt = modelFunc(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
+    if any(np.isnan(modsmrt)) or not any(np.isfinite(modsmrt)):
+        modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
                                     W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5)
-        if any(np.isnan(modsmrt)):
-#            print("**MODEL has NaN:", theta)
+        if any(np.isnan(modsmrt)) or not any(np.isfinite(modsmrt)):
+#            print("**MODEL has NaN or inf:", theta)
             return -np.inf
     
     model = interpModel(wav, amp, modwav, modsmrt)
-    if (any(model) < 0):
+    if (any(model) < 0) or any(np.isnan(model)) or not any(np.isfinite(model)):
 #        print("**Model has < 0")
         return -np.inf
     return 0.0
 
-def log_likelihood(theta, wav, y):  
+
+
+def log_likelihood(theta, wav, y, scan):  
     a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, \
     W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
     
-    modwav, modsmrt = modelFunc(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
+    modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
                                 W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5)
-    if any(np.isnan(modsmrt)):
-        modwav, modsmrt = modelFunc(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
+    if any(np.isnan(modsmrt)) or not any(np.isfinite(modsmrt)):
+        modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
                                     W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5)
-        if any(np.isnan(modsmrt)):
-#            print("**MODEL has NaN:", theta)
+        if any(np.isnan(modsmrt)) or not any(np.isfinite(modsmrt)):
+#            print("**MODEL has NaN or inf:", theta)
             return -np.inf
     
     model = interpModel(wav, amp, modwav, modsmrt)
-    
+    if any(np.isnan(model)) or not any(np.isfinite(model)) or (any(model) < 0):
+#        print("**Model has < 0")
+        return -np.inf
+        
     denom = eps**2
     lk = -0.5 * sum(((y-model)**2) / denom + np.log(denom) + np.log(2*np.pi))
     return lk
