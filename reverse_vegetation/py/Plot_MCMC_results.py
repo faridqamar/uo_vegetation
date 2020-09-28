@@ -59,26 +59,25 @@ else:
     print("   number of steps      = ", nsteps)
     
     # -- Plot walkers
-    print("")
-    print("Plotting Walkers ...")
-    fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
-    labels = ['a1', 'b1', 'c1', 'd1',
-              'a2', 'b3', 'c2', 'd2',
-              'a3', 'b3', 'c3', 'd3',
-              'a4', 'b4', 'c4', 'd4',          
-              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
-    samples = backend.get_chain()
-    for i in range(ndim):
-        ax = axes[i]
-        ax.plot(samples[:,:,i], "k", alpha=0.3)
-        ax.set_xlim(0,len(samples))
-        ax.set_ylabel(labels[i])
-        ax.yaxis.set_label_coords(-0.1,0.5)
-
-    axes[-1].set_xlabel("step number")
-    fig.canvas.draw()
-    fig.savefig("../output/MCMC_walkers_"+scan+".png", dpi=300)
+#    print("")
+#    print("Plotting Walkers ...")
+#    fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
+#    labels = ['a1', 'b1', 'c1', 'd1',
+#              'a2', 'b3', 'c2', 'd2',
+#              'a3', 'b3', 'c3', 'd3',
+#              'a4', 'b4', 'c4', 'd4',          
+#              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+#              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+#    samples = backend.get_chain()
+#    for i in range(ndim):
+#        ax = axes[i]
+#        ax.plot(samples[:,:,i], "k", alpha=0.3)
+#        ax.set_xlim(0,len(samples))
+#        ax.set_ylabel(labels[i])
+#        ax.yaxis.set_label_coords(-0.1,0.5)
+#    axes[-1].set_xlabel("step number")
+#    fig.canvas.draw()
+#    fig.savefig("../output/MCMC_walkers_"+scan+".png", dpi=300)
     
     # -- Calculate tau
     print("Calculating Autocorrelation Time for each parameter...")
@@ -104,18 +103,18 @@ else:
     #print("   flat log prior shape: ", log_prior_samples.shape)
     
     # -- Corner Plot
-    print("")
-    print("Plotting Corner Plot ...")
-    f, ax = plt.subplots(ndim, ndim, figsize=((ndim)*2,(ndim)*2))
-    labels = ['a1', 'b1', 'c1', 'd1',
-              'a2', 'b3', 'c2', 'd2',
-              'a3', 'b3', 'c3', 'd3',
-              'a4', 'b4', 'c4', 'd4',          
-              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
-    fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), fig=f)
-    f.canvas.draw()
-    f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
+#    print("")
+#    print("Plotting Corner Plot ...")
+#    f, ax = plt.subplots(ndim, ndim, figsize=((ndim)*2,(ndim)*2))
+#    labels = ['a1', 'b1', 'c1', 'd1',
+#              'a2', 'b3', 'c2', 'd2',
+#              'a3', 'b3', 'c3', 'd3',
+#              'a4', 'b4', 'c4', 'd4',          
+#              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+#              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+#    fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), fig=f)
+#    f.canvas.draw()
+#    f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
 
 
     # -- Plot a sample of the MCMC solutions
@@ -131,7 +130,19 @@ else:
     ax.set_xlabel('wavelength [nm]')
     ax.legend([linb, linm], ['data', 'model'])
     fig.savefig("../output/MCMC_models_"+scan+".png", dpi=300)
+    
+    print(
 
+    print("Plotting MCMC Albedo Solutions ...")
+    fig, ax = plt.subplots(figsize=(10,6))
+    inds = np.random.randint(len(flat_samples), size=800)
+    for ind in inds:
+        sample = flat_samples[ind]
+        albedo = albedoFunc(cube.waves, *sample[:16])
+        linm, = ax.plot(cube.waves, albedo, color='dodgerblue', lw=0.2)
+    ax.set_xlabel('wavelength [nm]')
+    ax.legend([linb, linm], ['data', 'model'])
+    fig.savefig("../output/MCMC_albedo_"+scan+".png", dpi=300)
     
 
 

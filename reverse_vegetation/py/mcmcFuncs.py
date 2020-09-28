@@ -20,10 +20,18 @@ def modelFunc(a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
     #TAIR = 15.5
     #RH = 69.0
     #TDAY = 12.5
+    
+    # -- scan 108
+    #Year = 2016
+    #Month = 5
+    #Day = 5
+    #Hour = 14.02
+    
+    # -- scan 000
     Year = 2016
     Month = 5
-    Day = 5
-    Hour = 14.02
+    Day = 2
+    Hour = 17.77
     
     albwav = np.zeros(shape=(3000))
     albalb = np.zeros(shape=(3000))
