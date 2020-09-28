@@ -16,7 +16,7 @@ import corner
 from multiprocessing import Pool
 
 # --  set scan number:
-scan = '000'
+scan = '108'
 
 # -- read the cube from .raw file into float array
 fname = "../../../image_files/veg_00" + scan +".raw"
@@ -120,7 +120,7 @@ def log_probability(theta):
 
 
 # -- Setting walkers, number of steps, and initial array
-nwalkers, ndim, nsteps = 200, init_params.shape[0], 10000
+nwalkers, ndim, nsteps = 200, init_params.shape[0], 100000
 p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/100.)
 
 
@@ -198,42 +198,3 @@ print("flat chain shape: ", flat_samples.shape)
 
 #all_samples = np.concatenate(
 #    (flat_samples, log_prob_samples[:,None], log_prior_samples[:,None]), axis=1)
-
-
-# -- Corner Plot
-f, ax = plt.subplots(ndim, ndim, figsize=((ndim)*2,(ndim)*2))
-labels = ['a1', 'b1', 'c1', 'd1',
-          'a2', 'b3', 'c2', 'd2',
-          'a3', 'b3', 'c3', 'd3',
-          'a4', 'b4', 'c4', 'd4',          
-          'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
-fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), fig=f)
-f.canvas.draw()
-f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
-
-
-# -- Plot a sample of the MCMC solutions
-fig = plt.subplots(figsize=(10,6))
-inds = np.random.randint(len(flat_samples), size=800)
-for ind in inds:
-    sample = flat_samples[ind]
-    smrtwav, smrtmod = modelFunc(*sample[:-2])
-    maxmod = interpModel(cube.waves, sample[-2], smrtwav, smrtmod)
-    linm, = plt.plot(cube.waves, maxmod, color='dodgerblue', lw=0.3)
-linb, = plt.plot(cube.waves, nblds, color='darkred')
-plt.xlabel('wavelength [nm]')
-plt.legend([linb, linm], ['data', 'model'])
-fig.savefig("../output/MCMC_models_"+scan+".png", dpi=300)
-
-
-# -- Plotting MCMC Albedo Solutions
-fig, ax = plt.subplots(figsize=(10,6))
-inds = np.random.randint(len(flat_samples), size=800)
-for ind in inds:
-    sample = flat_samples[ind]
-    albedo = albedoFunc(cube.waves/1000., *sample[:16])
-    linm, = ax.plot(cube.waves, albedo, color='dodgerblue', lw=0.2)
-ax.set_xlabel('wavelength [nm]')
-fig.savefig("../output/MCMC_albedo_"+scan+".png", dpi=300)
-

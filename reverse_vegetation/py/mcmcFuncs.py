@@ -11,8 +11,8 @@ def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, 
               W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, 
               ApO3, ApSO2, TAU5):
 # -- Function to call pySMARTS and produce a model
-    nalb = 101
-    mywav = np.linspace(0.3,1.3,nalb)
+    nalb = 111
+    mywav = np.linspace(0.35,0.9,nalb)
     np.around(mywav, 2, mywav)
     albedo = albedoFunc(mywav, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
     err_set = np.seterr(all='ignore')
@@ -86,7 +86,7 @@ def log_prior(theta, wav, scan):
     if (amp <= 0):
 #        print("**Amplitude = ", amp)
         return -np.inf
-    nwav = wav/1000.
+    nwav = np.linspace(0.35,0.9,111)
     albedo = albedoFunc(nwav, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
     if any(np.isnan(albedo)) or not any(np.isfinite(albedo)):
 #        print("** ALBEDO has NaN or inf")

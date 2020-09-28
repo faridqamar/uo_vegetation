@@ -16,7 +16,7 @@ import corner
 from multiprocessing import Pool
 
 # --  set scan number:
-scan = '000'
+scan = '108'
 
 # -- read the cube from .raw file into float array
 fname = "../../../image_files/veg_00" + scan +".raw"
@@ -45,6 +45,8 @@ nblds = blds*cube.waves/1e3
 #plt.legend()
 #plt.show()
 
+mywav = cube.waves[:-200]
+myblds = nblds[:-200]
 
 # -- HDF5 mcmc file
 filename = "MCMC_"+scan+".h5"
@@ -103,18 +105,18 @@ else:
     #print("   flat log prior shape: ", log_prior_samples.shape)
     
     # -- Corner Plot
-#    print("")
-#    print("Plotting Corner Plot ...")
-#    f, ax = plt.subplots(ndim, ndim, figsize=((ndim)*2,(ndim)*2))
-#    labels = ['a1', 'b1', 'c1', 'd1',
-#              'a2', 'b3', 'c2', 'd2',
-#              'a3', 'b3', 'c3', 'd3',
-#              'a4', 'b4', 'c4', 'd4',          
-#              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-#              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
-#    fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), fig=f)
-#    f.canvas.draw()
-#    f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
+    print("")
+    print("Plotting Corner Plot ...")
+    f, ax = plt.subplots(ndim, ndim, figsize=((ndim)*2,(ndim)*2))
+    labels = ['a1', 'b1', 'c1', 'd1',
+              'a2', 'b3', 'c2', 'd2',
+              'a3', 'b3', 'c3', 'd3',
+              'a4', 'b4', 'c4', 'd4',          
+              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+    fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), fig=f)
+    f.canvas.draw()
+    f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
 
 
     # -- Plot a sample of the MCMC solutions
@@ -124,9 +126,9 @@ else:
     for ind in inds:
         sample = flat_samples[ind]
         smrtwav, smrtmod = modelFunc(scan, *sample[:-2])
-        maxmod = interpModel(cube.waves, sample[-2], smrtwav, smrtmod)
-        linm, = ax.plot(cube.waves, maxmod, color='dodgerblue', lw=0.3)
-    linb, = ax.plot(cube.waves, nblds, color='darkred')
+        maxmod = interpModel(mywav, sample[-2], smrtwav, smrtmod)
+        linm, = ax.plot(mywav, maxmod, color='dodgerblue', lw=0.3)
+    linb, = ax.plot(mywav, myblds, color='darkred')
     ax.set_xlabel('wavelength [nm]')
     ax.legend([linb, linm], ['data', 'model'])
     fig.savefig("../output/MCMC_models_"+scan+".png", dpi=300)
@@ -137,8 +139,8 @@ else:
     inds = np.random.randint(len(flat_samples), size=800)
     for ind in inds:
         sample = flat_samples[ind]
-        albedo = albedoFunc(cube.waves/1000., *sample[:16])
-        linm, = ax.plot(cube.waves, albedo, color='dodgerblue', lw=0.2)
+        albedo = albedoFunc(mywav/1000., *sample[:16])
+        linm, = ax.plot(mywav, albedo, color='dodgerblue', lw=0.2)
     ax.set_xlabel('wavelength [nm]')
 #    ax.set_ylim(-0.1,0.6)
     fig.savefig("../output/MCMC_albedo_"+scan+"_full.png", dpi=300)
