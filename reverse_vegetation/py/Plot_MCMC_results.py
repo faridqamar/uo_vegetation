@@ -92,8 +92,8 @@ else:
      #   print("   EXCEPTION RAISED: ")
      #   print("      emcee.autocorr.AutocorrError: ")
      #   print("      The chain is shorter than 50 times the integrated autocorrelation time for 27 parameter(s)")
-    burnin = 3000
-    thin = 500
+    burnin = 30000
+    thin = 5000
     flat_samples = backend.get_chain(discard=burnin, thin=thin, flat=True)
     #log_prob_samples = backend.get_log_prob(discard=burnin, thin=thin, flat=True)
     #log_prior_samples = backend.get_blobs(discard=burnin, thin=thin, flat=True)
@@ -143,7 +143,7 @@ else:
         linm, = ax.plot(mywav, albedo, color='dodgerblue', lw=0.2)
     ax.set_xlabel('wavelength [nm]')
 #    ax.set_ylim(-0.1,0.6)
-    fig.savefig("../output/MCMC_albedo_"+scan+"_full.png", dpi=300)
+    fig.savefig("../output/MCMC_albedo_"+scan+".png", dpi=300)
     
 
 

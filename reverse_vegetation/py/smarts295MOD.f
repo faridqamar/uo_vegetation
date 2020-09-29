@@ -31,7 +31,7 @@ C***        Card 10b: Itilt=1 [1107]
 C***        Card 10c: TILT=90. [1171]
 C***                  WAZIM=180. [1172]
 C***        Card 11: WLMN=390 [1141]
-C***                 WLMX=1015 [1142]
+C***                 WLMX=870 [1142]
 C***                 Suncor=1.0 [1143]
 C***                 SolarC=1366.10 [1144]
 C***        Card 12: IPRT=2 [1160]
@@ -1220,7 +1220,7 @@ C***      CARD 11 - Modified in 2.9
 C
 cc      READ(14,*)WLMN,WLMX,Suncor,SolarC
       WLMN = 390
-      WLMX = 1015
+      WLMX = 870
       Suncor = 1.0
       SolarC = 1366.10
       
