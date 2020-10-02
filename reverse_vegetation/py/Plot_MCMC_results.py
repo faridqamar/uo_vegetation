@@ -92,8 +92,8 @@ else:
      #   print("   EXCEPTION RAISED: ")
      #   print("      emcee.autocorr.AutocorrError: ")
      #   print("      The chain is shorter than 50 times the integrated autocorrelation time for 27 parameter(s)")
-    burnin = 30000
-    thin = 5000
+    burnin = 100000
+    thin = 10000
     flat_samples = backend.get_chain(discard=burnin, thin=thin, flat=True)
     #log_prob_samples = backend.get_log_prob(discard=burnin, thin=thin, flat=True)
     #log_prior_samples = backend.get_blobs(discard=burnin, thin=thin, flat=True)
