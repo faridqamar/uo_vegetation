@@ -92,9 +92,11 @@ TAU5 = 0.084
 amp = 1999.5
 eps = 18.5
 
-init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3,
-                    a4, b4, c4, d4, W, ApCH2O, ApHNO2, ApHNO3,
-                    ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
+#init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3,
+#                    a4, b4, c4, d4, W, ApCH2O, ApHNO2, ApHNO3,
+#                    ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
+#init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps])
+init_params = np.array([W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
 print("   initial parameters = ", init_params)
 
 
@@ -120,8 +122,8 @@ def log_probability(theta):
 
 
 # -- Setting walkers, number of steps, and initial array
-nwalkers, ndim, nsteps = 200, init_params.shape[0], 500000
-p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/100.)
+nwalkers, ndim, nsteps = 200, init_params.shape[0], 500
+p0 = init_params * (np.random.rand(nwalkers, ndim)*2)
 
 
 # -- Perform MCMC
@@ -137,7 +139,8 @@ if os.path.isfile(filename):
     print("MCMC has already been ran to {0} iterations".format(backend.iteration))
     os.environ["OMP_NUM_THREADS"] = "1"
     with Pool(15) as pool:
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, moves=emcee.moves.StretchMove(), 
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, 
+                                        moves=[(emcee.moves.DEMove(), 0.5), (emcee.moves.DESnookerMove(),0.5),], 
                                         backend=backend, pool=pool)
         nsteps = nsteps - backend.iteration
         sampler.run_mcmc(None, nsteps)
@@ -147,7 +150,8 @@ else:
     backend.reset(nwalkers, ndim)
     os.environ["OMP_NUM_THREADS"] = "1"
     with Pool(15) as pool:
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, moves=emcee.moves.StretchMove(), 
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability,
+                                        moves=[(emcee.moves.DEMove(), 0.5), (emcee.moves.DESnookerMove(),0.5),],
                                         backend=backend, pool=pool)
         sampler.run_mcmc(p0, nsteps)
 
@@ -162,11 +166,13 @@ print("   number of steps      = ", nsteps)
 
 # -- Plot walkers
 fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
-labels = ['a1', 'b1', 'c1', 'd1',
-          'a2', 'b3', 'c2', 'd2',
-          'a3', 'b3', 'c3', 'd3',
-          'a4', 'b4', 'c4', 'd4',          
-          'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+#labels = ['a1', 'b1', 'c1', 'd1',
+#          'a2', 'b3', 'c2', 'd2',
+#          'a3', 'b3', 'c3', 'd3',
+#          'a4', 'b4', 'c4', 'd4',        
+#          'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+#          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+labels = ['H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
           'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 samples = sampler.get_chain()
 for i in range(ndim):

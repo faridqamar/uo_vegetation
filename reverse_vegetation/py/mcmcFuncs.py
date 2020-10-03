@@ -7,8 +7,8 @@ import pysmarts
 from scipy.interpolate import interp1d
 
 
-def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
-              W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, 
+def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, 
+              a4, b4, c4, d4, W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, 
               ApO3, ApSO2, TAU5):
 # -- Function to call pySMARTS and produce a model
     nalb = 111
@@ -18,9 +18,6 @@ def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, 
     err_set = np.seterr(all='ignore')
     np.around(albedo, 4, albedo)
 
-    #TAIR = 15.5
-    #RH = 69.0
-    #TDAY = 12.5
     
     if scan == '108':
         Year = 2016
@@ -75,52 +72,72 @@ def interpModel(mywav, amp, modelwav, modelsmrt):
 
 # -- Defining MCMC functions
 def log_prior(theta, wav, scan):
-    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, \
+#    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, \
+#    W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
+    
+#    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps = theta
     W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
+    
     if eps <= 0:
-#        print("**EPS = ", eps)
         return -np.inf
-    if (c1 == 0) or (c2 == 0) or (c3 == 0) or (c4 == 0):
-#        print("**C = ", c1, c2, c3, c4)
-        return -np.inf
+#    if (c1 == 0) or (c2 == 0) or (c3 == 0) or (c4 == 0):
+#        return -np.inf
     if (amp <= 0):
-#        print("**Amplitude = ", amp)
         return -np.inf
-    nwav = np.linspace(0.35,0.9,111)
-    albedo = albedoFunc(nwav, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
-    if any(np.isnan(albedo)) or not any(np.isfinite(albedo)):
-#        print("** ALBEDO has NaN or inf")
-        return -np.inf
-    if (any(albedo) < 0) or (any(albedo) > 1):
-#        print("**ALBEDO not in 0-1 range:", a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
-        return -np.inf
+#    nwav = np.linspace(0.35,0.9,111)
+#    albedo = albedoFunc(nwav, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
+#    if any(np.isnan(albedo)) or not any(np.isfinite(albedo)):
+#        return -np.inf
+#    if (any(albedo) < 0) or (any(albedo) > 1):
+#        return -np.inf
     if (W < 0) or (W > 12):
-#        print("**W = ", W)
         return -np.inf
     if (ApCH2O < 0) or (ApCH2O > 5.0):
-#        print("**ApCH2O = ", ApCH2O)
         return -np.inf
     if (ApHNO2 < 0) or (ApHNO2 > 5.0):
-#        print("**ApHNO2 = ", ApHNO2)
         return -np.inf
     if (ApHNO3 < 0) or (ApHNO3 > 5.0):
-#        print("**ApHNO3 = ", ApHNO3)
         return -np.inf
     if (ApNO2 < 0) or (ApNO2 > 5.0):
-#        print("**ApNO2 = ", ApNO2)
         return -np.inf
     if (ApNO3 < 0) or (ApNO3 > 5.0):
-#        print("**ApNO3 = ", ApNO3)
         return -np.inf
     if (ApO3 < 0) or (ApO3 > 5.0):
-#        print("**ApO3 = ", ApO3)
         return -np.inf
     if (ApSO2 < 0) or (ApSO2 > 5.0):
-#        print("**ApSO2 = ", ApSO2)
         return -np.inf
     if (TAU5 < 0) or (TAU5 > 1.0):
-#        print("**TAU5 = ", TAU5)
         return -np.inf
+
+    a1 = 0.62
+    b1 = 1.0
+    c1 = 0.013
+    d1 = 0.10
+
+    a2 = 0.755
+    b2 = 0.47
+    c2 = 0.002
+    d2 = -0.01
+
+    a3 = 1.9
+    b3 = 0.7
+    c3 = 1.1
+    d3 = 0.0001
+
+    a4 = 0.584
+    b4 = 0.35
+    c4 = 0.01
+    d4 = 0.0001
+
+#    W = 2.0
+#    ApCH2O = 0.007
+#    ApHNO2 = 0.002
+#    ApHNO3 = 0.005
+#    ApNO2 = 0.02
+#    ApNO3 = 5e-5
+#    ApO3 = 0.053
+#    ApSO2 = 0.05
+#    TAU5 = 0.084
         
     modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
                                 W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5)
@@ -128,20 +145,51 @@ def log_prior(theta, wav, scan):
         modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
                                     W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5)
         if any(np.isnan(modsmrt)) or not any(np.isfinite(modsmrt)):
-#            print("**MODEL has NaN or inf:", theta)
             return -np.inf
     
     model = interpModel(wav, amp, modwav, modsmrt)
     if (any(model) < 0) or any(np.isnan(model)) or not any(np.isfinite(model)):
-#        print("**Model has < 0")
         return -np.inf
     return 0.0
 
 
 
 def log_likelihood(theta, wav, y, scan):  
-    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, \
+#    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, \
+#    W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
+    
+#    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps = theta
     W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
+
+    a1 = 0.62
+    b1 = 1.0
+    c1 = 0.013
+    d1 = 0.10
+
+    a2 = 0.755
+    b2 = 0.47
+    c2 = 0.002
+    d2 = -0.01
+
+    a3 = 1.9
+    b3 = 0.7
+    c3 = 1.1
+    d3 = 0.0001
+
+    a4 = 0.584
+    b4 = 0.35
+    c4 = 0.01
+    d4 = 0.0001
+
+#    W = 2.0
+#    ApCH2O = 0.007
+#    ApHNO2 = 0.002
+#    ApHNO3 = 0.005
+#    ApNO2 = 0.02
+#    ApNO3 = 5e-5
+#    ApO3 = 0.053
+#    ApSO2 = 0.05
+#    TAU5 = 0.084
     
     modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
                                 W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5)
@@ -149,12 +197,10 @@ def log_likelihood(theta, wav, y, scan):
         modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
                                     W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5)
         if any(np.isnan(modsmrt)) or not any(np.isfinite(modsmrt)):
-#            print("**MODEL has NaN or inf:", theta)
             return -np.inf
     
     model = interpModel(wav, amp, modwav, modsmrt)
     if any(np.isnan(model)) or not any(np.isfinite(model)) or (any(model) < 0):
-#        print("**Model has < 0")
         return -np.inf
         
     denom = eps**2

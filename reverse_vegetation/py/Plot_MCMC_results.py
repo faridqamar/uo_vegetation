@@ -9,11 +9,57 @@ import pandas as pd
 import random
 import time
 import matplotlib.pyplot as plt
-from mcmcFuncs import *
+import mcmcFuncs as mc
 import pysmarts
 import emcee
 import corner
 from multiprocessing import Pool
+
+
+
+def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4):
+# -- Function to call pySMARTS and produce a model
+    nalb = 111
+    mywav = np.linspace(0.35,0.9,nalb)
+    np.around(mywav, 2, mywav)
+    albedo = mc.albedoFunc(mywav, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
+    err_set = np.seterr(all='ignore')
+    np.around(albedo, 4, albedo)
+
+    W = 2.0
+    ApCH2O = 0.007
+    ApHNO2 = 0.002
+    ApHNO3 = 0.005
+    ApNO2 = 0.02
+    ApNO3 = 5e-5
+    ApO3 = 0.053
+    ApSO2 = 0.05
+    TAU5 = 0.084
+    
+    if scan == '108':
+        Year = 2016
+        Month = 5
+        Day = 5
+        Hour = 14.02
+    elif scan == '000':
+        Year = 2016
+        Month = 5
+        Day = 2
+        Hour = 17.77
+    
+    albwav = np.zeros(shape=(3000))
+    albalb = np.zeros(shape=(3000))
+    l = np.zeros(shape=(14,636))
+    albwav[:nalb] = mywav
+    albalb[:nalb] = albedo
+    
+    pymod = pysmarts.smarts295(W, ApCH2O, 0.0, 0.0, ApHNO2, 
+                             ApHNO3, 0.0, ApNO2, ApNO3, ApO3, ApSO2, 0.0, TAU5, 
+                             1, 1, albwav, albalb, nalb, Year, Month, Day, Hour, l)
+    
+    return pymod[0], pymod[-2]
+
+
 
 # --  set scan number:
 scan = '108'
@@ -54,7 +100,7 @@ if not os.path.isfile(filename):
     print('Filename {0} does not exist'.format(filename))
 else:
     backend = emcee.backends.HDFBackend(filename, read_only=True)
-    nwalkers, ndim = 200, 27
+    nwalkers, ndim = 200, 18
     nsteps = backend.iteration
     print("   number of walkers    = ", nwalkers)
     print("   number of dimensions = ", ndim)
@@ -92,8 +138,8 @@ else:
      #   print("   EXCEPTION RAISED: ")
      #   print("      emcee.autocorr.AutocorrError: ")
      #   print("      The chain is shorter than 50 times the integrated autocorrelation time for 27 parameter(s)")
-    burnin = 100000
-    thin = 10000
+    burnin = 6000
+    thin = 1000
     flat_samples = backend.get_chain(discard=burnin, thin=thin, flat=True)
     #log_prob_samples = backend.get_log_prob(discard=burnin, thin=thin, flat=True)
     #log_prior_samples = backend.get_blobs(discard=burnin, thin=thin, flat=True)
@@ -111,13 +157,15 @@ else:
     labels = ['a1', 'b1', 'c1', 'd1',
               'a2', 'b3', 'c2', 'd2',
               'a3', 'b3', 'c3', 'd3',
-              'a4', 'b4', 'c4', 'd4',          
-              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+              'a4', 'b4', 'c4', 'd4', 'amp', 'eps']        
+#              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+#              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
     fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), fig=f)
     f.canvas.draw()
     f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
 
+
+    
 
     # -- Plot a sample of the MCMC solutions
     print("Plotting MCMC Sample Solutions ...")
@@ -126,7 +174,7 @@ else:
     for ind in inds:
         sample = flat_samples[ind]
         smrtwav, smrtmod = modelFunc(scan, *sample[:-2])
-        maxmod = interpModel(mywav, sample[-2], smrtwav, smrtmod)
+        maxmod = mc.interpModel(mywav, sample[-2], smrtwav, smrtmod)
         linm, = ax.plot(mywav, maxmod, color='dodgerblue', lw=0.3)
     linb, = ax.plot(mywav, myblds, color='darkred')
     ax.set_xlabel('wavelength [nm]')
@@ -139,7 +187,7 @@ else:
     inds = np.random.randint(len(flat_samples), size=800)
     for ind in inds:
         sample = flat_samples[ind]
-        albedo = albedoFunc(mywav/1000., *sample[:16])
+        albedo = mc.albedoFunc(mywav/1000., *sample[:16])
         linm, = ax.plot(mywav, albedo, color='dodgerblue', lw=0.2)
     ax.set_xlabel('wavelength [nm]')
 #    ax.set_ylim(-0.1,0.6)
