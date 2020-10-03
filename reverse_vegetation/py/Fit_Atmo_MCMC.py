@@ -122,7 +122,7 @@ def log_probability(theta):
 
 
 # -- Setting walkers, number of steps, and initial array
-nwalkers, ndim, nsteps = 200, init_params.shape[0], 500
+nwalkers, ndim, nsteps = 200, init_params.shape[0], 20000
 p0 = init_params * (np.random.rand(nwalkers, ndim)*2)
 
 
