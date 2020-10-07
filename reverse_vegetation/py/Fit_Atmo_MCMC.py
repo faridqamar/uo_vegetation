@@ -48,22 +48,22 @@ nblds = blds*cube.waves/1e3
 print("Initializing parameters ...")
 a1 = 0.62
 b1 = 0.159
-c1 = 0.013
+c1 = 0.114
 d1 = 0.10
 
 a2 = 0.755
 b2 = 0.0748
-c2 = 0.002
+c2 = 0.045
 d2 = -0.01
 
 a3 = 1.9
 b3 = 0.111
-c3 = 1.1
+c3 = 1.049
 d3 = 0.0001
 
 a4 = 0.584
 b4 = 0.0557
-c4 = 0.01
+c4 = 0.1
 d4 = 0.0001
 
 #TAIR = 15.5
@@ -122,9 +122,9 @@ def log_probability(theta):
 
 
 # -- Setting walkers, number of steps, and initial array
-nwalkers, ndim, nsteps = 200, init_params.shape[0], 500
-p0 = init_params * (np.random.rand(nwalkers, ndim)*2)
-
+nwalkers, ndim, nsteps = 200, init_params.shape[0], 50000
+#p0 = init_params * (np.random.rand(nwalkers, ndim)*2)
+p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/1000.)
 
 # -- Perform MCMC
 print("Starting MCMC:")
@@ -140,7 +140,7 @@ if os.path.isfile(filename):
     os.environ["OMP_NUM_THREADS"] = "1"
     with Pool(15) as pool:
         sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, 
-                                        moves=[(emcee.moves.DEMove(), 0.5), (emcee.moves.DESnookerMove(),0.5),], 
+                                        moves=emcee.moves.StretchMove(), 
                                         backend=backend, pool=pool)
         nsteps = nsteps - backend.iteration
         sampler.run_mcmc(None, nsteps)
@@ -175,7 +175,7 @@ fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
 labels = ['a1', 'b1', 'c1', 'd1',
           'a2', 'b3', 'c2', 'd2',
           'a3', 'b3', 'c3', 'd3',
-          'a4', 'b4', 'c4', 'd4', 'amp', 'eps'
+          'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
 #labels = ['H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
 #          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 samples = sampler.get_chain()
