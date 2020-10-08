@@ -62,8 +62,8 @@ c3 = 1.049
 d3 = 0.0001
 
 a4 = 0.584
-b4 = 0.0557
-c4 = 0.1
+b4 = 0.07
+c4 = 0.11
 d4 = 0.0001
 
 #TAIR = 15.5
@@ -95,8 +95,8 @@ eps = 18.5
 #init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3,
 #                    a4, b4, c4, d4, W, ApCH2O, ApHNO2, ApHNO3,
 #                    ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
-init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps])
-#init_params = np.array([W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
+#init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps])
+init_params = np.array([W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
 print("   initial parameters = ", init_params)
 
 
@@ -124,7 +124,7 @@ def log_probability(theta):
 # -- Setting walkers, number of steps, and initial array
 nwalkers, ndim, nsteps = 200, init_params.shape[0], 50000
 #p0 = init_params * (np.random.rand(nwalkers, ndim)*2)
-p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/1000.)
+p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/100.)
 
 # -- Perform MCMC
 print("Starting MCMC:")
@@ -172,12 +172,12 @@ fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
 #          'a4', 'b4', 'c4', 'd4',        
 #          'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
 #          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
-labels = ['a1', 'b1', 'c1', 'd1',
-          'a2', 'b3', 'c2', 'd2',
-          'a3', 'b3', 'c3', 'd3',
-          'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
-#labels = ['H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-#          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+#labels = ['a1', 'b1', 'c1', 'd1',
+#          'a2', 'b3', 'c2', 'd2',
+#          'a3', 'b3', 'c3', 'd3',
+#          'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
+labels = ['H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 samples = sampler.get_chain()
 for i in range(ndim):
     ax = axes[i]

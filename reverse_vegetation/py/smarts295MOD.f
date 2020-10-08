@@ -84,6 +84,12 @@ Cf2py intent(in) myYEAR,mymonth,myDAY,myHOUR
       Double Precision Tmixd,TmixdP,Trace,TraceP,Phot,Rhor,Rhos,Roro,AO3
       Double Precision AmO2,AmCO2,tauo2,tauco2,taa,tas,tat
       Double Precision AmH2O,wAmw,wAmp,tauw,Bmw,Bmwp,ww02
+      
+      REAL myW,myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3
+      REAL myApNO,myApNO2,myApNO3,myApO3,myApSO2,myqCO2
+      REAL myTAU5,TAU5
+      REAL W,ApCH2O,ApCH4,ApCO,ApHNO2,ApHNO3
+      REAL ApNO,ApNO2,ApNO3,ApO3,ApSO2,qCO2
 
       REAL RB0(4),RB1(4),RB2(4),RB3(4),RDHB(4),limit
       REAL VL(515),ETSPCT(2002),Output(54),Xout(54),timer(2)
@@ -97,12 +103,13 @@ Cf2py intent(in) myYEAR,mymonth,myDAY,myHOUR
       REAL BP0(7),BP1(7),BP2(7),BP3(7),AG0(7),AG1(7),AG2(7),AG3(7)
       REAL AG4(7),AG00(4),AG01(4),AG02(4),AG10(4),AG11(4),AG12(4)
       REAL AG20(4),AG21(4),AG22(4),AG30(4),AG31(4),AG32(4),AG40(4) 
-      REAL Bmx(2),Bmwx(2),intvl,KW,myW
+      REAL Bmx(2),Bmwx(2),intvl,KW,myHOUR
       REAL DECLI(12),RSUN(12)
 
       INTEGER systime, time
       INTEGER IOUT(54),myOUT(13),CIEYr,year,day,DayoYr,DayUT
       INTEGER IOTOT, EOF,myyear,mymonth,myday
+      INTEGER myIALBDX,myIalbdg, Nwal1
       
       LOGICAL batch
 c
@@ -328,7 +335,7 @@ c
 c**********************************************************************
 c
 c
- 3003  continue
+cc 3003  continue
 cc      TotTime    = etime(timer)
         
 cc      systime  = time()
@@ -768,7 +775,8 @@ c
       ApCH4=ApCH4*.1
       ApCO=ApCO*.1
       ApHNO2=ApHNO2*.1
-      ApHNO3=.012*.1
+cc      ApHNO3=.012*.1   FQ: this should not be hardcoded
+      ApHNO3=ApHNO3*.1
       ApNO=ApNO*.1
       ApNO2=ApNO2*.1
       ApNO3=ApNO3*.1
@@ -1072,94 +1080,94 @@ c
  3591 continue
 C
 cc      WRITE(16,194,iostat=Ierr7) COMNT,Atmos,AEROS
- 194  FORMAT(/,'******************   SMARTS, version 2.9.5   *********'
-     % ,'**********',//,
-     %' Simple Model of the Atmospheric Radiative Transfer of Sunshine'
-     % ,/,5X,'Chris A. Gueymard, Solar Consulting Services',/,20x,
-     & 'December 2005',//,
-     1 4X,'This model is documented in FSEC Report PF-270-95',/,
-     2 ' and in a Solar Energy paper, vol. 71, No.5, 325-346 (2001)',
-     3 //,' NOTE: These references describe v. 2.8 or earlier!!!',/,
-     4 ' See the User''s Manual for details on the considerable ',/,
-     5 ' changes that followed...',//,
-     %'*************************************************************'
-     % ,'***'//,2x,' Reference for this run: ',A64,//,64('-'),//,
-     % '* ATMOSPHERE : ',A4,'        AEROSOL TYPE: ',A64,/)
+cc 194  FORMAT(/,'******************   SMARTS, version 2.9.5   *********'
+cc     % ,'**********',//,
+cc     %' Simple Model of the Atmospheric Radiative Transfer of Sunshine'
+cc     % ,/,5X,'Chris A. Gueymard, Solar Consulting Services',/,20x,
+cc     & 'December 2005',//,
+cc     1 4X,'This model is documented in FSEC Report PF-270-95',/,
+cc     2 ' and in a Solar Energy paper, vol. 71, No.5, 325-346 (2001)',
+cc     3 //,' NOTE: These references describe v. 2.8 or earlier!!!',/,
+cc     4 ' See the User''s Manual for details on the considerable ',/,
+cc     5 ' changes that followed...',//,
+cc     %'*************************************************************'
+cc     % ,'***'//,2x,' Reference for this run: ',A64,//,64('-'),//,
+cc     % '* ATMOSPHERE : ',A4,'        AEROSOL TYPE: ',A64,/)
 cc      WRITE(16,100,iostat=Ierr8) SPR,Altit,Height,RH,W,UOC,uoc*1000.,
 cc     % TAU5,Tau550,BETA,BCHUEP,RANGE,VISI,ALPHA1,ALPHA2,ALPHA,Seasn2
- 100  FORMAT('* INPUTS:'/,5x,'Pressure (mb) = ',F8.3,'   Ground ', 
-     % 'Altitude (km) = ',F8.4,/,5x,'Height above ground (km) = ',f8.4,
-     2 /,5X,'Relative Humidity (%) = ',F6.3,3X,
-     3 'Precipitable Water (cm) = ',F7.4,/,5x,'Ozone (atm-cm) = ',F6.4,
-     1 ' or ',f5.1,' Dobson Units',/,3X,'AEROSOLS:  ','Optical Depth at'
-     # ,' 500 nm = ',F6.4,'      Optical depth at 550 nm = ',f6.4,/,
-     6 '       Angstrom''s Beta = ',F6.4,'       Schuepp''s'
-     %,' B = ',F6.4,/,5x,'Meteorological Range (km) = ',F6.1,'   Visi'
-     %,'bility (km) = ',F6.1,/,5x,'Alpha1 = ',F6.4,'  Alpha2 = ',F6.4,
-     & '   Mean Angstrom''s Alpha = ',F6.4,/,5x,'Season = ',a24,/)
+cc 100  FORMAT('* INPUTS:'/,5x,'Pressure (mb) = ',F8.3,'   Ground ', 
+cc     % 'Altitude (km) = ',F8.4,/,5x,'Height above ground (km) = ',f8.4,
+cc     2 /,5X,'Relative Humidity (%) = ',F6.3,3X,
+cc     3 'Precipitable Water (cm) = ',F7.4,/,5x,'Ozone (atm-cm) = ',F6.4,
+cc     1 ' or ',f5.1,' Dobson Units',/,3X,'AEROSOLS:  ','Optical Depth at'
+cc     # ,' 500 nm = ',F6.4,'      Optical depth at 550 nm = ',f6.4,/,
+cc     6 '       Angstrom''s Beta = ',F6.4,'       Schuepp''s'
+cc     %,' B = ',F6.4,/,5x,'Meteorological Range (km) = ',F6.1,'   Visi'
+cc     %,'bility (km) = ',F6.1,/,5x,'Alpha1 = ',F6.4,'  Alpha2 = ',F6.4,
+cc     & '   Mean Angstrom''s Alpha = ',F6.4,/,5x,'Season = ',a24,/)
 cc      WRITE(16,134,iostat=Ierr9)TKair,Tavg,TEMPA
- 134  FORMAT('* TEMPERATURES:',/,5x,'Instantaneous at site''s altitude'
-     1 ,' = ',F5.1,' K',/,5x,'Daily average (reference) at site''s ',
-     2 'altitude = ',F5.1,' K',/,5x,'Stratospheric Ozone and NO2 ',
-     3 '(effective) = ',F5.1,' K',/)
+cc 134  FORMAT('* TEMPERATURES:',/,5x,'Instantaneous at site''s altitude'
+cc     1 ,' = ',F5.1,' K',/,5x,'Daily average (reference) at site''s ',
+cc     2 'altitude = ',F5.1,' K',/,5x,'Stratospheric Ozone and NO2 ',
+cc     3 '(effective) = ',F5.1,' K',/)
 cc      if(Iwarn5.eq.1)write(16,1018,iostat=Ierr10) Tempa, Tmin
- 1018 format('** WARNING #1',9('*'),/,'\\ The calculated ozone tempe',
-     1 'rature, ',f5.1,' K, was below the most probable minimum of ',
-     2 f5.1,'\\ for this altitude. The latter value has been used ',
-     4 'for optimum results. Suggestion: double check',
-     3 ' the daily temperature on input Card 3a',/)
+cc 1018 format('** WARNING #1',9('*'),/,'\\ The calculated ozone tempe',
+cc     1 'rature, ',f5.1,' K, was below the most probable minimum of ',
+cc     2 f5.1,'\\ for this altitude. The latter value has been used ',
+cc     4 'for optimum results. Suggestion: double check',
+cc     3 ' the daily temperature on input Card 3a',/)
 cc      if(Iwarn6.eq.1)write(16,1019,iostat=Ierr11) Tempa, Tmax
- 1019 format('** WARNING #2',9('*'),/,'\\ The calculated ozone tempe',
-     1 'rature, ',f5.1,' K, was above the most probable maximum of ',
-     2 f5.1,'\\ for this altitude. The latter value has been used ',
-     4 'for optimum results. Suggestion: double check',
-     3 ' the daily temperature on input Card 3a',/)
+cc 1019 format('** WARNING #2',9('*'),/,'\\ The calculated ozone tempe',
+cc     1 'rature, ',f5.1,' K, was above the most probable maximum of ',
+cc     2 f5.1,'\\ for this altitude. The latter value has been used ',
+cc     4 'for optimum results. Suggestion: double check',
+cc     3 ' the daily temperature on input Card 3a',/)
 cc      if(IO3.eq.0.and.(UOC.lt.Ozmin.or.UOC.gt.Ozmax))write(16,1021,
 cc     1 iostat=Ierr12) UOC, Ozmin, Ozmax
- 1021 format('** WARNING #3',9('*'),/,'\\ The ozone columnar amount, ',
-     1 f6.4,' atm-cm, is outside the most probable limits of ',f6.4,
-     2 ' and ',f6.4,/,'\\ for this altitude. This may produce ',
-     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
-     3 'values of IALT and AbO3 on input Card 5a.',/)
+cc 1021 format('** WARNING #3',9('*'),/,'\\ The ozone columnar amount, ',
+cc     1 f6.4,' atm-cm, is outside the most probable limits of ',f6.4,
+cc     2 ' and ',f6.4,/,'\\ for this altitude. This may produce ',
+cc     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
+cc     3 'values of IALT and AbO3 on input Card 5a.',/)
 cc      if(Iwarn1.eq.1)write(16,1301)
- 1301 format('** WARNING #4',9('*'),/,'\\ Pressure cannot be < 0.000',
-     1 '41 mb and has been increased to this value.',/,'\\ ',/)
+cc 1301 format('** WARNING #4',9('*'),/,'\\ Pressure cannot be < 0.000',
+cc     1 '41 mb and has been increased to this value.',/,'\\ ',/)
 cc      if(Iwarn2.eq.1)write(16,1302)
- 1302 format('** WARNING #5',9('*'),/,'\\ Precipitable water was not '
-     1 ,'provided and no reference atmosphere was specified!',/,'\\ ',
-     2 'USSA conditions have been used here.',/)
+cc 1302 format('** WARNING #5',9('*'),/,'\\ Precipitable water was not '
+cc     1 ,'provided and no reference atmosphere was specified!',/,'\\ ',
+cc     2 'USSA conditions have been used here.',/)
 cc      if(Iwarn3.eq.1)write(16,1303)
- 1303 format('** WARNING #6',9('*'),/,'\\ The ozone amount was not pro'
-     1 ,'vided and no reference atmosphere was specified!',/,'\\ USSA',
-     2 ' conditions have been used here.',/)
+cc 1303 format('** WARNING #6',9('*'),/,'\\ The ozone amount was not pro'
+cc     1 ,'vided and no reference atmosphere was specified!',/,'\\ USSA',
+cc     2 ' conditions have been used here.',/)
 cc      if(Iwarn7.eq.1)write(16,1307)
- 1307 format('** WARNING #7',9('*'),/,'\\ The aerosol type has been ',
-     1 'changed to "S&F_TROPO" because either the receiver''s height ',
-     2 'above ground',/,'\\ is > 2 km or its elevation is > 6 km ',
-     3 'above sea level.',/)
+cc 1307 format('** WARNING #7',9('*'),/,'\\ The aerosol type has been ',
+cc     1 'changed to "S&F_TROPO" because either the receiver''s height ',
+cc     2 'above ground',/,'\\ is > 2 km or its elevation is > 6 km ',
+cc     3 'above sea level.',/)
       if(Iwarn9.eq.1)goto 1311
       if(Iwarn8.ne.1.or.height.le.2.0)goto 1311
       if(Zalt.lt.15.0.or.Zalt.gt.22.)goto 1310
 cc      write(16,1309,iostat=Ierr13)Tau550,Taumin,Taumax
- 1309 format('** WARNING #8',9('*'),/,'\\ The aerosol optical depth ',
-     1 'at 550 nm, ',f6.4,' is outside the most probable limits of ',
-     2 f6.4,' and ',f6.4,/,'\\ for this altitude, assuming a slight ',
-     3 'background amount of volcanic aerosols. This may produce ',
-     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
-     4 'value of your turbidity input on Card 9a.',/)
+cc 1309 format('** WARNING #8',9('*'),/,'\\ The aerosol optical depth ',
+cc     1 'at 550 nm, ',f6.4,' is outside the most probable limits of ',
+cc     2 f6.4,' and ',f6.4,/,'\\ for this altitude, assuming a slight ',
+cc     3 'background amount of volcanic aerosols. This may produce ',
+cc     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
+cc     4 'value of your turbidity input on Card 9a.',/)
       goto 1311
  1310 continue
 cc      write(16,1308,iostat=Ierr14)Tau550,Taumin,Taumax
- 1308 format('** WARNING #9',9('*'),/,'\\ The aerosol optical depth ',
-     1 'at 550 nm, ',f6.4,' is outside the most probable limits of ',
-     2 f6.4,' and ',f6.4,/,'\\ for this altitude. This may produce ',
-     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
-     4 'value of your turbidity input on Card 9a.',/)
+cc 1308 format('** WARNING #9',9('*'),/,'\\ The aerosol optical depth ',
+cc     1 'at 550 nm, ',f6.4,' is outside the most probable limits of ',
+cc     2 f6.4,' and ',f6.4,/,'\\ for this altitude. This may produce ',
+cc     3 'inconsistent results.',/,'\\ Suggestion: double check the ',
+cc     4 'value of your turbidity input on Card 9a.',/)
  1311 continue
 cc      if(Iwarn9.eq.1)write(16,1312)
- 1312 format('** WARNING #20',9('*'),/,'\\ Receiver is at more than 6 ',
-     1 'km above sea level, hence the aerosol optical depth has ',
-     2 'been fixed to a default value, dependent only on altitude.',/)
+cc 1312 format('** WARNING #20',9('*'),/,'\\ Receiver is at more than 6 ',
+cc     1 'km above sea level, hence the aerosol optical depth has ',
+cc     2 'been fixed to a default value, dependent only on altitude.',/)
 c
 C***      CARD 10
 C
@@ -1189,10 +1197,10 @@ cc      Read(14,*)Itilt
       Wazim=0.
       If (Itilt.eq.0)Goto 389
 cc      if(height.gt.0.5)write(16,1314)
- 1314 format('** WARNING #21',9('*'),/,'\\ Receiver is at more than ',
-     1 '0,5 km above ground, hence the calculation of the reflected ',
-     2 'irradiance from the ground to the tilted plane is not',
-     3 ' accurate.',/)
+cc 1314 format('** WARNING #21',9('*'),/,'\\ Receiver is at more than ',
+cc     1 '0,5 km above ground, hence the calculation of the reflected ',
+cc     2 'irradiance from the ground to the tilted plane is not',
+cc     3 ' accurate.',/)
 C
 C***      CARD 10c
 C      
@@ -1244,8 +1252,8 @@ cc      READ(14,*)WPMN,WPMX,INTVL
       INTVL = 0.5
       
 cc      IF(INTVL.LT.0.5)WRITE(16,198)
- 198  FORMAT(' *** WARNING #18 ***',/,'  Parameter INTVL on Card 12a',
-     & ' is too low and will be defaulted to 0.5 nm.')
+cc 198  FORMAT(' *** WARNING #18 ***',/,'  Parameter INTVL on Card 12a',
+cc     & ' is too low and will be defaulted to 0.5 nm.')
       IF(IPRT.lt.2)goto 392
 cc      OPEN(UNIT=17,FILE=FileExt,STATUS='NEW')
 C
@@ -1584,21 +1592,21 @@ c      Daily results
 c      
 cc      write(16,1002,iostat=Ierr21)H0hd,cstep*Hbhx,cstep*Hdx,cstep*Hglob,
 cc     1 cstep*Hglobs,cstep*Hbnx,cstep*Hglob/H0hd
- 1002 Format('* Monthly-average daily-total irradiations (MJ/m2)',/,
-     1  '   - Horizontal ',
-     3 'surface',/,'   Extraterrestrial: ',f8.3,'   Direct: ',f8.3,
-     4 '   Diffuse: ',f8.3,'   Global: ',f8.3,//,'   - Tilted surface',
-     5 /,'   Global: ',f8.3,'   Direct normal: ',f8.3,//,'   - Clear',
-     6 'ness index (Kt, dimensionless): ',f6.4)
+cc 1002 Format('* Monthly-average daily-total irradiations (MJ/m2)',/,
+cc     1  '   - Horizontal ',
+cc     3 'surface',/,'   Extraterrestrial: ',f8.3,'   Direct: ',f8.3,
+cc     4 '   Diffuse: ',f8.3,'   Global: ',f8.3,//,'   - Tilted surface',
+cc     5 /,'   Global: ',f8.3,'   Direct normal: ',f8.3,//,'   - Clear',
+cc     6 'ness index (Kt, dimensionless): ',f6.4)
 cc      if(IUV.ne.0)write(16,1003,iostat=Ierr22)1000.*cstep*Hdose
- 1003 format(//,'* Monthly-average daily-total UV dose (kJ/m2): ',
-     1 f8.3)
+cc 1003 format(//,'* Monthly-average daily-total UV dose (kJ/m2): ',
+cc     1 f8.3)
 cc      if(iLLUM.ne.0)write(16,1004,iostat=Ierr23)
 cc     1 cstepi*Hibx,cstepi*Hidx,cstepi*Hig,cstepi*His,Hiext
- 1004 format(//,'* Monthly-average illuminances (klux)',/,
-     +  '   - Horizontal surface',/,'   Direct: ',f8.3,'   Diffuse: ',
-     1 f8.3,'   Global: ',f8.3,//,'   - Tilted surface',/,'   Global: '
-     2 ,f8.3,'   Extraterrestrial normal: ',f8.3,/)
+cc 1004 format(//,'* Monthly-average illuminances (klux)',/,
+cc     +  '   - Horizontal surface',/,'   Direct: ',f8.3,'   Diffuse: ',
+cc     1 f8.3,'   Global: ',f8.3,//,'   - Tilted surface',/,'   Global: '
+cc     2 ,f8.3,'   Extraterrestrial normal: ',f8.3,/)
       goto 898
 c
  895  continue
@@ -2158,24 +2166,24 @@ C
 c 
 cc      if(iday.eq.1.and.nread.le.1)WRITE(16,126,iostat=ierr32)ESCC,
 cc     1 SUNCOR,SolarC,Spctrm
- 126  FORMAT(/,33('*',2x),//,'** SPECTRUM:',/,'   Total (0-100 Aum) ',
-     1 'Extraterrestrial Irradiance used here = ',F7.2,' W/m2',/,
-     #'  (i.e., ',F6.4,' times the selected solar constant, ',f7.2,
-     4 ' W/m2, due to the actual Sun-Earth distance.)',/,'   Source'
-     5 ,' for selected solar spectrum: ',A64,/)
+cc 126  FORMAT(/,33('*',2x),//,'** SPECTRUM:',/,'   Total (0-100 Aum) ',
+cc     1 'Extraterrestrial Irradiance used here = ',F7.2,' W/m2',/,
+cc     #'  (i.e., ',F6.4,' times the selected solar constant, ',f7.2,
+cc     4 ' W/m2, due to the actual Sun-Earth distance.)',/,'   Source'
+cc     5 ,' for selected solar spectrum: ',A64,/)
 cc      If(abs(Scor2-1.).gt.1e-4.and.iday.eq.1.and.jday.le.1.and.
 cc     1 nread.le.1)write(16,127,iostat=ierr33)Scor2
- 127  format(' To account for the chosen Solar Constant value, the ',
-     2 'selected solar spectrum has been uniformly multiplied',/,
-     3 ' by this scaling coefficient = ',f6.4,/)
+cc 127  format(' To account for the chosen Solar Constant value, the ',
+cc     2 'selected solar spectrum has been uniformly multiplied',/,
+cc     3 ' by this scaling coefficient = ',f6.4,/)
 c
       if(imass.ne.4.or.iday.ne.1)goto 5007
 cc      write(16,1001,iostat=ierr34)month,
 cc     1 Real(Latit),srise,daylth,Dstep
- 1001 Format(//,' Mean daily results for the average day of'
-     1 ,' month ',i2,' at latitude: ',f7.3,' deg.',/,' Solar time of '
-     2 ,'sunrise (hr): ',f6.3,'   Daylength (hr): ',f6.3,'   Time ',
-     3 'integration step (min): ',f5.1,/)
+cc 1001 Format(//,' Mean daily results for the average day of'
+cc     1 ,' month ',i2,' at latitude: ',f7.3,' deg.',/,' Solar time of '
+cc     2 ,'sunrise (hr): ',f6.3,'   Daylength (hr): ',f6.3,'   Time ',
+cc     3 'integration step (min): ',f5.1,/)
  5007   continue
 c
 c      Rewind data files for new runs
@@ -3592,59 +3600,59 @@ c-----------------------------------------------
 C      
 cc      WRITE(16,122,iostat=ierr60) wlmn,wlmx,NWMX,SUM0,Real(SumBn),
 cc     1 Real(SumBn)/sum0,SUMB,Real(SumD),SUMG,sumg/Escc
- 122  FORMAT(/,'Wavelength Range = '
-     % ,f6.1,' to ',f6.1,' nm;',2X,'Number of Wavelengths = ',I5,
-     % //,'*** BROADBAND IRRADIANCES (W/m2):',//,'* DIRECT BEAM AT ',
-     3 'NORMAL INCIDENCE:',/,2x,'Extraterrestrial = ',F7.2,3X,
-     % 'Terrestrial = ',F7.2,3x,'Atmospheric Transmittance = ',f6.4,//,
-     2 '* FOR THE HORIZONTAL PLANE:',/,2x,
-     6 'Direct Beam = ',F7.2,'   Diffuse = ',F6.2,'   Global = ',F7.2,
-     7 '   Clearness index, KT = ',f6.4)
+cc 122  FORMAT(/,'Wavelength Range = '
+cc     % ,f6.1,' to ',f6.1,' nm;',2X,'Number of Wavelengths = ',I5,
+cc     % //,'*** BROADBAND IRRADIANCES (W/m2):',//,'* DIRECT BEAM AT ',
+cc     3 'NORMAL INCIDENCE:',/,2x,'Extraterrestrial = ',F7.2,3X,
+cc     % 'Terrestrial = ',F7.2,3x,'Atmospheric Transmittance = ',f6.4,//,
+cc     2 '* FOR THE HORIZONTAL PLANE:',/,2x,
+cc     6 'Direct Beam = ',F7.2,'   Diffuse = ',F6.2,'   Global = ',F7.2,
+cc     7 '   Clearness index, KT = ',f6.4)
 cc      WRITE(16,135,iostat=ierr62)Real(SUMD0),Real(SumD-SUMD0)
- 135  FORMAT('  Diffuse irradiance origination details:',/,
-     1 '   Sky diffuse = ',F6.2,'   Back-scattered diffuse = ',F6.2,/)
+cc 135  FORMAT('  Diffuse irradiance origination details:',/,
+cc     1 '   Sky diffuse = ',F6.2,'   Back-scattered diffuse = ',F6.2,/)
 C
       IF(ITILT.le.0)goto 6010
 cc      WRITE(16,123,iostat=ierr64)SUMBS,SUMDS,SUMRS,SUMGS
- 123  FORMAT( '* FOR THE TILTED PLANE: ',/,'  Direct Beam = ',F7.2,
-     % '   Sky Diffuse = ',F6.2,'   Ground Reflected = ',F6.2,
-     # '   Global = ',F7.2,/)
+cc 123  FORMAT( '* FOR THE TILTED PLANE: ',/,'  Direct Beam = ',F7.2,
+cc     % '   Sky Diffuse = ',F6.2,'   Ground Reflected = ',F6.2,
+cc     # '   Global = ',F7.2,/)
  6010 continue
 c
       IF(ICIRC.le.0)goto 6012
 cc      WRITE(16,137,iostat=ierr66)Real(SumBx),Real(SumDx),sumg
- 137  FORMAT('* EXPERIMENTAL (WITH CIRCUMSOLAR CORRECTION):',/,2x,
-     # 'Direct Beam, Normal Incidence = ',f7.2,'   Diffuse Horizontal ',
-     2 '= ',F6.2,'   Global Horizontal = ',F7.2,/)
+cc 137  FORMAT('* EXPERIMENTAL (WITH CIRCUMSOLAR CORRECTION):',/,2x,
+cc     # 'Direct Beam, Normal Incidence = ',f7.2,'   Diffuse Horizontal ',
+cc     2 '= ',F6.2,'   Global Horizontal = ',F7.2,/)
  6012 continue
 c
       IF(ILLUM.eq.0)goto 779
 cc      WRITE(16,188,iostat=ierr68)CIEYr,XILLM,BILLM,DILLM,GILLM,SILLM,
 cc     2  PARb,PARd,PARg,PARgs,PPFDb,PPFDd,PPFDg,PPFDgs
- 188  FORMAT(///,'*** ILLUMINANCES (klux) obtained with the Vlambda'
-     2 ,' curve from CIE 19',i2,':',/,' E.T. = ',F6.2,2x,
-     % 'BEAM NORMAL = ',F6.2,'  DIFFUSE HORIZONTAL = ',F7.2,'  GLOBAL'
-     4,' HORIZONTAL = ',F7.2,'  GLOBAL TILT = ',F7.2,//,'*** PHOTOSY',
-     5 'NTHETIC IRRADIANCE (W/m2) for 400-700 nm:',/,' BEAM NORMAL =',
-     6 1x,f6.2,'  DIFFUSE HORIZONTAL = ',f6.2,'  GLOBAL HORIZONTAL =',
-     7 1x,f6.2,'  GLOBAL TILT = ',f6.2,//,'*** PHOTOSYNTHETIC PHOTON '
-     8 ,'FLUX DENSITY (Aumol m-2 s-1) for 400-700 nm:',/,' BEAM NORMAL'
-     6 ,' = ',f6.1,'  DIFFUSE HORIZONTAL = ',f6.1,
-     7 '  GLOBAL HORIZONTAL = ',f6.1,'  GLOBAL TILT = ',f6.1,/)
+cc 188  FORMAT(///,'*** ILLUMINANCES (klux) obtained with the Vlambda'
+cc     2 ,' curve from CIE 19',i2,':',/,' E.T. = ',F6.2,2x,
+cc     % 'BEAM NORMAL = ',F6.2,'  DIFFUSE HORIZONTAL = ',F7.2,'  GLOBAL'
+cc     4,' HORIZONTAL = ',F7.2,'  GLOBAL TILT = ',F7.2,//,'*** PHOTOSY',
+cc     5 'NTHETIC IRRADIANCE (W/m2) for 400-700 nm:',/,' BEAM NORMAL =',
+cc     6 1x,f6.2,'  DIFFUSE HORIZONTAL = ',f6.2,'  GLOBAL HORIZONTAL =',
+cc     7 1x,f6.2,'  GLOBAL TILT = ',f6.2,//,'*** PHOTOSYNTHETIC PHOTON '
+cc     8 ,'FLUX DENSITY (Aumol m-2 s-1) for 400-700 nm:',/,' BEAM NORMAL'
+cc     6 ,' = ',f6.1,'  DIFFUSE HORIZONTAL = ',f6.1,
+cc     7 '  GLOBAL HORIZONTAL = ',f6.1,'  GLOBAL TILT = ',f6.1,/)
       IF(ICIRC.ne.1.and.ICIRC.ne.2)goto 779
 cc      WRITE(16,189,iostat=ierr70)BILLMX,DILLMX
- 189  FORMAT(6x,'ILLUMINANCES WITH CIRCUMSOLAR CORRECTION (klux):',/,
-     & 7x,'BEAM NORMAL = ',F6.2,'   DIFFUSE = ',F7.2,/)
+cc 189  FORMAT(6x,'ILLUMINANCES WITH CIRCUMSOLAR CORRECTION (klux):',/,
+cc     & 7x,'BEAM NORMAL = ',F6.2,'   DIFFUSE = ',F7.2,/)
  779  continue
       IF(abs(ILLUM).ne.2)goto 6014
 cc      WRITE(16,180,iostat=ierr72)EFF0,EFFB,EFFD,EFFG,EFFS
- 180  FORMAT('*** LUMINOUS EFFICACY (lm/W):',/,
-     & ' E.T. = ',F6.2,'   BEAM = ',F7.3, '   DIFFUSE = ',
-     % F7.3,'   GLOBAL = ',F7.3,'   GLOBAL TILT = ',F7.3,/)
+cc 180  FORMAT('*** LUMINOUS EFFICACY (lm/W):',/,
+cc     & ' E.T. = ',F6.2,'   BEAM = ',F7.3, '   DIFFUSE = ',
+cc     % F7.3,'   GLOBAL = ',F7.3,'   GLOBAL TILT = ',F7.3,/)
 cc      IF(ICIRC.EQ.1.or.ICIRC.EQ.2)WRITE(16,181,iostat=ierr74)
 cc     1 EFFBX,EFFDX
- 181  FORMAT(6x,'LUMINOUS EFFICACY WITH CIRCUMSOLAR CORRECTION (lm/W)'
-     & ,':',/,7x,'BEAM = ',F7.3, '   DIFFUSE = ',F7.3,/)
+cc 181  FORMAT(6x,'LUMINOUS EFFICACY WITH CIRCUMSOLAR CORRECTION (lm/W)'
+cc     & ,':',/,7x,'BEAM = ',F7.3, '   DIFFUSE = ',F7.3,/)
  6014 continue
 c
       IF(IUV.ne.1)goto 778
@@ -3653,26 +3661,26 @@ cc     @ SERY2,SERY4,SDNA,SPHO,SACG,SECAL,SPOL,SSIS,SPRT,SSCUPH,
 cc     & SSCUPM
 cc      WRITE(16,144,iostat=ierr78)DOSE,UVindx
  778  continue
- 143  FORMAT(///,'*** UV IRRADIANCES (W/m2):',//,' TOTAL UV-A IRRADIAN'
-     1,'CE (315-400 nm) = ',F9.5,/,' TOTAL UV-B IRRADIANCE (280-315 nm'
-     #,') = ',F8.5,//,' TOTAL UV-A IRRADIANCE (320-400 nm) = ',F9.5,/,
-     #' TOTAL UV-B IRRADIANCE (280-320 nm) = ',F8.5,///,'*** ACTION-WE'
-     % ,'IGHTED DOSE RATES (W/m2) USING SELECTED ACTION CURVES',//,' E'
-     % ,'RYTHEMAL C.I.E. (McKinley & Diffey, 1987) = ',E10.4,/,' ERYT',
-     % 'HEMAL from Green et al. (1974) = ',E10.4,/,' ERYTHEMAL from ',
-     # 'Green et al. (1975) = ',E10.4,/,' ERYTHEMAL from ',
-     #'Diffey (1982) modified by Bjorn (1989) = ',E10.4,/,' DNA DAMA',
-     9 'GE from Setlow (1974) = ',E10.4,/,' PHOTOSYNTHESIS INHIBITION'
-     5 ,' from Caldwell et al. (1986) = ',E10.4,/,' ACGIH SAFETY ',
-     %'SPECTRUM from Wester (1981) = ',E10.4,/,' BIOLOGICAL ACTION '
-     # ,'from Caldwell (1971) and Green (1974) = ',E10.4,/,' POLYCHRO'
-     %,'MATIC ACTION FOR HIGHER PLANTS from Caldwell et al. (1986) = ',
-     # E10.4,/,' SYSTEMIC IMMUNOSUPPRESSION from deFabo et al. (1990)
-     % = ',E10.4,/,' DNA TO PROTEIN CROSSLINKS from Peak & Peak ',
-     %'(1986) = ',E10.4,/,' SKIN CARCINOGENESIS from deGruijl & Van'
-     & ,'derLeun (1994) = ',E10.4,' (humans); ',E10.4,' (mice)',//)
- 144  FORMAT('*** DOSE RATE IN MED/h from an ideal Robertson-Berger',
-     % ' instrument = ',E10.4,///,'*** UV Index = ',f7.3,//)
+cc 143  FORMAT(///,'*** UV IRRADIANCES (W/m2):',//,' TOTAL UV-A IRRADIAN'
+cc     1,'CE (315-400 nm) = ',F9.5,/,' TOTAL UV-B IRRADIANCE (280-315 nm'
+cc     #,') = ',F8.5,//,' TOTAL UV-A IRRADIANCE (320-400 nm) = ',F9.5,/,
+cc     #' TOTAL UV-B IRRADIANCE (280-320 nm) = ',F8.5,///,'*** ACTION-WE'
+cc     % ,'IGHTED DOSE RATES (W/m2) USING SELECTED ACTION CURVES',//,' E'
+cc     % ,'RYTHEMAL C.I.E. (McKinley & Diffey, 1987) = ',E10.4,/,' ERYT',
+cc     % 'HEMAL from Green et al. (1974) = ',E10.4,/,' ERYTHEMAL from ',
+cc     # 'Green et al. (1975) = ',E10.4,/,' ERYTHEMAL from ',
+cc     #'Diffey (1982) modified by Bjorn (1989) = ',E10.4,/,' DNA DAMA',
+cc     9 'GE from Setlow (1974) = ',E10.4,/,' PHOTOSYNTHESIS INHIBITION'
+cc     5 ,' from Caldwell et al. (1986) = ',E10.4,/,' ACGIH SAFETY ',
+cc     %'SPECTRUM from Wester (1981) = ',E10.4,/,' BIOLOGICAL ACTION '
+cc     # ,'from Caldwell (1971) and Green (1974) = ',E10.4,/,' POLYCHRO'
+cc     %,'MATIC ACTION FOR HIGHER PLANTS from Caldwell et al. (1986) = ',
+cc     # E10.4,/,' SYSTEMIC IMMUNOSUPPRESSION from deFabo et al. (1990)
+cc     % = ',E10.4,/,' DNA TO PROTEIN CROSSLINKS from Peak & Peak ',
+cc     %'(1986) = ',E10.4,/,' SKIN CARCINOGENESIS from deGruijl & Van'
+cc     & ,'derLeun (1994) = ',E10.4,' (humans); ',E10.4,' (mice)',//)
+cc 144  FORMAT('*** DOSE RATE IN MED/h from an ideal Robertson-Berger',
+cc     % ' instrument = ',E10.4,///,'*** UV Index = ',f7.3,//)
 C
 C-----------------------------------
 c
@@ -3682,12 +3690,12 @@ c
       filter='Gaussian'
       if(ifilt.eq.0)FILTER='Triangular'
 cc      WRITE(18,155,iostat=ierr80)FWHM,step,filter
- 155  FORMAT(' SMOOTHED RESULTS TO SIMULATE A ',F5.2,' nm FWHM',
-     # ' INSTRUMENT AND A WAVELENGTH STEP OF ',f4.1,' nm,',/,
-     2 ' Shape selected: ',A12)
+cc 155  FORMAT(' SMOOTHED RESULTS TO SIMULATE A ',F5.2,' nm FWHM',
+cc     # ' INSTRUMENT AND A WAVELENGTH STEP OF ',f4.1,' nm,',/,
+cc     2 ' Shape selected: ',A12)
 cc      WRITE(18,193)
- 193  FORMAT('   WVLGTH',2X,'ET_SPCTRUM  BEAM_NORMAL',
-     2 ' BEAM_NORM+  GLOB_HORIZ  GLOBL_TILT',/)
+cc 193  FORMAT('   WVLGTH',2X,'ET_SPCTRUM  BEAM_NORMAL',
+cc     2 ' BEAM_NORM+  GLOB_HORIZ  GLOBL_TILT',/)
       IF(IFILT.NE.1)GOTO 91
       sigma2=fwhm*fwhm/5.5451774
       fk=fwhm*2.
@@ -3759,12 +3767,12 @@ c
       wvln=Wvla(N)+dwvl
 cc      If(wvl1.gt.Wlmin.or.Wvln.lt.Wlmax)Write(16,195)Name,
 cc     2  Wvla(1),Wvla(N),Wlmin,Wlmax,Minalb,Wvla(1),Maxalb,Wvla(N)
- 195  Format('** WARNING #13 ',9('*'),/,'\\ Ground reflectance data ',
-     2 'for ', A24,/,'\\ extend only from ',f6.4,' to ',
-     3  f6.4,' Aum,',/,'\\ whereas the wavelength limits for this run ',
-     4 'are ',f6.4,' and ',f6.4,' Aum.',/,'\\ Consequently, reflect',
-     5 'ance is fixed at ',F5.3,' below ',f6.4,' Aum and at ',F5.3,
-     6 ' above ',f6.4,' Aum.',//)
+cc 195  Format('** WARNING #13 ',9('*'),/,'\\ Ground reflectance data ',
+cc     2 'for ', A24,/,'\\ extend only from ',f6.4,' to ',
+cc     3  f6.4,' Aum,',/,'\\ whereas the wavelength limits for this run ',
+cc     4 'are ',f6.4,' and ',f6.4,' Aum.',/,'\\ Consequently, reflect',
+cc     5 'ance is fixed at ',F5.3,' below ',f6.4,' Aum and at ',F5.3,
+cc     6 ' above ',f6.4,' Aum.',//)
       Return
       End
 c
@@ -5590,26 +5598,26 @@ c
       if(wv1.gt.wvlmn+fwhm)goto 10
       if(wv1.gt.wvlmn+.5*fwhm)goto 11
 cc      write(18,100)
- 100  format(' ** WARNING #14',/,'Lower limit for scans needs to',
-     1  'be > WV1 + 0.5*FWHM!',/)
+cc 100  format(' ** WARNING #14',/,'Lower limit for scans needs to',
+cc     1  'be > WV1 + 0.5*FWHM!',/)
       goto 999
  11   continue
 cc      write(18,101)
- 101  format(' ** WARNING #15 ',9('*'),/,'\\ Lower limit for scans is',
-     1 ' not > WV1 + FWHM.',/,'\\ This will reduce accuracy in the ',
-     2 'results for the first wavelengths.',/)
+cc 101  format(' ** WARNING #15 ',9('*'),/,'\\ Lower limit for scans is',
+cc     1 ' not > WV1 + FWHM.',/,'\\ This will reduce accuracy in the ',
+cc     2 'results for the first wavelengths.',/)
  10   continue
       if(wv2.lt.wvlmx-fwhm)goto 20
       if(wv2.lt.wvlmx-.5*fwhm)goto 21
 cc      write(18,102)
- 102  format(' ** WARNING #16',/,'Upper limit for scans needs to',
-     1 ' be < WV2 - 0.5*FWHM!',/)
+cc 102  format(' ** WARNING #16',/,'Upper limit for scans needs to',
+cc     1 ' be < WV2 - 0.5*FWHM!',/)
       goto 999
  21   continue
 cc      write(18,103)
- 103  format('** WARNING #17',9('*'),/,'\\ Upper limit for scans is',
-     1 ' not < WV2 - FWHM.',/,'\\ This will reduce accuracy in the ',
-     2 'results for the last wavelengths.',/)
+cc 103  format('** WARNING #17',9('*'),/,'\\ Upper limit for scans is',
+cc     1 ' not < WV2 - FWHM.',/,'\\ This will reduce accuracy in the ',
+cc     2 'results for the last wavelengths.',/)
  20   continue
 c
 c      Find the limits for spectral integration
@@ -5667,7 +5675,7 @@ c
       TX=TX/Totwi
 c
 cc      write(18,200)wvc,T0,TB,TX,TG,TT
- 200  FORMAT(3x,f6.1,2X,5(E10.4,2X))
+cc 200  FORMAT(3x,f6.1,2X,5(E10.4,2X))
       wvc=wvc+step
       if(wvc.le.wv2)goto 40
  999  continue
@@ -5690,26 +5698,26 @@ c
       if(wv1.gt.wvlmn+fwhm)goto 10
       if(wv1.gt.wvlmn+.5*fwhm)goto 11
 cc      write(18,100)
- 100  format(' ** WARNING #14',/,'Lower limit for scans needs to',
-     1 ' be > WV1 + 0.5*FWHM!',/)
+cc 100  format(' ** WARNING #14',/,'Lower limit for scans needs to',
+cc     1 ' be > WV1 + 0.5*FWHM!',/)
       goto 999
  11   continue
 cc      write(18,101)
- 101  format(' ** WARNING #15 ',9('*'),/,'\\ Lower limit for scans is',
-     1 ' not > WV1 + FWHM.',/,'\\ This will reduce accuracy in the ',
-     2 'results for the first wavelengths.',/)
+cc 101  format(' ** WARNING #15 ',9('*'),/,'\\ Lower limit for scans is',
+cc     1 ' not > WV1 + FWHM.',/,'\\ This will reduce accuracy in the ',
+cc     2 'results for the first wavelengths.',/)
  10   continue
       if(wv2.lt.wvlmx-fwhm)goto 20
       if(wv2.lt.wvlmx-.5*fwhm)goto 21
 cc      write(18,102)
- 102  format(' ** WARNING #16',/,'Upper limit for scans needs to be < ',
-     1 'WV2 - 0.5*FWHM!',/)
+cc 102  format(' ** WARNING #16',/,'Upper limit for scans needs to be < ',
+cc     1 'WV2 - 0.5*FWHM!',/)
       goto 999
  21   continue
 cc      write(18,103)
- 103  format('** WARNING #17',9('*'),/,'\\ Upper limit for scans is',
-     1 ' not < WV2 - FWHM.',/,'\\ This will reduce accuracy in the ',
-     2 'results for the last wavelengths.',/)
+cc 103  format('** WARNING #17',9('*'),/,'\\ Upper limit for scans is',
+cc     1 ' not < WV2 - FWHM.',/,'\\ This will reduce accuracy in the ',
+cc     2 'results for the last wavelengths.',/)
  20   continue
 c
 c      Find the limits for spectral integration
@@ -5767,7 +5775,7 @@ c
       TX=TX/Totwi
 c      
 cc      write(18,200)wvc,T0,TB,TX,TG,TT
- 200  FORMAT(3x,f6.1,2X,5(E10.4,2X))
+cc 200  FORMAT(3x,f6.1,2X,5(E10.4,2X))
       wvc=wvc+step
       if(wvc.le.wv2)goto 40
  999  continue

@@ -17,30 +17,30 @@ from multiprocessing import Pool
 
 
 
-def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4):
-#def modelFunc(scan, W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, 
-#              ApO3, ApSO2, TAU5):
+#def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4):
+def modelFunc(scan, W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, 
+              ApO3, ApSO2, TAU5):
 # -- Function to call pySMARTS and produce a model
 
-#    a1 = 0.62
-#    b1 = 1.0
-#    c1 = 0.013
-#    d1 = 0.10
+    a1 = 0.62
+    b1 = 0.159
+    c1 = 0.114
+    d1 = 0.10
 
-#    a2 = 0.755
-#    b2 = 0.47
-#    c2 = 0.002
-#    d2 = -0.01
+    a2 = 0.755
+    b2 = 0.0748
+    c2 = 0.045
+    d2 = -0.01
 
-#    a3 = 1.9
-#    b3 = 0.7
-#    c3 = 1.1
-#    d3 = 0.0001
+    a3 = 1.9
+    b3 = 0.111
+    c3 = 1.049
+    d3 = 0.0001
 
-#    a4 = 0.584
-#    b4 = 0.35
-#    c4 = 0.01
-#    d4 = 0.0001
+    a4 = 0.584
+    b4 = 0.07
+    c4 = 0.11
+    d4 = 0.0001
 
     nalb = 111
     mywav = np.linspace(0.35,0.9,nalb)
@@ -49,15 +49,15 @@ def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, 
     err_set = np.seterr(all='ignore')
     np.around(albedo, 4, albedo)
 
-    W = 2.0
-    ApCH2O = 0.007
-    ApHNO2 = 0.002
-    ApHNO3 = 0.005
-    ApNO2 = 0.02
-    ApNO3 = 5e-5
-    ApO3 = 0.053
-    ApSO2 = 0.05
-    TAU5 = 0.084
+#    W = 2.0
+#    ApCH2O = 0.007
+#    ApHNO2 = 0.002
+#    ApHNO3 = 0.005
+#    ApNO2 = 0.02
+#    ApNO3 = 5e-5
+#    ApO3 = 0.053
+#    ApSO2 = 0.05
+#    TAU5 = 0.084
     
     if scan == '108':
         Year = 2016
@@ -123,7 +123,7 @@ if not os.path.isfile(filename):
     print('Filename {0} does not exist'.format(filename))
 else:
     backend = emcee.backends.HDFBackend(filename, read_only=True)
-    nwalkers, ndim = 200, 18
+    nwalkers, ndim = 200, 11
     nsteps = backend.iteration
     print("   number of walkers    = ", nwalkers)
     print("   number of dimensions = ", ndim)
@@ -161,8 +161,8 @@ else:
         print("   EXCEPTION RAISED: ")
         print("      emcee.autocorr.AutocorrError: ")
         print("      The chain is shorter than 50 times the integrated autocorrelation time for 27 parameter(s)")
-        burnin = 18000
-        thin = 2000
+        burnin = 1500
+        thin = 250
     flat_samples = backend.get_chain(discard=burnin, thin=thin, flat=True)
     #log_prob_samples = backend.get_log_prob(discard=burnin, thin=thin, flat=True)
     #log_prior_samples = backend.get_blobs(discard=burnin, thin=thin, flat=True)
@@ -177,14 +177,14 @@ else:
     print("")
     print("Plotting Corner Plot ...")
     f, ax = plt.subplots(ndim, ndim, figsize=((ndim)*2,(ndim)*2))
-    labels = ['a1', 'b1', 'c1', 'd1',
-              'a2', 'b2', 'c2', 'd2',
-              'a3', 'b3', 'c3', 'd3',
-              'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
+#    labels = ['a1', 'b1', 'c1', 'd1',
+#              'a2', 'b2', 'c2', 'd2',
+#              'a3', 'b3', 'c3', 'd3',
+#              'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
 #              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
 #              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
-#    labels = ['H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-#              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+    labels = ['H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
     fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), fig=f)
     f.canvas.draw()
     f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
@@ -207,16 +207,16 @@ else:
     fig.savefig("../output/MCMC_models_"+scan+".png", dpi=300)
     
 
-    print("Plotting MCMC Albedo Solutions ...")
-    fig, ax = plt.subplots(figsize=(10,6))
-    inds = np.random.randint(len(flat_samples), size=800)
-    for ind in inds:
-        sample = flat_samples[ind]
-        albedo = mc.albedoFunc(mywav/1000., *sample[:16])
-        linm, = ax.plot(mywav, albedo, color='dodgerblue', lw=0.2)
-    ax.set_xlabel('wavelength [nm]')
-#    ax.set_ylim(-0.1,0.6)
-    fig.savefig("../output/MCMC_albedo_"+scan+".png", dpi=300)
+#    print("Plotting MCMC Albedo Solutions ...")
+#    fig, ax = plt.subplots(figsize=(10,6))
+#    inds = np.random.randint(len(flat_samples), size=800)
+#    for ind in inds:
+#        sample = flat_samples[ind]
+#        albedo = mc.albedoFunc(mywav/1000., *sample[:16])
+#        linm, = ax.plot(mywav, albedo, color='dodgerblue', lw=0.2)
+#    ax.set_xlabel('wavelength [nm]')
+##    ax.set_ylim(-0.1,0.6)
+#    fig.savefig("../output/MCMC_albedo_"+scan+".png", dpi=300)
     
 
 
