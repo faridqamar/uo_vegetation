@@ -1227,8 +1227,8 @@ C
 C***      CARD 11 - Modified in 2.9
 C
 cc      READ(14,*)WLMN,WLMX,Suncor,SolarC
-      WLMN = 390
-      WLMX = 870
+      WLMN = 390.
+      WLMX = 870.
       Suncor = 1.0
       SolarC = 1366.10
       
@@ -1247,8 +1247,8 @@ C
 C***      CARD 12a if IPRT=1 TO 3 - Modified in 2.9
 C      
 cc      READ(14,*)WPMN,WPMX,INTVL
-      WPMN = 390
-      WPMX = 1015
+      WPMN = 390.
+      WPMX = 1015.
       INTVL = 0.5
       
 cc      IF(INTVL.LT.0.5)WRITE(16,198)

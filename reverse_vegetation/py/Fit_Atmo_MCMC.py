@@ -95,8 +95,8 @@ eps = 18.5
 #init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3,
 #                    a4, b4, c4, d4, W, ApCH2O, ApHNO2, ApHNO3,
 #                    ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
-#init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps])
-init_params = np.array([W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
+init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps])
+#init_params = np.array([W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
 print("   initial parameters = ", init_params)
 
 
@@ -122,7 +122,7 @@ def log_probability(theta):
 
 
 # -- Setting walkers, number of steps, and initial array
-nwalkers, ndim, nsteps = 200, init_params.shape[0], 50000
+nwalkers, ndim, nsteps = 200, init_params.shape[0], 20000
 #p0 = init_params * (np.random.rand(nwalkers, ndim)*2)
 p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/100.)
 
@@ -172,12 +172,12 @@ fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
 #          'a4', 'b4', 'c4', 'd4',        
 #          'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
 #          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
-#labels = ['a1', 'b1', 'c1', 'd1',
-#          'a2', 'b3', 'c2', 'd2',
-#          'a3', 'b3', 'c3', 'd3',
-#          'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
-labels = ['H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+labels = ['a1', 'b1', 'c1', 'd1',
+          'a2', 'b3', 'c2', 'd2',
+          'a3', 'b3', 'c3', 'd3',
+          'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
+#labels = ['H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
+#          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 samples = sampler.get_chain()
 for i in range(ndim):
     ax = axes[i]

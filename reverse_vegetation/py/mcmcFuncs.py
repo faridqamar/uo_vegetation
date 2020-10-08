@@ -75,75 +75,75 @@ def log_prior(theta, wav, scan):
 #    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, \
 #    W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
     
-#    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps = theta
-    W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
+    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps = theta
+#    W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
     
     if eps <= 0:
         return -np.inf
-#    if (c1 == 0) or (c2 == 0) or (c3 == 0) or (c4 == 0):
+    if (c1 == 0) or (c2 == 0) or (c3 == 0) or (c4 == 0):
+        return -np.inf
+    if (a1 < 0.6 ) or (a1 >= 0.7):
+        return -np.inf
+    if (a2 < 0.7 ) or (a2 >= 1.0):
+        return -np.inf
+    if (a3 < 1.0 ) or (a4 >= 0.6):
+        return -np.inf
+    if (amp <= 0):
+        return -np.inf
+    nwav = np.linspace(0.35,0.9,111)
+    albedo = albedoFunc(nwav, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
+    if any(np.isnan(albedo)) or not any(np.isfinite(albedo)):
+        return -np.inf
+    if (any(albedo) < 0) or (any(albedo) > 1):
+        return -np.inf
+#    if (W < 0) or (W > 12):
 #        return -np.inf
-#    if (a1 < 0.6 ) or (a1 >= 0.7):
+#    if (ApCH2O < 0) or (ApCH2O > 5.0):
 #        return -np.inf
-#    if (a2 < 0.7 ) or (a2 >= 1.0):
+#    if (ApHNO2 < 0) or (ApHNO2 > 5.0):
 #        return -np.inf
-#    if (a3 < 1.0 ) or (a4 >= 0.6):
+#    if (ApHNO3 < 0) or (ApHNO3 > 5.0):
 #        return -np.inf
-#    if (amp <= 0):
+#    if (ApNO2 < 0) or (ApNO2 > 5.0):
 #        return -np.inf
-#    nwav = np.linspace(0.35,0.9,111)
-#    albedo = albedoFunc(nwav, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4)
-#    if any(np.isnan(albedo)) or not any(np.isfinite(albedo)):
+#    if (ApNO3 < 0) or (ApNO3 > 5.0):
 #        return -np.inf
-#    if (any(albedo) < 0) or (any(albedo) > 1):
+#    if (ApO3 < 0) or (ApO3 > 5.0):
 #        return -np.inf
-    if (W < 0) or (W > 12):
-        return -np.inf
-    if (ApCH2O < 0) or (ApCH2O > 5.0):
-        return -np.inf
-    if (ApHNO2 < 0) or (ApHNO2 > 5.0):
-        return -np.inf
-    if (ApHNO3 < 0) or (ApHNO3 > 5.0):
-        return -np.inf
-    if (ApNO2 < 0) or (ApNO2 > 5.0):
-        return -np.inf
-    if (ApNO3 < 0) or (ApNO3 > 5.0):
-        return -np.inf
-    if (ApO3 < 0) or (ApO3 > 5.0):
-        return -np.inf
-    if (ApSO2 < 0) or (ApSO2 > 5.0):
-        return -np.inf
-    if (TAU5 < 0) or (TAU5 > 1.0):
-        return -np.inf
+#    if (ApSO2 < 0) or (ApSO2 > 5.0):
+#        return -np.inf
+#    if (TAU5 < 0) or (TAU5 > 1.0):
+#        return -np.inf
 
-    a1 = 0.62
-    b1 = 0.159
-    c1 = 0.114
-    d1 = 0.10
+#    a1 = 0.62
+#    b1 = 0.159
+#    c1 = 0.114
+#    d1 = 0.10
 
-    a2 = 0.755
-    b2 = 0.0748
-    c2 = 0.045
-    d2 = -0.01
+#    a2 = 0.755
+#    b2 = 0.0748
+#    c2 = 0.045
+#    d2 = -0.01
 
-    a3 = 1.9
-    b3 = 0.111
-    c3 = 1.049
-    d3 = 0.0001
+#    a3 = 1.9
+#    b3 = 0.111
+#    c3 = 1.049
+#    d3 = 0.0001
 
-    a4 = 0.584
-    b4 = 0.07
-    c4 = 0.11
-    d4 = 0.0001
+#    a4 = 0.584
+#    b4 = 0.07
+#    c4 = 0.11
+#    d4 = 0.0001
 
-#    W = 2.0
-#    ApCH2O = 0.007
-#    ApHNO2 = 0.002
-#    ApHNO3 = 0.005
-#    ApNO2 = 0.02
-#    ApNO3 = 5e-5
-#    ApO3 = 0.053
-#    ApSO2 = 0.05
-#    TAU5 = 0.084
+    W = 2.0
+    ApCH2O = 0.007
+    ApHNO2 = 0.002
+    ApHNO3 = 0.005
+    ApNO2 = 0.02
+    ApNO3 = 5e-5
+    ApO3 = 0.053
+    ApSO2 = 0.05
+    TAU5 = 0.084
         
     modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
                                 W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5)
@@ -164,38 +164,38 @@ def log_likelihood(theta, wav, y, scan):
 #    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, \
 #    W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
     
-#    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps = theta
-    W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
+    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps = theta
+#    W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
 
-    a1 = 0.62
-    b1 = 0.159
-    c1 = 0.114
-    d1 = 0.10
+#    a1 = 0.62
+#    b1 = 0.159
+#    c1 = 0.114
+#    d1 = 0.10
 
-    a2 = 0.755
-    b2 = 0.0748
-    c2 = 0.045
-    d2 = -0.01
+#    a2 = 0.755
+#    b2 = 0.0748
+#    c2 = 0.045
+#    d2 = -0.01
 
-    a3 = 1.9
-    b3 = 0.111
-    c3 = 1.049
-    d3 = 0.0001
+#    a3 = 1.9
+#    b3 = 0.111
+#    c3 = 1.049
+#    d3 = 0.0001
 
-    a4 = 0.584
-    b4 = 0.07
-    c4 = 0.11
-    d4 = 0.0001
+#    a4 = 0.584
+#    b4 = 0.07
+#    c4 = 0.11
+#    d4 = 0.0001
 
-#    W = 2.0
-#    ApCH2O = 0.007
-#    ApHNO2 = 0.002
-#    ApHNO3 = 0.005
-#    ApNO2 = 0.02
-#    ApNO3 = 5e-5
-#    ApO3 = 0.053
-#    ApSO2 = 0.05
-#    TAU5 = 0.084
+    W = 2.0
+    ApCH2O = 0.007
+    ApHNO2 = 0.002
+    ApHNO3 = 0.005
+    ApNO2 = 0.02
+    ApNO3 = 5e-5
+    ApO3 = 0.053
+    ApSO2 = 0.05
+    TAU5 = 0.084
     
     modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
                                 W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5)
