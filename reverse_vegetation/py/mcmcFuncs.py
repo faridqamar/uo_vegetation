@@ -9,7 +9,7 @@ from scipy.interpolate import interp1d
 
 def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, 
               a4, b4, c4, d4, W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, 
-              ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5):
+              ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5):
 # -- Function to call pySMARTS and produce a model
     nalb = 111
     mywav = np.linspace(0.35,0.9,nalb)
@@ -37,7 +37,7 @@ def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3,
     albalb[:nalb] = albedo
     
     pymod = pysmarts.smarts295(W, ApCH2O, ApCH4, ApCO, ApHNO2, 
-                               ApHNO3, ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5, 
+                               ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, 
                                1, 1, albwav, albalb, nalb, Year, Month, Day, Hour, l)
     
     return pymod[0], pymod[-2]
@@ -73,11 +73,12 @@ def interpModel(mywav, amp, modelwav, modelsmrt):
 # -- Defining MCMC functions
 def log_prior(theta, wav, scan):
 #    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, \
-#    W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5, amp, eps = theta
+#    W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, \
+#    ApSO2, qCO2, TAU5, amp, eps = theta
     
 #    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps = theta
-#    W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5, amp, eps = theta
-    W, ApHNO2, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
+#    W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, amp, eps = theta
+    W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5, amp, eps = theta
     
     if eps <= 0:
         return -np.inf
@@ -99,25 +100,27 @@ def log_prior(theta, wav, scan):
 #        return -np.inf
     if (W < 0) or (W > 12):
         return -np.inf
-#    if (ApCH2O < 0) or (ApCH2O > 50.0):
+#    if (ApCH2O < 0) or (ApCH2O > 5.0):
 #        return -np.inf
-#    if (ApCH4 < 0) or (ApCH4 > 50.0):
+#    if (ApCH4 < 0) or (ApCH4 > 5.0):
 #        return -np.inf
-#    if (ApCO < 0) or (ApCO > 50.0):
+#    if (ApCO < 0) or (ApCO > 5.0):
 #        return -np.inf
-    if (ApHNO2 < 0) or (ApHNO2 > 50.0):
+    if (ApHNO2 < 0) or (ApHNO2 > 5.0):
         return -np.inf
-#    if (ApHNO3 < 0) or (ApHNO3 > 50.0):
+#    if (ApHNO3 < 0) or (ApHNO3 > 5.0):
 #        return -np.inf
-#    if (ApNO < 0) or (ApNO > 50.0):
+#    if (ApNO < 0) or (ApNO > 5.0):
 #        return -np.inf
-    if (ApNO2 < 0) or (ApNO2 > 50.0):
+    if (ApNO2 < 0) or (ApNO2 > 5.0):
         return -np.inf
-    if (ApNO3 < 0) or (ApNO3 > 50.0):
+    if (ApNO3 < 0) or (ApNO3 > 5.0):
         return -np.inf
-    if (ApO3 < 0) or (ApO3 > 50.0):
+    if (AbO3 < 0) or (AbO3 > 5.0):
         return -np.inf
-    if (ApSO2 < 0) or (ApSO2 > 50.0):
+    if (ApO3 < 0) or (ApO3 > 5.0):
+        return -np.inf
+    if (ApSO2 < 0) or (ApSO2 > 5.0):
         return -np.inf
 #    if (qCO2 < 0) or (qCO2 > 1000):
 #        return -np.inf
@@ -161,15 +164,18 @@ def log_prior(theta, wav, scan):
 #    ApNO2 = 0.02
 #    ApNO3 = 5e-5
 #    ApO3 = 0.053
+#    AbO3 = 0.33
 #    ApSO2 = 0.05
 #    qCO2 = 370.0
 #    TAU5 = 0.084
         
     modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
-                                W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5)
+                                W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3,
+                                ApSO2, qCO2, TAU5)
     if any(np.isnan(modsmrt)) or not any(np.isfinite(modsmrt)):
         modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
-                                    W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5)
+                                    W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, 
+                                    ApSO2, qCO2, TAU5)
         if any(np.isnan(modsmrt)) or not any(np.isfinite(modsmrt)):
             return -np.inf
     
@@ -182,11 +188,12 @@ def log_prior(theta, wav, scan):
 
 def log_likelihood(theta, wav, y, scan):  
 #    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, \
-#    W, ApCH2O, ApCH4, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5, amp, eps = theta
+#    W, ApCH2O, ApCH4, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, \
+#    ApSO2, qCO2, TAU5, amp, eps = theta
     
 #    a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps = theta
-#    W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5, amp, eps = theta
-    W, ApHNO2, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps = theta
+#    W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, amp, eps = theta
+    W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5, amp, eps = theta
 
     a1 = 0.62
     b1 = 0.159
@@ -225,15 +232,18 @@ def log_likelihood(theta, wav, y, scan):
 #    ApNO2 = 0.02
 #    ApNO3 = 5e-5
 #    ApO3 = 0.053
+#    AbO3 = 0.33
 #    ApSO2 = 0.05
 #    qCO2 = 370.0
 #    TAU5 = 0.084
     
     modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
-                                W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5)
+                                W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3,
+                                ApSO2, qCO2, TAU5)
     if any(np.isnan(modsmrt)) or not any(np.isfinite(modsmrt)):
         modwav, modsmrt = modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4,
-                                    W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5)
+                                    W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, 
+                                    ApSO2, qCO2, TAU5)
         if any(np.isnan(modsmrt)) or not any(np.isfinite(modsmrt)):
             return -np.inf
     

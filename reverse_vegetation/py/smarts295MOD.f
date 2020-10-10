@@ -53,9 +53,9 @@ C
 c
       Subroutine smarts295 (myW,myApCH2O,myApCH4,
      1                      myApCO,myApHNO2,myApHNO3,
-     2                      myApNO,myApNO2,myApNO3,myApO3,myApSO2,
-     3                      myqCO2,myTAU5,myIALBDX,myIalbdg,
-     4                      Wvla1,Albdo1,Nwal1,
+     2                      myApNO,myApNO2,myApNO3,myAbO3,myApO3,
+     3                      myApSO2,myqCO2,myTAU5,myIALBDX,
+     4                      myIalbdg,Wvla1,Albdo1,Nwal1,
      5                      myYEAR,mymonth,myDAY,myHOUR,
      6                      FullSpectra)
 
@@ -87,9 +87,12 @@ Cf2py intent(in) myYEAR,mymonth,myDAY,myHOUR
       
       REAL myW,myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3
       REAL myApNO,myApNO2,myApNO3,myApO3,myApSO2,myqCO2
-      REAL myTAU5,TAU5
+      REAL myTAU5,TAU5,myAbO3
       REAL W,ApCH2O,ApCH4,ApCO,ApHNO2,ApHNO3
       REAL ApNO,ApNO2,ApNO3,ApO3,ApSO2,qCO2
+      REAL AbCH2O,AbCH4,AbCO,AbHNO2,AbHNO3
+      REAL AbNO,AbNO2,AbNO3,AbO3,AbSO2,AbCO2
+      REAL fqtemp
 
       REAL RB0(4),RB1(4),RB2(4),RB3(4),RDHB(4),limit
       REAL VL(515),ETSPCT(2002),Output(54),Xout(54),timer(2)
@@ -771,17 +774,19 @@ c     3 ApNO,ApNO2,ApNO3,ApO3,ApSO2
 c
 c      Conversion from ppmv to atm-cm
 c
-      ApCH2O=ApCH2O*.1
-      ApCH4=ApCH4*.1
-      ApCO=ApCO*.1
-      ApHNO2=ApHNO2*.1
-cc      ApHNO3=.012*.1   FQ: this should not be hardcoded
-      ApHNO3=ApHNO3*.1
-      ApNO=ApNO*.1
-      ApNO2=ApNO2*.1
-      ApNO3=ApNO3*.1
-      ApO3=ApO3*.1
-      ApSO2=ApSO2*.1
+cc FQ: commenting this out, I now provide the concentrations in atm-cm
+cc
+cc      ApCH2O=ApCH2O*.1
+cc      ApCH4=ApCH4*.1
+cc      ApCO=ApCO*.1
+cc      ApHNO2=ApHNO2*.1
+cccc      ApHNO3=.012*.1   FQ: this should not be hardcoded
+cc      ApHNO3=ApHNO3*.1
+cc      ApNO=ApNO*.1
+cc      ApNO2=ApNO2*.1
+cc      ApNO3=ApNO3*.1
+cc      ApO3=ApO3*.1
+cc      ApSO2=ApSO2*.1
  340  CONTINUE
 C
 C
@@ -1801,9 +1806,18 @@ c
       AbO2=1.67766E5*pp0
       AbO4=1.8171d4*NLosch*NLosch*(pp0**1.7984)/(TT0**.344)
       AbBrO=2.5E-06
+cc FQ: below is to contain atmo in pollution
       AbNO3=.00005
+      fqtemp = ApNO3 - AbNO3
+      ApNO3  = fqtemp
+cc FQ: below is to contain atmo in pollution
       AbCH2O=.0003
+      fqtemp = ApCH2O - AbCH2O
+      ApCH2O = fqtemp
+cc FQ: below is to contain atmo in pollution
       AbHNO2=.0001
+      fqtemp = ApHNO2 - AbHNO2
+      ApHNO2 = fqtemp
       AbClNO=.00012
       AbO3=uoc
       pp0x2=pp0*pp0
@@ -1811,17 +1825,35 @@ c
       pln2=pln*pln
       pln3=pln2*pln
       if(iatmos.eq.1.and.iref.le.6)goto 287
+cc FQ: below is to contain atmo in pollution
       AbCH4=1.31195*(pp0*1.1245)*(TT0**.047283)
+      fqtemp = ApCH4 - AbCH4
+      ApCH4 = fqtemp
+cc FQ: below is to contain atmo in pollution
       AbCO=.31491*(pp0**2.6105)*exp(.82546-2.9753*pp0+.88437*pp0x2)
+      fqtemp = ApCO - AbCO
+      ApCO = fqtemp
       AbN2O=.24344*(pp0**1.1625)
       AbN2=3.8298*(pp0**1.8643)/(TT0**.50342)
+cc FQ: below is to contain atmo in pollution
       AbHNO3=3.6739e-4*(pp0**.13568)/(TT0**.0714)
+      fqtemp = ApHNO3 - AbHNO3
+      ApHNO3 = fqtemp
+cc FQ: below is to contain atmo in pollution
       AbNO2=1e-4*Min(1.864+.20314*pp0,41.693*pp0)
+      fqtemp = ApNO2 - AbNO2
+      ApNO2 = fqtemp
 c      UN=2.0671e-4
 c      UNC=AbNO2
+cc FQ: below is to contain atmo in pollution
       AbNO=1e-4*Min(.74039+2.4154*pp0,57.314*pp0)
+      fqtemp = ApNO - AbNO
+      ApNO = fqtemp
+cc FQ: below is to contain atmo in pollution
       AbSO2=1.114e-5*(pp0**.81319)*exp(.81356+3.0448*pp0x2
      1  -1.5652*pp0x2*pp0)
+      fqtemp = ApSO2 - AbSO2
+      ApSO2 = fqtemp
 c      AbNH3=.0068778*(pp0**5.0426)*exp(-1.7876-.96817*pp0-.91191*pp0x2)
       AbNH3=exp(-8.6472+2.239*pLN-2.3822*PLN2-1.4408*PLN3
      1 -.46322*pln3*pln)

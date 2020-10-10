@@ -19,8 +19,8 @@ from multiprocessing import Pool
 
 #def modelFunc(scan, a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4):
 #def modelFunc(scan, W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, 
-#              ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5):
-def modelFunc(scan, W, ApHNO2, ApNO2, ApNO3, ApO3, ApSO2, TAU5):
+#              ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5):
+def modelFunc(scan, W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5):
 # -- Function to call pySMARTS and produce a model
 
     a1 = 0.62
@@ -61,6 +61,7 @@ def modelFunc(scan, W, ApHNO2, ApNO2, ApNO3, ApO3, ApSO2, TAU5):
     ApNO = 0.0
 #    ApNO2 = 0.02
 #    ApNO3 = 5e-5
+#    AbO3 = 0.33
 #    ApO3 = 0.053
 #    ApSO2 = 0.05
     qCO2 = 0.0
@@ -84,7 +85,7 @@ def modelFunc(scan, W, ApHNO2, ApNO2, ApNO3, ApO3, ApSO2, TAU5):
     albalb[:nalb] = albedo
     
     pymod = pysmarts.smarts295(W, ApCH2O, ApCH4, ApCO, ApHNO2, 
-                               ApHNO3, ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5, 
+                               ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, 
                                1, 1, albwav, albalb, nalb, Year, Month, Day, Hour, l)
     
     return pymod[0], pymod[-2]
@@ -130,7 +131,7 @@ if not os.path.isfile(filename):
     print('Filename {0} does not exist'.format(filename))
 else:
     backend = emcee.backends.HDFBackend(filename, read_only=True)
-    nwalkers, ndim = 200, 9
+    nwalkers, ndim = 200, 10
     nsteps = backend.iteration
     print("   number of walkers    = ", nwalkers)
     print("   number of dimensions = ", ndim)
@@ -145,7 +146,7 @@ else:
 #              'a3', 'b3', 'c3', 'd3',
 #              'a4', 'b4', 'c4', 'd4',          
 #              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-#              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+#              'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 #    samples = backend.get_chain()
 #    for i in range(ndim):
 #        ax = axes[i]
@@ -189,9 +190,9 @@ else:
 #              'a3', 'b3', 'c3', 'd3',
 #              'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
 #              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-#              'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+#              'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 #    labels = ['H2O', 'ApCH2O', 'ApCH4', 'ApCO', 'ApHNO2', 'ApHNO3', 'ApNO', 'ApNO2', 
-#              'ApNO3', 'ApO3', 'ApSO2', 'qCO2', 'TAU5', 'amp', 'eps']
+#              'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'qCO2', 'TAU5', 'amp', 'eps']
     labels = ['H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
     fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), fig=f)
     f.canvas.draw()
