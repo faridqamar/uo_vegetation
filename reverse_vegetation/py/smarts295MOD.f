@@ -600,7 +600,7 @@ C
       Thick=1.
  329  continue
 cc      READ(14,*)IO3
-      IO3 = 1
+      IO3 = 0
       IF(IO3.ne.1)GOTO 331
       IF(iAtmos.ne.0)goto 348
       Call RefAtm(Zalt,dum1,dum2,dum3,O3ref,dum5,dum6,dum7,1)
@@ -1638,7 +1638,7 @@ cc      READ(14,*,END=998)YEAR,month,DAY,HOUR,Latit,Longit,ZONE
       HOUR = myHOUR
       Latit = 40.69442
       Longit = -73.98615
-      ZONE = -5
+      ZONE = -5.
 
       HourUT=Hour-Zone
       DayUT=Day

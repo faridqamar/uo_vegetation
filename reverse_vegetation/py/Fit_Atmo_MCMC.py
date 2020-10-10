@@ -73,16 +73,16 @@ d4 = 0.0001
 W = 2.0
 #AbO3 = 0.33
 ApCH2O = 0.007
-#ApCH4 = 0.3
-#ApCO = 0.35
+ApCH4 = 0.3
+ApCO = 0.35
 ApHNO2 = 0.002
 ApHNO3 = 0.005
-#ApNO = 0.2
+ApNO = 0.2
 ApNO2 = 0.02
 ApNO3 = 5e-5
 ApO3 = 0.053
 ApSO2 = 0.05
-#qCO2 = 370.0
+qCO2 = 370.0
 #ALPHA1 = 0.9111
 #ALPHA2 = 1.3529
 #OMEGL = 0.8
@@ -93,10 +93,12 @@ amp = 1999.5
 eps = 18.5
 
 #init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3,
-#                    a4, b4, c4, d4, W, ApCH2O, ApHNO2, ApHNO3,
-#                    ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
-init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps])
-#init_params = np.array([W, ApCH2O, ApHNO2, ApHNO3, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
+#                    a4, b4, c4, d4, W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3,
+#                    ApNO, ApNO2, ApNO3, ApO3, ApSO2, qCO2, TAU5, amp, eps])
+#init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps])
+#init_params = np.array([W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, 
+#                        ApNO3, ApO3, ApSO2, qCO2, TAU5, amp, eps])
+init_params = np.array([W, ApHNO2, ApNO2, ApNO3, ApO3, ApSO2, TAU5, amp, eps])
 print("   initial parameters = ", init_params)
 
 
@@ -170,14 +172,15 @@ fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
 #          'a2', 'b3', 'c2', 'd2',
 #          'a3', 'b3', 'c3', 'd3',
 #          'a4', 'b4', 'c4', 'd4',        
-#          'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-#          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
-labels = ['a1', 'b1', 'c1', 'd1',
-          'a2', 'b3', 'c2', 'd2',
-          'a3', 'b3', 'c3', 'd3',
-          'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
-#labels = ['H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
-#          'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+#          'H2O', 'ApCH2O', 'ApCH4', 'ApCO', 'ApHNO2', 'ApHNO3', 'ApNO', 'ApNO2', 'ApNO3',
+#          'ApO3', 'ApSO2', 'qCO2', 'TAU5', 'amp', 'eps']
+#labels = ['a1', 'b1', 'c1', 'd1',
+#          'a2', 'b3', 'c2', 'd2',
+#          'a3', 'b3', 'c3', 'd3',
+#          'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
+#labels = ['H2O', 'ApCH2O', 'ApCH4', 'ApCO', 'ApHNO2', 'ApHNO3', 
+#          'ApNO', 'ApNO2', 'ApNO3', 'ApO3', 'ApSO2', 'qCO2', 'TAU5', 'amp', 'eps']
+labels = ['H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 samples = sampler.get_chain()
 for i in range(ndim):
     ax = axes[i]
