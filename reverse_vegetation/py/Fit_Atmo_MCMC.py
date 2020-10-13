@@ -46,25 +46,23 @@ nblds = blds*cube.waves/1e3
 
 # -- Setting initial parameter values
 print("Initializing parameters ...")
-a1 = 0.62
+a1 = 0.585
 b1 = 0.159
-c1 = 0.114
-d1 = 0.10
+c1 = 0.05
 
-a2 = 0.755
-b2 = 0.0748
-c2 = 0.045
-d2 = -0.01
+a2 = 0.71
+b2 = 0.17
+c2 = 0.055
 
-a3 = 1.9
-b3 = 0.111
-c3 = 1.049
-d3 = 0.0001
+#a3 = 1.9
+#b3 = 0.111
+#c3 = 1.049
 
-a4 = 0.584
-b4 = 0.07
-c4 = 0.11
-d4 = 0.0001
+a3 = 0.45
+b3 = 0.12
+c3 = 0.05
+
+d  = 0.2
 
 #TAIR = 15.5
 #RH = 69.0
@@ -91,16 +89,16 @@ qCO2 = 370.0
 #GG = 0.7
 TAU5 = 0.084
     
-amp = 1999.5
+amp = 2000.0
 eps = 18.5
 
-#init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3,
-#                    a4, b4, c4, d4, W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3,
-#                    ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, amp, eps])
-#init_params = np.array([a1, b1, c1, d1, a2, b2, c2, d2, a3, b3, c3, d3, a4, b4, c4, d4, amp, eps])
+#init_params = np.array([a1, b1, c1, a2, b2, c2, a3, b3, c3, a4, b4, c4, d,
+#                        W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3,
+#                       ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, amp, eps])
+init_params = np.array([a1, b1, c1, a2, b2, c2, a3, b3, c3, d, eps])
 #init_params = np.array([W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, 
 #                        ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, amp, eps])
-init_params = np.array([W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5, amp, eps])
+#init_params = np.array([W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5, amp, eps])
 print("   initial parameters = ", init_params)
 
 
@@ -128,7 +126,7 @@ def log_probability(theta):
 # -- Setting walkers, number of steps, and initial array
 nwalkers, ndim, nsteps = 200, init_params.shape[0], 20000
 #p0 = init_params * (np.random.rand(nwalkers, ndim)*2)
-p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/100.)
+p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/1000.)
 
 # -- Perform MCMC
 print("Starting MCMC:")
@@ -170,19 +168,19 @@ print("   number of steps      = ", nsteps)
 
 # -- Plot walkers
 fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
-#labels = ['a1', 'b1', 'c1', 'd1',
-#          'a2', 'b3', 'c2', 'd2',
-#          'a3', 'b3', 'c3', 'd3',
-#          'a4', 'b4', 'c4', 'd4',        
+#labels = ['a1', 'b1', 'c1',
+#          'a2', 'b3', 'c2',
+#          'a3', 'b3', 'c3',
+#          'a4', 'b4', 'c4', 'd',        
 #          'H2O', 'ApCH2O', 'ApCH4', 'ApCO', 'ApHNO2', 'ApHNO3', 'ApNO', 'ApNO2', 'ApNO3',
 #          'AbO3', 'ApO3', 'ApSO2', 'qCO2', 'TAU5', 'amp', 'eps']
-#labels = ['a1', 'b1', 'c1', 'd1',
-#          'a2', 'b3', 'c2', 'd2',
-#          'a3', 'b3', 'c3', 'd3',
-#          'a4', 'b4', 'c4', 'd4', 'amp', 'eps']
+labels = ['a1', 'b1', 'c1',
+          'a2', 'b2', 'c2',
+          'a3', 'b3', 'c3', 'd', 'eps']
+#          'a4', 'b4', 'c4', 'd', 'eps']
 #labels = ['H2O', 'ApCH2O', 'ApCH4', 'ApCO', 'ApHNO2', 'ApHNO3', 
 #          'ApNO', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'qCO2', 'TAU5', 'amp', 'eps']
-labels = ['H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+#labels = ['H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 samples = sampler.get_chain()
 for i in range(ndim):
     ax = axes[i]
