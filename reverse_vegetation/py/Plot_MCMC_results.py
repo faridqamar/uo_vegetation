@@ -17,10 +17,12 @@ from multiprocessing import Pool
 
 
 
-def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3, d):
+#def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3, d):
 #def modelFunc(scan, W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, 
 #              ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5):
 #def modelFunc(scan, W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5):
+def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3, 
+              d, W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5):
 # -- Function to call pySMARTS and produce a model
 
 #    a1 = 0.62
@@ -50,22 +52,22 @@ def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3, d):
     err_set = np.seterr(all='ignore')
     np.around(albedo, 4, albedo)
 
-    W = 2.0
-#    ApCH2O = 0.007
+#    W = 2.0
+##    ApCH2O = 0.007
     ApCH2O = 0.0
     ApCH4 = 0.0
     ApCO = 0.0
-    ApHNO2 = 0.002
-#    ApHNO3 = 0.005
+#    ApHNO2 = 0.002
+##    ApHNO3 = 0.005
     ApHNO3 = 0.0
     ApNO = 0.0
-    ApNO2 = 0.02
-    ApNO3 = 5e-5
-    AbO3 = 0.33
-    ApO3 = 0.053
-    ApSO2 = 0.05
+#    ApNO2 = 0.02
+#    ApNO3 = 5e-5
+#    AbO3 = 0.33
+#    ApO3 = 0.053
+#    ApSO2 = 0.05
     qCO2 = 0.0
-    TAU5 = 0.084
+#    TAU5 = 0.084
     
     if scan == '108':
         Year = 2016
@@ -131,7 +133,7 @@ if not os.path.isfile(filename):
     print('Filename {0} does not exist'.format(filename))
 else:
     backend = emcee.backends.HDFBackend(filename, read_only=True)
-    nwalkers, ndim = 200, 11
+    nwalkers, ndim = 200, 19
     nsteps = backend.iteration
     print("   number of walkers    = ", nwalkers)
     print("   number of dimensions = ", ndim)
@@ -169,11 +171,12 @@ else:
         print("   EXCEPTION RAISED: ")
         print("      emcee.autocorr.AutocorrError: ")
         print("      The chain is shorter than 50 times the integrated autocorrelation time for 27 parameter(s)")
-        burnin = 800
-        thin = 70
+        burnin = 3000
+        thin = 250
     flat_samples = backend.get_chain(discard=burnin, thin=thin, flat=True)
     #log_prob_samples = backend.get_log_prob(discard=burnin, thin=thin, flat=True)
     #log_prior_samples = backend.get_blobs(discard=burnin, thin=thin, flat=True)
+    #np.save("../output/flat_samples_"+scan+".npy", flat_samples)
 
     print("   burn-in = ", burnin)
     print("   thin = ", thin)
@@ -185,15 +188,19 @@ else:
     print("")
     print("Plotting Corner Plot ...")
     f, ax = plt.subplots(ndim, ndim, figsize=((ndim)*2,(ndim)*2))
-    labels = ['a1', 'b1', 'c1',
-              'a2', 'b2', 'c2',
-              'a3', 'b3', 'c3', 'd', 'eps']
+#    labels = ['a1', 'b1', 'c1',
+#              'a2', 'b2', 'c2',
+#              'a3', 'b3', 'c3', 'd', 'eps']
 #              'a4', 'b4', 'c4', 'd', 'eps']
 #              'H2O', 'ApCH2O', 'ApHNO2', 'ApHNO3', 'ApNO2', 'ApNO3',
 #              'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 #    labels = ['H2O', 'ApCH2O', 'ApCH4', 'ApCO', 'ApHNO2', 'ApHNO3', 'ApNO', 'ApNO2', 
 #              'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'qCO2', 'TAU5', 'amp', 'eps']
 #    labels = ['H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
+    labels = ['a1', 'b1', 'c1',
+              'a2', 'b2', 'c2',
+              'a3', 'b3', 'c3', 'd',
+              'H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'eps']
     fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), fig=f)
     f.canvas.draw()
     f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
@@ -204,7 +211,7 @@ else:
     # -- Plot a sample of the MCMC solutions
     print("Plotting MCMC Sample Solutions ...")
     fig, ax = plt.subplots(figsize=(10,6))
-    inds = np.random.randint(len(flat_samples), size=800)
+    inds = np.random.randint(len(flat_samples), size=5000)
     for ind in inds:
         sample = flat_samples[ind]
         #smrtwav, smrtmod = modelFunc(scan, *sample[:-2])
@@ -220,7 +227,7 @@ else:
 
     print("Plotting MCMC Albedo Solutions ...")
     fig, ax = plt.subplots(figsize=(10,6))
-    inds = np.random.randint(len(flat_samples), size=800)
+    inds = np.random.randint(len(flat_samples), size=5000)
     for ind in inds:
         sample = flat_samples[ind]
         albedo = mc.albedoFunc(mywav/1000., *sample[:10])
