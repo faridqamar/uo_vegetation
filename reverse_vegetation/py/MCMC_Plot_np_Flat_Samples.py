@@ -137,18 +137,69 @@ labels = [r'$\mu_1$', r'$b_1$', r'$\sigma_1$',
           r'$\mu_3$', r'$b_3$', r'$\sigma_3$', 'd',
           r'$H_2O$', r'$HNO_2$', r'$NO_2$', r'$NO_3$', r'$AbO_3$', r'$ApO_3$', r'$SO_2$', r'$\tau_5$', 'eps']
 
+#print("")
+#print("Plotting Albedo Corner Plot ...")
+#f, ax = plt.subplots(10, 10, figsize=((10)*2,(10)*2))
+#fig = corner.corner(flat_samples[:,:10], labels=labels[:10], truths=np.median(flat_samples[:,:10], axis=0), fig=f)
+#f.canvas.draw()
+#f.savefig("../output/MCMC_Corner_Albedo_"+scan+".png", dpi=300)
+
+#print("")
+#print("Plotting Atmosphere Corner Plot ...")
+#f, ax = plt.subplots(8, 8, figsize=((8)*2,(8)*2))
+#fig = corner.corner(flat_samples[:,10:-1], labels=labels[10:-1], truths=np.median(flat_samples[:,10:-1], axis=0), fig=f)
+#f.canvas.draw()
+#f.savefig("../output/MCMC_Corner_Atmos_"+scan+".png", dpi=300)
+
+
+plt.style.use('seaborn-ticks')
+plt.rcParams["axes.facecolor"]  = "w"
+plt.rcParams["axes.grid"]       = True
+plt.rcParams["axes.labelcolor"] = "k"
+plt.rcParams["lines.linewidth"] = 2
+plt.rcParams["grid.color"]      = "#444444"
+plt.rcParams["grid.linewidth"]  = 1.5
+plt.rcParams["grid.linestyle"]  = ":"
+plt.rcParams["xtick.direction"] = "out"
+plt.rcParams["ytick.direction"] = "out"
+plt.rcParams["xtick.color"]     = "k"
+plt.rcParams["ytick.color"]     = "k"
+plt.rcParams["text.color"]      = "k"
+plt.rcParams["font.size"]       = 20
+plt.rcParams["legend.fontsize"] = 14
+plt.rcParams["xtick.labelsize"] = 14
+plt.rcParams["ytick.labelsize"] = 14
+
+amp = 2000.0
+# -- Plot a sample of the MCMC solutions
 print("")
-print("Plotting Albedo Corner Plot ...")
-f, ax = plt.subplots(10, 10, figsize=((10)*2,(10)*2))
-fig = corner.corner(flat_samples[:,:10], labels=labels[:10], truths=np.median(flat_samples[:,:10], axis=0), fig=f)
-f.canvas.draw()
-f.savefig("../output/MCMC_Corner_Albedo_"+scan+".png", dpi=300)
+print("Plotting MCMC Sample Solutions ...")
+fig, ax = plt.subplots(figsize=(10,6))
+inds = np.random.randint(len(flat_samples), size=5000)
+for ind in inds:
+    sample = flat_samples[ind]
+    #smrtwav, smrtmod = modelFunc(scan, *sample[:-2])
+    #maxmod = mc.interpModel(mywav, sample[-2], smrtwav, smrtmod)
+    smrtwav, smrtmod = modelFunc(scan, *sample[:-1])
+    maxmod = mc.interpModel(mywav, amp, smrtwav, smrtmod)
+    linm, = ax.plot(mywav, maxmod, color='dodgerblue', lw=0.3)
+linb, = ax.plot(mywav, myblds, color='darkred')
+ax.set_xlabel('Wavelength [nm]')
+ax.set_ylabel('Intensity [arbitrary units]')
+ax.legend([linb, linm], ['data', 'model'])
+fig.savefig("../output/MCMC_models_"+scan+".png", dpi=300)
+
 
 print("")
-print("Plotting Atmosphere Corner Plot ...")
-f, ax = plt.subplots(8, 8, figsize=((8)*2,(8)*2))
-fig = corner.corner(flat_samples[:,10:-1], labels=labels[10:-1], truths=np.median(flat_samples[:,10:-1], axis=0), fig=f)
-f.canvas.draw()
-f.savefig("../output/MCMC_Corner_Atmos_"+scan+".png", dpi=300)
-
+print("Plotting MCMC Albedo Solutions ...")
+fig, ax = plt.subplots(figsize=(10,6))
+inds = np.random.randint(len(flat_samples), size=5000)
+for ind in inds:
+    sample = flat_samples[ind]
+    albedo = mc.albedoFunc(mywav/1000., *sample[:10])
+    linm, = ax.plot(mywav, albedo, color='dodgerblue', lw=0.2)
+ax.set_xlabel('Wavelength [nm]')
+ax.set_ylabel('Albedo')
+#    ax.set_ylim(-0.1,0.6)
+fig.savefig("../output/MCMC_albedo_"+scan+".png", dpi=300)
 
