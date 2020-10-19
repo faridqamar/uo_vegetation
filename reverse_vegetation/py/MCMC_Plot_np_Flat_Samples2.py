@@ -21,8 +21,8 @@ from multiprocessing import Pool
 #def modelFunc(scan, W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, 
 #              ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5):
 #def modelFunc(scan, W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5):
-def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3, 
-              d, W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5):
+def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3, d, RH, 
+              W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, AbO2, TAU5):
 # -- Function to call pySMARTS and produce a model
 
 #    a1 = 0.62
@@ -67,6 +67,8 @@ def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3,
 #    ApO3 = 0.053
 #    ApSO2 = 0.05
     qCO2 = 0.0
+    AbBrO  = 2.5e-6
+    AbClNO = 0.00012
 #    TAU5 = 0.084
     
     if scan == '108':
@@ -74,6 +76,9 @@ def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3,
         Month = 5
         Day = 5
         Hour = 14.02
+        TAIR = 15.5
+        #RH = 69.0
+        TDAY = 12.5
     elif scan == '000':
         Year = 2016
         Month = 5
@@ -86,8 +91,9 @@ def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3,
     albwav[:nalb] = mywav
     albalb[:nalb] = albedo
     
-    pymod = pysmarts.smarts295(W, ApCH2O, ApCH4, ApCO, ApHNO2, 
-                               ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, 
+    pymod = pysmarts2.smarts295(TAIR, RH, TDAY, W, ApCH2O, ApCH4, ApCO, ApHNO2, 
+                               ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, 
+                               qCO2, AbO2, AbBrO, AbClNO, TAU5,
                                1, 1, albwav, albalb, nalb, Year, Month, Day, Hour, l)
     
     return pymod[0], pymod[-2]
@@ -127,15 +133,16 @@ nblds = blds*cube.waves/1e3
 mywav = cube.waves[:-200]
 myblds = nblds[:-200]
 
-nwalkers, ndim = 200, 19
+nwalkers, ndim = 200, 21
 
-flat_samples = np.load("../output/flat_samples_108.npy")
+flat_samples = np.load("../output/flat_samples_108_O2.npy")
 
 # -- Corner Plots
 labels = [r'$\mu_1$', r'$b_1$', r'$\sigma_1$',
           r'$\mu_2$', r'$b_2$', r'$\sigma_2$',
-          r'$\mu_3$', r'$b_3$', r'$\sigma_3$', 'd',
-          r'$H_2O$', r'$HNO_2$', r'$NO_2$', r'$NO_3$', r'$AbO_3$', r'$ApO_3$', r'$SO_2$', r'$\tau_5$', 'eps']
+          r'$\mu_3$', r'$b_3$', r'$\sigma_3$', r'$d$', r'$RH$',
+          r'$H_2O$', r'$HNO_2$', r'$NO_2$', r'$NO_3$', r'$O_3^{Ab}$', 
+          r'$O_3^p$', r'$SO_2$', r'$\tau_5$', r'$\varepsilon$']
 
 #print("")
 #print("Plotting Albedo Corner Plot ...")
@@ -187,7 +194,7 @@ linb, = ax.plot(mywav, myblds, color='darkred')
 ax.set_xlabel('Wavelength [nm]')
 ax.set_ylabel('Intensity [arbitrary units]')
 ax.legend([linb, linm], ['data', 'model'])
-fig.savefig("../output/MCMC_models_"+scan+".png", dpi=300)
+fig.savefig("../output/MCMC_models_"+scan+"_O2.png", dpi=300)
 
 
 print("")
@@ -201,5 +208,5 @@ for ind in inds:
 ax.set_xlabel('Wavelength [nm]')
 ax.set_ylabel('Albedo')
 #    ax.set_ylim(-0.1,0.6)
-fig.savefig("../output/MCMC_albedo_"+scan+".png", dpi=300)
+fig.savefig("../output/MCMC_albedo_"+scan+"_O2.png", dpi=300)
 

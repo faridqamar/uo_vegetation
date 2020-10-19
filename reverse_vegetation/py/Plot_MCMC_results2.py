@@ -9,8 +9,8 @@ import pandas as pd
 import random
 import time
 import matplotlib.pyplot as plt
-import mcmcFuncs as mc
-import pysmarts
+import mcmcFuncs2 as mc
+import pysmarts2
 import emcee
 import corner
 from multiprocessing import Pool
@@ -21,8 +21,8 @@ from multiprocessing import Pool
 #def modelFunc(scan, W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, 
 #              ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5):
 #def modelFunc(scan, W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5):
-def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3, 
-              d, W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5):
+def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3, d, RH, 
+              W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, AbO2, TAU5):
 # -- Function to call pySMARTS and produce a model
 
 #    a1 = 0.62
@@ -67,6 +67,8 @@ def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3,
 #    ApO3 = 0.053
 #    ApSO2 = 0.05
     qCO2 = 0.0
+    AbBrO  = 2.5e-6
+    AbClNO = 0.00012
 #    TAU5 = 0.084
     
     if scan == '108':
@@ -74,6 +76,9 @@ def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3,
         Month = 5
         Day = 5
         Hour = 14.02
+        TAIR = 15.5
+        #RH = 69.0
+        TDAY = 12.5
     elif scan == '000':
         Year = 2016
         Month = 5
@@ -86,8 +91,9 @@ def modelFunc(scan, a1, b1, c1, a2, b2, c2, a3, b3, c3,
     albwav[:nalb] = mywav
     albalb[:nalb] = albedo
     
-    pymod = pysmarts.smarts295(W, ApCH2O, ApCH4, ApCO, ApHNO2, 
-                               ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, 
+    pymod = pysmarts2.smarts295(TAIR, RH, TDAY, W, ApCH2O, ApCH4, ApCO, ApHNO2, 
+                               ApHNO3, ApNO, ApNO2, ApNO3, AbO3, ApO3, ApSO2, 
+                               qCO2, AbO2, AbBrO, AbClNO, TAU5,
                                1, 1, albwav, albalb, nalb, Year, Month, Day, Hour, l)
     
     return pymod[0], pymod[-2]
@@ -128,12 +134,12 @@ mywav = cube.waves[:-200]
 myblds = nblds[:-200]
 
 # -- HDF5 mcmc file
-filename = "MCMC_"+scan+".h5"
+filename = "MCMC_"+scan+"_O2.h5"
 if not os.path.isfile(filename):
     print('Filename {0} does not exist'.format(filename))
 else:
     backend = emcee.backends.HDFBackend(filename, read_only=True)
-    nwalkers, ndim = 200, 19
+    nwalkers, ndim = 200, 21
     nsteps = backend.iteration
     print("   number of walkers    = ", nwalkers)
     print("   number of dimensions = ", ndim)
@@ -171,12 +177,12 @@ else:
         print("   EXCEPTION RAISED: ")
         print("      emcee.autocorr.AutocorrError: ")
         print("      The chain is shorter than 50 times the integrated autocorrelation time for 27 parameter(s)")
-        burnin = 3000
-        thin = 250
+        burnin = 20000
+        thin = 900
     flat_samples = backend.get_chain(discard=burnin, thin=thin, flat=True)
     #log_prob_samples = backend.get_log_prob(discard=burnin, thin=thin, flat=True)
     #log_prior_samples = backend.get_blobs(discard=burnin, thin=thin, flat=True)
-    #np.save("../output/flat_samples_"+scan+".npy", flat_samples)
+    np.save("../output/flat_samples_"+scan+"_O2.npy", flat_samples)
 
     print("   burn-in = ", burnin)
     print("   thin = ", thin)
@@ -198,12 +204,13 @@ else:
 #              'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'qCO2', 'TAU5', 'amp', 'eps']
 #    labels = ['H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
     labels = ['a1', 'b1', 'c1',
-              'a2', 'b2', 'c2',
-              'a3', 'b3', 'c3', 'd',
-              'H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'eps']
+          'a2', 'b2', 'c2',
+          'a3', 'b3', 'c3', 'd', 'RH',
+          'H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 
+          'AbO2', 'TAU5', 'eps']
     fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), fig=f)
     f.canvas.draw()
-    f.savefig("../output/MCMC_Corner_"+scan+".png", dpi=300)
+    f.savefig("../output/MCMC_Corner_"+scan+"_O2.png", dpi=300)
 
 
     
@@ -222,7 +229,7 @@ else:
     linb, = ax.plot(mywav, myblds, color='darkred')
     ax.set_xlabel('wavelength [nm]')
     ax.legend([linb, linm], ['data', 'model'])
-    fig.savefig("../output/MCMC_models_"+scan+".png", dpi=300)
+    fig.savefig("../output/MCMC_models_"+scan+"_O2.png", dpi=300)
     
 
     print("Plotting MCMC Albedo Solutions ...")
@@ -234,7 +241,7 @@ else:
         linm, = ax.plot(mywav, albedo, color='dodgerblue', lw=0.2)
     ax.set_xlabel('wavelength [nm]')
 #    ax.set_ylim(-0.1,0.6)
-    fig.savefig("../output/MCMC_albedo_"+scan+".png", dpi=300)
+    fig.savefig("../output/MCMC_albedo_"+scan+"_O2.png", dpi=300)
     
 
 

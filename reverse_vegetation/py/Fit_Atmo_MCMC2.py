@@ -103,9 +103,9 @@ eps = 18.5
 #init_params = np.array([W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, 
 #                        ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, amp, eps])
 #init_params = np.array([W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5, amp, eps])
-init_params = np.array([a1, b1, c1, a2, b2, c2, a3, b3, c3, d,
+init_params = np.array([a1, b1, c1, a2, b2, c2, a3, b3, c3, d, RH,
                         W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, 
-                        AbO2, AbO4, TAU5, eps])
+                        AbO2, TAU5, eps])
 
 print("   initial parameters = ", init_params)
 
@@ -132,7 +132,7 @@ def log_probability(theta):
 
 
 # -- Setting walkers, number of steps, and initial array
-nwalkers, ndim, nsteps = 200, init_params.shape[0], 500
+nwalkers, ndim, nsteps = 200, init_params.shape[0], 200000
 #p0 = init_params * (np.random.rand(nwalkers, ndim)*2)
 p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/1000.)
 
@@ -191,9 +191,9 @@ fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
 #labels = ['H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
 labels = ['a1', 'b1', 'c1',
           'a2', 'b2', 'c2',
-          'a3', 'b3', 'c3', 'd',
+          'a3', 'b3', 'c3', 'd', 'RH',
           'H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 
-          'AbO2', 'AbO4', 'TAU5', 'eps']
+          'AbO2', 'TAU5', 'eps']
 
 samples = sampler.get_chain()
 for i in range(ndim):

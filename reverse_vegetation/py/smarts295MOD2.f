@@ -18,7 +18,7 @@ C***        Card 2a: Latit=40.69442 [387]
 C***                 Altit=0.011458 [388]
 C***                 Height=0.122   [389]
 C***        Card 3: iAtmos=0 [419]
-C***        Card3a: Atmos = 'USSA' [420]
+C***        Card3a: Atmos = 'USSA' [420] xxx changed
 C***        Card 4: IH2O=0 [429]
 C***        Card 5: IO3=1 [540]
 C***        Card 5a: IALT=0 [581]
@@ -55,7 +55,7 @@ c
      1                      myW,myApCH2O,myApCH4,
      2                      myApCO,myApHNO2,myApHNO3,
      3                      myApNO,myApNO2,myApNO3,myAbO3,myApO3,
-     4                      myApSO2,myqCO2,myAbO2,myAbO4,myAbBrO,
+     4                      myApSO2,myqCO2,myAbO2,myAbBrO,
      5                      myAbClNO,myTAU5,
      6                      myIALBDX,myIalbdg,Wvla1,Albdo1,Nwal1,
      7                      myYEAR,mymonth,myDAY,myHOUR,FullSpectra)
@@ -71,7 +71,7 @@ Cf2py intent(in) myApNO,myApNO2,myApNO3,myApO3,myApSO2
 Cf2py intent(in) myqCO2,myALPHA1,myALPHA2,myOMEGL,myGG
 Cf2py intent(in) myTAU5,myIALBDX,myIalbdg
 Cf2py intent(in) myYEAR,mymonth,myDAY,myHOUR
-Cf2py intent(in) myAbO2,myAbO4,myAbBrO,myAbClNO
+Cf2py intent(in) myAbO2,myAbBrO,myAbClNO
       
       Double Precision TO3,TAUZ3,DIR,DIF0,DIF,GLOB,GLOBS,DIRH,FHTO,rocb
       Double Precision DIRS,DIFS,DIREXP,DIFEXP,DGRND,HT,DRAY,TH2O,TH2OP
@@ -86,7 +86,7 @@ Cf2py intent(in) myAbO2,myAbO4,myAbBrO,myAbClNO
       Double Precision Tmixd,TmixdP,Trace,TraceP,Phot,Rhor,Rhos,Roro,AO3
       Double Precision AmO2,AmCO2,tauo2,tauco2,taa,tas,tat
       Double Precision AmH2O,wAmw,wAmp,tauw,Bmw,Bmwp,ww02
-      Double Precision myAbO2,myAbO4,AbO2
+      Double Precision myAbO2,AbO2
       
       REAL myW,myApCH2O,myApCH4,myApCO,myApHNO2,myApHNO3
       REAL myApNO,myApNO2,myApNO3,myApO3,myApSO2,myqCO2
@@ -1809,11 +1809,11 @@ c
       if(nread.gt.1)goto 837
       AbCO2=.802685*qCO2*pp0
 cc      AbO2=1.67766E5*pp0    
-cc      AbO4=1.8171d4*NLosch*NLosch*(pp0**1.7984)/(TT0**.344)
+      AbO4=1.8171d4*NLosch*NLosch*(pp0**1.7984)/(TT0**.344)
 cc      AbBrO=2.5E-06
-cc FQ: varying O2, O4, and BrO concentrations
+cc FQ: varying O2, and BrO concentrations
       AbO2 = myAbO2
-      AbO4 = myAbO4
+cc      AbO4 = myAbO4
       AbBrO= myAbBrO
 cc FQ: below is to contain atmo in pollution
       AbNO3=.00005
