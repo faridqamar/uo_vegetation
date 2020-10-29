@@ -35,10 +35,21 @@ blds = cube.data[:,1015:1020,847:852].mean(axis=(1,2))
 #    plt.plot(cube.waves, cube.data[:,coord[0],coord[1]], lw=0.5)
 #plt.plot(cube.waves, blds, color='black')
 #plt.show()
+# -- cut last 255 entries from spectrum
+mywav = cube.waves[:-260]
+bld = blds[:-260]
+
+# -- Reading quantum efficiency and fixing building spectrum
+print("Reading quantum efficiency ...")
+qeff = pd.read_csv('./hsi1_qe.csv')
+int_qeff= interp1d(qeff['wavelength_nm'], qeff['quantum_efficiency'], fill_value="extrapolate")
+iqeff = np.array(int_qeff(mywav))
+print("Dividing spectrum by QE and multiplying by wavelength^2 ...")
+myblds = bld * mywav * mywav * 2e-10 / (iqeff/100)
 
 # -- multiplying mean building spectrum by wavelength
-print("Multiplying mean building spectrum by wavelength ...")
-nblds = blds*cube.waves/1e3
+#print("Multiplying mean building spectrum by wavelength ...")
+#nblds = blds*cube.waves/1e3
 #plt.plot(cube.waves, blds, label='raw spectrum')
 #plt.plot(cube.waves, nblds, label='spectrum*wavelength')
 #plt.legend()
@@ -46,29 +57,41 @@ nblds = blds*cube.waves/1e3
 
 # -- Setting initial parameter values
 print("Initializing parameters ...")
-a1 = 0.585
-b1 = 0.159
-c1 = 0.05
+#a1 = 0.2
+#b1 = 0.5
+#c1 = 0.7
 
-a2 = 0.71
-b2 = 0.17
-c2 = 0.055
+a2 = 0.58
+b2 = 0.03
+c2 = 0.03
 
-#a3 = 1.9
-#b3 = 0.111
-#c3 = 1.049
+a3 = 0.75
+b3 = 0.1
+c3 = 0.06
 
-a3 = 0.45
-b3 = 0.12
-c3 = 0.05
+#a1 = 0.45
+#b1 = 0.2
+#c1 = 0.15
 
-d  = 0.2
+#a2 = 0.55
+#b2 = 0.05
+#c2 = 0.07
+
+#a3 = 0.65
+#b3 = 0.03
+#c3 = 0.04
+
+#a4 = 0.78
+#b4 = 0.43
+#c4 = 0.1
+
+d  = 0.25
 
 TAIR = 15.5
-RH = 69.0
+RH = 30.0
 TDAY = 12.5
 
-W = 2.0
+W = 1.35
 # In units of atm-cm
 ApCH2O = 0.0007
 ApCH4 = 0.03
@@ -76,12 +99,12 @@ ApCO = 0.035
 ApHNO2 = 0.0002
 ApHNO3 = 0.0005
 ApNO = 0.02
-ApNO2 = 0.002
+ApNO2 = 0.006
 ApNO3 = 5e-6
 AbO3 = 0.33
 ApO3 = 0.0053
 ApSO2 = 0.005
-AbO2 = 165345.56372007157
+AbO2 = 85345.56372007157
 AbO4 = 1.2583656276449057e+43
 AbBrO = 2.5e-6
 AbClNO = 0.00012
@@ -91,10 +114,10 @@ qCO2 = 370.0
 #ALPHA2 = 1.3529
 #OMEGL = 0.8
 #GG = 0.7
-TAU5 = 0.084
+TAU5 = 1.6
     
-amp = 2000.0
-eps = 18.5
+amp = 1.0
+eps = 0.005
 
 #init_params = np.array([a1, b1, c1, a2, b2, c2, a3, b3, c3, a4, b4, c4, d,
 #                        W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3,
@@ -103,16 +126,16 @@ eps = 18.5
 #init_params = np.array([W, ApCH2O, ApCH4, ApCO, ApHNO2, ApHNO3, ApNO, ApNO2, 
 #                        ApNO3, AbO3, ApO3, ApSO2, qCO2, TAU5, amp, eps])
 #init_params = np.array([W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, TAU5, amp, eps])
-init_params = np.array([a1, b1, c1, a2, b2, c2, a3, b3, c3, d, RH,
+init_params = np.array([a2, b2, c2, a3, b3, c3, d, RH,
                         W, ApHNO2, ApNO2, ApNO3, AbO3, ApO3, ApSO2, 
                         AbO2, TAU5, eps])
 
 print("   initial parameters = ", init_params)
 
 
-# -- cut last 200 entries from spectrum
-mywav = cube.waves[:-200]
-myblds = nblds[:-200]
+# -- cut last 255 entries from spectrum
+#mywav = cube.waves[:-255]
+#myblds = nblds[:-255]
 
 
 # -- define log probability with global wavelengths and spectra arrays
@@ -132,9 +155,9 @@ def log_probability(theta):
 
 
 # -- Setting walkers, number of steps, and initial array
-nwalkers, ndim, nsteps = 200, init_params.shape[0], 200000
+nwalkers, ndim, nsteps = 200, init_params.shape[0], 150000
 #p0 = init_params * (np.random.rand(nwalkers, ndim)*2)
-p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/1000.)
+p0 = init_params * (1 + np.random.randn(nwalkers, ndim)/100.)
 
 # -- Perform MCMC
 print("Starting MCMC:")
@@ -143,14 +166,15 @@ print("   number of dimensions = ", ndim)
 print("   number of steps      = ", nsteps)
 start_time = time.time()
 
-filename = "MCMC_"+scan+"_O2.h5"
+filename = "MCMC_"+scan+"_O2_qel2_bi.h5"
 if os.path.isfile(filename):
     backend = emcee.backends.HDFBackend(filename)
     print("MCMC has already been ran to {0} iterations".format(backend.iteration))
     os.environ["OMP_NUM_THREADS"] = "1"
-    with Pool(15) as pool:
+    with Pool(25) as pool:
         sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability, 
-                                        moves=emcee.moves.StretchMove(), 
+#                                        moves = emcee.moves.StretchMove(), backend=backend, pool=pool)
+                                        moves=[(emcee.moves.DEMove(), 0.5), (emcee.moves.DESnookerMove(),0.5),], 
                                         backend=backend, pool=pool)
         nsteps = nsteps - backend.iteration
         sampler.run_mcmc(None, nsteps)
@@ -159,8 +183,9 @@ else:
     backend = emcee.backends.HDFBackend(filename)
     backend.reset(nwalkers, ndim)
     os.environ["OMP_NUM_THREADS"] = "1"
-    with Pool(15) as pool:
+    with Pool(25) as pool:
         sampler = emcee.EnsembleSampler(nwalkers, ndim, log_probability,
+#                                        moves = emcee.moves.StretchMove(), backend=backend, pool=pool)
                                         moves=[(emcee.moves.DEMove(), 0.5), (emcee.moves.DESnookerMove(),0.5),],
                                         backend=backend, pool=pool)
         sampler.run_mcmc(p0, nsteps)
@@ -189,8 +214,7 @@ fig, axes = plt.subplots(ndim, sharex=True, figsize=(8,40))
 #labels = ['H2O', 'ApCH2O', 'ApCH4', 'ApCO', 'ApHNO2', 'ApHNO3', 
 #          'ApNO', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'qCO2', 'TAU5', 'amp', 'eps']
 #labels = ['H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 'TAU5', 'amp', 'eps']
-labels = ['a1', 'b1', 'c1',
-          'a2', 'b2', 'c2',
+labels = ['a2', 'b2', 'c2', 
           'a3', 'b3', 'c3', 'd', 'RH',
           'H2O', 'ApHNO2', 'ApNO2', 'ApNO3', 'AbO3', 'ApO3', 'ApSO2', 
           'AbO2', 'TAU5', 'eps']
@@ -205,7 +229,7 @@ for i in range(ndim):
 
 axes[-1].set_xlabel("step number")
 fig.canvas.draw()
-fig.savefig("../output/MCMC_walkers_"+scan+"_O2.png", dpi=300)
+fig.savefig("../output/MCMC_walkers_"+scan+"_O2_qel2_bi.png", dpi=300)
 
 
 # -- Autocorrelation time, burn-in, and flattening

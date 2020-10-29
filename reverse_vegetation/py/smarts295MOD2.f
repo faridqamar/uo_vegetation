@@ -31,19 +31,19 @@ C***        Card 10b: Itilt=1 [1107]
 C***        Card 10c: TILT=90. [1171]
 C***                  WAZIM=180. [1172]
 C***        Card 11: WLMN=390 [1141]
-C***                 WLMX=870 [1142]
+C***                 WLMX=823 [1142]
 C***                 Suncor=1.0 [1143]
 C***                 SolarC=1366.10 [1144]
 C***        Card 12: IPRT=2 [1160]
 C***        Card 12a: WPMN=390 [1166]
-C***                  WPMX=900 [1167]
+C***                  WPMX=823 [1167]
 C***                  INTVL=0.5 [1168]
 C***        Card 12b: IOTOT=13 [1228]
 C***        Card 13: CIRC=0 [1254]
 C***        Card 14: ISCAN=1 [1291]
 C***        Card 14a: IFILT=1 [1300]
 C***                  WV1=395.46 [1301]
-C***                  WV2=858.69 [1302]
+C***                  WV2=817.99 [1302]
 C***                  step=0.72 [1303]
 C***                  FWHM=2.0 [1304]
 C***        Card 15: ILLUM=0 [1315]
@@ -60,7 +60,7 @@ c
      6                      myIALBDX,myIalbdg,Wvla1,Albdo1,Nwal1,
      7                      myYEAR,mymonth,myDAY,myHOUR,FullSpectra)
 
-      REAL FullSpectra(14,636)
+      REAL FullSpectra(14,444)
 Cf2py intent(in,out) FullSpectra
 Cf2py intent(in) Wvla1
 Cf2py intent(in) Albdo1
@@ -1238,7 +1238,7 @@ C***      CARD 11 - Modified in 2.9
 C
 cc      READ(14,*)WLMN,WLMX,Suncor,SolarC
       WLMN = 390.
-      WLMX = 870.
+      WLMX = 823.
       Suncor = 1.0
       SolarC = 1366.10
       
@@ -1258,7 +1258,7 @@ C***      CARD 12a if IPRT=1 TO 3 - Modified in 2.9
 C      
 cc      READ(14,*)WPMN,WPMX,INTVL
       WPMN = 390.
-      WPMX = 1015.
+      WPMX = 823.
       INTVL = 0.5
       
 cc      IF(INTVL.LT.0.5)WRITE(16,198)
@@ -1383,7 +1383,7 @@ C
 C***      CARD 14
 C
 cc      READ(14,*) ISCAN
-      ISCAN = 1
+      ISCAN = 0
 C
 C***      CARD 14a if ISCAN=1 - Modified in 2.9
 C
@@ -1392,7 +1392,7 @@ C
 cc      READ(14,*)IFILT,WV1,WV2,step,FWHM
       IFILT = 1
       WV1 = 395.46
-      WV2 =  858.69
+      WV2 =  817.99
       step = 0.72
       FWHM = 2.0
 cc      OPEN (UNIT=18,FILE=FileScn,STATUS='NEW')

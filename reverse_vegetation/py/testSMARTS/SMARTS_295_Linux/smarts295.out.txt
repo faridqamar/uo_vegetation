@@ -1,0 +1,138 @@
+
+******************   SMARTS, version 2.9.5   *******************
+
+ Simple Model of the Atmospheric Radiative Transfer of Sunshine
+     Chris A. Gueymard, Solar Consulting Services
+                    December 2005
+
+    This model is documented in FSEC Report PF-270-95
+ and in a Solar Energy paper, vol. 71, No.5, 325-346 (2001)
+
+ NOTE: These references describe v. 2.8 or earlier!!!
+ See the User's Manual for details on the considerable 
+ changes that followed...
+
+****************************************************************
+
+   Reference for this run: Single_spectrum_example_to_test                                 
+
+----------------------------------------------------------------
+
+* ATMOSPHERE : MLS         AEROSOL TYPE: S&F_URBAN                                                       
+
+* INPUTS:
+     Pressure (mb) =  998.286   Ground Altitude (km) =   0.0115
+     Height above ground (km) =   0.1220
+     Relative Humidity (%) = 74.824   Precipitable Water (cm) =  2.7530
+     Ozone (atm-cm) = 0.3316 or 331.6 Dobson Units
+   AEROSOLS:  Optical Depth at 500 nm = 0.0840      Optical depth at 550 nm = 0.0738
+       Angstrom's Beta = 0.0329       Schuepp's B = 0.0365
+     Meteorological Range (km) =  130.2   Visibility (km) =   99.7
+     Alpha1 = 0.9111  Alpha2 = 1.3529   Mean Angstrom's Alpha = 1.1320
+     Season = SPRING/SUMMER           
+
+* TEMPERATURES:
+     Instantaneous at site's altitude = 293.5 K
+     Daily average (reference) at site's altitude = 293.5 K
+     Stratospheric Ozone and NO2 (effective) = 231.9 K
+
+
+The following spectral variables will be output to file: smarts295.ext.txt       
+
+ * Extraterrestrial_spectrm
+ * Direct_normal_irradiance
+ * Difuse_horizn_irradiance
+ * Global_horizn_irradiance
+ * Direct_horizn_irradiance
+ * Direct_tilted_irradiance
+ * Difuse_tilted_irradiance
+ * Global_tilted_irradiance
+ * Difuse_horiz-circumsolar
+ * Global_tilt_reflectd_rad
+ * Upward_reflctd_radiation
+
+
+      Spectral ZONAL albedo data: CONCRETE                
+      with a reflection process: NON_LAMBERTIAN          
+
+
+
+
+      Spectral LOCAL albedo data: CONCRETE                
+      with a reflection process: NON_LAMBERTIAN          
+
+
+
+====================================================================================================
+====================================================================================================
+
+* SOLAR POSITION (deg.):
+    Zenith Angle (apparent) = 36.779  Azimuth (from North) =  238.43
+
+      RELATIVE OPTICAL MASSES:
+  - Rayleigh =  1.248
+  - Water Vapor =  1.248
+  - Ozone =  1.247
+  - NO2 =  1.248
+  - Aerosols =  1.248
+
+  Results below are for this specific day:
+ Year = 2016   Month =  5  Day =  5   Hour (LST) = 14.020   Day of Year = 126
+   In Universal Time:
+   Day (UT) =  5   Hour (UT) = 19.020
+   Julian Day =  2457514.250  Declination =  16.526 deg.  Radius vector = 1.00877   Equation of Time (min) =   3.384
+   Local Apparent Time (or Solar Time):  14.144
+
+
+
+ CO2 Mixing Ratio (ppmv):  370.0
+
+
+
+ Total column abundances (atm-cm) for all gases except H2O, and for normal/standard conditions:
+
+    BrO       CH2O        CH4      ClNO3         CO        CO2       HNO2       HNO3        NH3
+
+0.2500E-05 0.3000E-03 0.1255E+01 0.1200E-03 0.8584E-01 0.2927E+03 0.1000E-03 0.3834E-03 0.1655E-03
+
+
+     NO        NO2        NO3         N2        N2O         O2         O3         O4        SO2
+
+0.3197E-03 0.2182E-03 0.5000E-04 0.3610E+06 0.2357E+00 0.1653E+06 0.3316E+00 0.1653E+06 0.1050E-03
+
+
+
+
+* ANGLES (deg.) FOR TILTED SURFACE CALCULATIONS: 
+   Surface Tilt =  90.000   Surface Azimuth (from North) = 180.000
+   Incidence Angle =  71.732
+
+  Diffuse irradiance ratios (tilted plane/horizontal):
+      0.5000  (isotropic approximate conversion--for reference)
+      0.6112  (anisotropic conversion model--used here)
+
+
+
+*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
+
+** SPECTRUM:
+   Total (0-100 \B5m) Extraterrestrial Irradiance used here = 1342.45 W/m2
+  (i.e., 0.9827 times the selected solar constant, 1366.10 W/m2, due to the actual Sun-Earth distance.)
+   Source for selected solar spectrum: Gueymard_2004                                                   
+
+
+Wavelength Range =  390.0 to 1015.0 nm;  Number of Wavelengths =   636
+
+*** BROADBAND IRRADIANCES (W/m2):
+
+* DIRECT BEAM AT NORMAL INCIDENCE:
+  Extraterrestrial =  850.73   Terrestrial =  642.50   Atmospheric Transmittance = 0.7552
+
+* FOR THE HORIZONTAL PLANE:
+  Direct Beam =  514.61   Diffuse =  74.14   Global =  588.74   Clearness index, KT = 0.4386
+  Diffuse irradiance origination details:
+   Sky diffuse =  59.51   Back-scattered diffuse =  14.63
+
+* FOR THE TILTED PLANE: 
+  Direct Beam =  201.39   Sky Diffuse = 137.77   Ground Reflected =  98.99   Global =  339.16
+

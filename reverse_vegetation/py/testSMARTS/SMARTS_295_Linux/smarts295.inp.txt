@@ -1,0 +1,29 @@
+'Single_spectrum_example_to_test'		  	!Card 1 Comment
+2											!Card 2 ISPR
+40.69442 0.011458 0.122						!Card 2a Latitude, Altitude, Height
+1											!Card 3 IATMOS
+'MLS'										!Card 3a Atmos
+1											!Card 4 IH2O
+1											!Card 5 IO3
+1											!Card 6 IGAS
+370.0										!Card 7 CO2 amount (ppm)
+0											!Card 7a ISPCTR
+'S&F_URBAN'									!Card 8 Aeros (aerosol model)
+0											!Card 9 ITURB
+0.084										!Card 9a Turbidity coeff. (TAU5)
+18											!Card 10 IALBDX Concrete Slab
+1											!Card 10b ITILT
+18 90. 180.									!Card 10c Tilt variables (IALBDG, receiver's tilt & azimuth)
+390 1015 1.0 1366.10						!Card 11 Min & max wavelengths; sun-earth distance correction; solar constant
+2											!Card 12 IPRT
+390 1015 .5									!Card12a Min & max wavelengths to be printed; ideal printing step size
+11											!Card12b Number of Variables to Print
+1 2 3 4 5 6 7 8 10 33 34					!Card12c Variable codes
+0											!Card 13 ICIRC
+1											!Card 14 ISCAN
+1 395 1008 0.75 2.							!Card 14a Gaussian filter shape, min & max wavelength, step, FWHM
+0											!Card 15 ILLUM
+0											!Card 16 IUV
+3											!Card 17 IMASS
+2016 5 5 14.02 40.69442 -73.98615 -5		!Card 17a year, month, day, LST hour, latitude, longitude, time zone
+
