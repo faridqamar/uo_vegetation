@@ -244,29 +244,29 @@ else:
 #    plt.rcParams["font.size"]       = 60
 #    plt.rcParams["xtick.labelsize"] = 16
 #    plt.rcParams["ytick.labelsize"] = 16
-#    f, ax = plt.subplots(ndim, ndim, figsize=((ndim)*2,(ndim)*2))   
-#    fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), 
-#                        color='black', max_n_ticks=3, fig=f)
-#    f.canvas.draw()
-#    f.savefig("../output/MCMC_Corner_"+scan+"_O2_full_qel2_bi.png", dpi=300, bbox_inches='tight')
+    f, ax = plt.subplots(ndim, ndim, figsize=((ndim)*2,(ndim)*2))   
+    fig = corner.corner(flat_samples, labels=labels, truths=np.median(flat_samples, axis=0), 
+                        color='black', max_n_ticks=3, fig=f)
+    f.canvas.draw()
+    f.savefig("../output/MCMC_Corner_"+scan+"_O2_full_qel2_bi.png", dpi=300, bbox_inches='tight')
 
-    plt.rcParams["axes.labelcolor"] = "k"
-    plt.rcParams["lines.linewidth"] = 3
-    plt.rcParams["text.color"]      = "k"
-    plt.rcParams["font.size"]       = 28
-    plt.rcParams["xtick.labelsize"] = 12
-    plt.rcParams["ytick.labelsize"] = 12
-    plt.rcParams["axes.formatter.limits"] = [-2,2] 
-    plt.rcParams["axes.labelpad"] = 16
+#    plt.rcParams["axes.labelcolor"] = "k"
+#    plt.rcParams["lines.linewidth"] = 3
+#    plt.rcParams["text.color"]      = "k"
+#    plt.rcParams["font.size"]       = 28
+#    plt.rcParams["xtick.labelsize"] = 12
+#    plt.rcParams["ytick.labelsize"] = 12
+#    plt.rcParams["axes.formatter.limits"] = [-2,2] 
+#    plt.rcParams["axes.labelpad"] = 16
 
     # -- Albedo Corner Plot
-    print("")
-    print("Plotting Albedo Corner Plot ...")
-    f, ax = plt.subplots(7, 7, figsize=((7)*2,(7)*2))
-    fig = corner.corner(flat_samples[:,:7], labels=labels[:7], truths=np.median(flat_samples[:,:7], axis=0), 
-                        color='black', max_n_ticks=3, reverse=True, fig=f)
-    f.canvas.draw()
-    f.savefig("../output/MCMC_Corner_"+scan+"_O2_Albedo_reverse.png", dpi=300, bbox_inches='tight')
+#    print("")
+#    print("Plotting Albedo Corner Plot ...")
+#    f, ax = plt.subplots(7, 7, figsize=((7)*2,(7)*2))
+#    fig = corner.corner(flat_samples[:,:7], labels=labels[:7], truths=np.median(flat_samples[:,:7], axis=0), 
+#                        color='black', max_n_ticks=3, reverse=True, fig=f)
+#    f.canvas.draw()
+#    f.savefig("../output/MCMC_Corner_"+scan+"_O2_Albedo_reverse.png", dpi=300, bbox_inches='tight')
 
 #    plt.rcParams["axes.labelcolor"] = "k"
 #    plt.rcParams["lines.linewidth"] = 3
@@ -287,34 +287,34 @@ else:
 #    f.savefig("../output/MCMC_Corner_"+scan+"_O2_Atmo.png", dpi=300, bbox_inches='tight')
 
     
-#    amp = 1.0
-#    # -- Plot a sample of the MCMC solutions
-#    print("Plotting MCMC Sample Solutions ...")
-#    fig, ax = plt.subplots(figsize=(10,6))
-#    inds = np.random.randint(len(flat_samples), size=1000)
-#    for ind in inds:
-#        sample = flat_samples[ind]
-#        #smrtwav, smrtmod = modelFunc(scan, *sample[:-2])
-#        #maxmod = mc.interpModel(mywav, sample[-2], smrtwav, smrtmod)
-#        smrtwav, smrtmod = modelFunc(scan, *sample[:-1])
-#        maxmod = mc.interpModel(mywav, amp, smrtwav, smrtmod)
-#        linm, = ax.plot(mywav[:-33], maxmod[:-33], color='dodgerblue', lw=1, alpha=0.05)
-#    linb, = ax.plot(mywav[:-33], myblds[:-33], color='darkred')
-#    ax.set_xlabel('wavelength [nm]')
-#    ax.legend([linb, linm], ['data', 'model'])
-#    fig.savefig("../output/MCMC_models_"+scan+"_O2_qel2_bi.png", dpi=300)
+    amp = 1.0
+    # -- Plot a sample of the MCMC solutions
+    print("Plotting MCMC Sample Solutions ...")
+    fig, ax = plt.subplots(figsize=(10,6))
+    inds = np.random.randint(len(flat_samples), size=1000)
+    for ind in inds:
+        sample = flat_samples[ind]
+        #smrtwav, smrtmod = modelFunc(scan, *sample[:-2])
+        #maxmod = mc.interpModel(mywav, sample[-2], smrtwav, smrtmod)
+        smrtwav, smrtmod = modelFunc(scan, *sample[:-1])
+        maxmod = mc.interpModel(mywav, amp, smrtwav, smrtmod)
+        linm, = ax.plot(mywav[:-33], maxmod[:-33], color='dodgerblue', lw=1, alpha=0.05)
+    linb, = ax.plot(mywav[:-33], myblds[:-33], color='darkred')
+    ax.set_xlabel('wavelength [nm]')
+    ax.legend([linb, linm], ['data', 'model'])
+    fig.savefig("../output/MCMC_models_"+scan+"_O2_qel2_bi.png", dpi=300)
     
 
-#    print("Plotting MCMC Albedo Solutions ...")
-#    fig, ax = plt.subplots(figsize=(10,6))
-#    inds = np.random.randint(len(flat_samples), size=1000)
-#    for ind in inds:
-#        sample = flat_samples[ind]
-#        albedo = mc.albedoFunc(mywav/1000., *sample[:7])
-#        linm, = ax.plot(mywav[:-33], albedo[:-33], color='dodgerblue', lw=2, alpha=0.05)
-#    ax.set_xlabel('wavelength [nm]')
-##    ax.set_ylim(-0.1,0.6)
-#    fig.savefig("../output/MCMC_albedo_"+scan+"_O2_qel2_bi.png", dpi=300)
+    print("Plotting MCMC Albedo Solutions ...")
+    fig, ax = plt.subplots(figsize=(10,6))
+    inds = np.random.randint(len(flat_samples), size=1000)
+    for ind in inds:
+        sample = flat_samples[ind]
+        albedo = mc.albedoFunc(mywav/1000., *sample[:7])
+        linm, = ax.plot(mywav[:-33], albedo[:-33], color='dodgerblue', lw=2, alpha=0.05)
+    ax.set_xlabel('wavelength [nm]')
+#    ax.set_ylim(-0.1,0.6)
+    fig.savefig("../output/MCMC_albedo_"+scan+"_O2_qel2_bi.png", dpi=300)
     
 
 
